@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import {ChangeEvent,useMemo,useState} from 'react';
-import {classifyRc1Evidence,evaluateRc1Evidence,type Rc1EvidenceLedgerReport} from './evidence-ledger.mjs';
+import {classifyRc1Evidence,evaluateRc1Evidence} from './evidence-ledger.mjs';
 import styles from '../../oraculum.module.css';
 
 type ImportedRecord={id:string;fileName:string;data:unknown;classification:ReturnType<typeof classifyRc1Evidence>};
