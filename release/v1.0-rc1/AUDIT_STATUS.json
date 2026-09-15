@@ -30,19 +30,19 @@
     {"id":"productionHardeningRuntime","status":"PENDING","level":"NOT_BUILD_VERIFIED","reason":"deployed headers/log-retention/build behavior still requires a real deployment/runtime"},
     {"id":"ciTypecheckBuild","status":"BLOCKED","level":"CONFIGURED","reason":"GitHub Issue #6: validate jobs terminate with steps=null before command execution"},
     {"id":"markdownManual","status":"PASS","level":"IMPLEMENTED","artifact":"docs/MANUAL_V1_RC1.md"},
-    {"id":"docxPdfManual","status":"PENDING","level":"NOT_RECONCILED","reason":"visual artifacts have not yet been regenerated against RC1"},
+    {"id":"docxPdfManual","status":"PASS","level":"VISUALLY_QA_D","artifact":"release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json","reason":"36-page DOCX/PDF RC1 artifacts regenerated and visually verified; exact artifact hashes recorded"},
     {"id":"humanPromotion","status":"PENDING","level":"NOT_APPROVED","reason":"explicit V1.0 promotion approval not given"}
   ],
   "blockers": [
     "CI/typecheck/build execution unavailable because GitHub Actions jobs terminate before steps",
     "required real physical/device/cross-device evidence not yet recorded",
     "deployed production headers/log-retention behavior not yet runtime-verified",
-    "DOCX/PDF final manual not yet reconciled",
     "human V1.0 promotion approval pending"
   ],
   "sourceDocuments": [
     "docs/MANUAL_V1_RC1.md",
     "docs/RC1_PRODUCTION_HARDENING.md",
+    "release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json",
     "release/v1.0-rc1/RELEASE_AUDIT_REPORT.md",
     "release/v1.0-rc1/RELEASE_CHECKLIST.md",
     "release/v1.0-rc1/RELEASE_MANIFEST.json",
