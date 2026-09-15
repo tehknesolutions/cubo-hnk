@@ -65,6 +65,8 @@ API:
 
 O self-test executa no runtime Node os vetores congelados de RAW, interpretação, V0.8, V0.9, V0.10 e HNK40. Um PASS é evidência suplementar de consistência do runtime; não substitui CI, typecheck, build de produção ou QA físico.
 
+A tela também exporta `HOC-RC1-RUNTIME-QA-EVIDENCE/V1` para uso no Release Evidence Ledger.
+
 Documentação:
 
 `docs/RC1_RUNTIME_SELFTEST.md`
@@ -106,6 +108,26 @@ Documentação:
 
 `docs/RC1_CAMERA_QA.md`
 
+## Release Evidence Ledger
+
+Painel:
+
+`/oraculum/qa/evidence`
+
+Protocolo de agregação:
+
+`HOC-RC1-EVIDENCE-LEDGER/V1`
+
+O ledger importa localmente evidências JSON de runtime, Physical QA, Camera/Device QA e verificações de manifesto. Ele apresenta cada gate como `PASS`, `PENDING` ou `BLOCKED` e pode exportar um pacote consolidado `HOC-RC1-RELEASE-EVIDENCE-LEDGER/V1`.
+
+Cross-device só recebe PASS quando o mesmo `sessionId` e checksum V0.10 forem verificados em pelo menos dois labels humanos de dispositivo diferentes. Os labels são declarações de QA e não fingerprints criptográficos de hardware.
+
+O gate de CI/build permanece `BLOCKED` enquanto a Issue #6 continuar encerrando jobs do GitHub Actions com `steps=null`. Evidência local não pode promover esse gate.
+
+Documentação:
+
+`docs/RC1_EVIDENCE_LEDGER.md`
+
 ## Verificação de manifesto
 
 Interface:
@@ -127,6 +149,8 @@ Cada manifesto válido possui:
 - RAW seed preservado;
 - auditoria física V0.8/V0.9;
 - outputs, provenance, sigilo, interpretação e Malkuth.
+
+Após uma verificação, a interface pode exportar `HOC-RC1-MANIFEST-VERIFY-EVIDENCE/V1` com `sessionId`, checksum e label humano do dispositivo, sem incluir o corpo do manifesto.
 
 ## Comandos RC1
 
