@@ -1,0 +1,45 @@
+{
+  "releaseId": "HOC-V1.0-RC1",
+  "vectors": {
+    "stateGolden": {
+      "intent": "Qual padrão precisa se manifestar?",
+      "mode": "STATE",
+      "cubeState": "000000000111111111222222222333333333444444444555555555",
+      "moves": null,
+      "oracleCommit": "HNK-ORACULUM-CUBE/V0.4|STATE|Qual padrão precisa se manifestar?|000000000111111111222222222333333333444444444555555555|NULL",
+      "seed256": "df6bcd1bfd58288fb8f7d7e0f22b69d7e305a24429ba4445c242efc000e3b6fc",
+      "expected": {
+        "path32": 24,
+        "hnkGlyphId": "G39",
+        "tarotCardIndex": 71,
+        "zodiac": "SAGITTARIUS",
+        "planet": "MARS",
+        "element": "AIR",
+        "alchemyPrinciple": "SALT",
+        "alchemyPhase": "CITRINITAS",
+        "numerologyRaw": 194,
+        "essenceColor": "#447DC7",
+        "shadowColor": "#BB8238",
+        "manifestationColor": "#7DC744",
+        "ichingPrimaryKingWen": 30,
+        "movingLines": [1, 3, 4],
+        "ichingResultingKingWen": 23,
+        "dominantIndependentConvergence": "ELEMENT:FIRE"
+      }
+    },
+    "ritualIntegrityGolden": {
+      "protocol": "HOC-RITUAL-INTEGRITY/V0.9",
+      "initialCubeState": "000000000111111111222222222333333333444444444555555555",
+      "moves": ["U","R","F","D","L","B","U'","R'","F2","D2","L2","B2","U2","R2","F'","D'","L'","B'","U","F","R","B","L","D","U'","F'","R'","B'","L'","D'","U2","F2"],
+      "expectedFinalState": "513004512451013254000425014533433235324540121221251340",
+      "expectedMoveCount": 32,
+      "expectedIntegrityConfirmed": true
+    },
+    "manifestSyntheticGolden": {
+      "protocol": "HOC-SESSION-MANIFEST/V0.10",
+      "canonicalJson": "HOC-CANONICAL-JSON/V1",
+      "checksum": "e8510e6f8eb299ef57ecc2481d7ac5e3e4b0dd754284c2c5728d48febbb60041",
+      "sessionId": "HOC-E8510E6F8EB299EF57ECC248"
+    }
+  }
+}
