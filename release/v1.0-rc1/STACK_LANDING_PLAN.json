@@ -25,7 +25,8 @@
     {"order":15,"pr":16,"base":"feat/v1-rc1-independent-ledger","head":"docs/v1-rc1-stack-landing","role":"stack landing governance V1"},
     {"order":16,"pr":17,"base":"docs/v1-rc1-stack-landing","head":"feat/v1-rc1-deployment-verification","role":"deployment runtime verification runner"},
     {"order":17,"pr":18,"base":"feat/v1-rc1-deployment-verification","head":"feat/v1-rc1-deployment-ledger","role":"deployment runtime evidence integration"},
-    {"order":18,"pr":19,"base":"feat/v1-rc1-deployment-ledger","head":"infra/actions-runner-diagnostic","role":"zero-dependency Actions runner diagnostic and support packet"}
+    {"order":18,"pr":19,"base":"feat/v1-rc1-deployment-ledger","head":"infra/actions-runner-diagnostic","role":"zero-dependency Actions runner diagnostic and support packet"},
+    {"order":19,"pr":20,"base":"infra/actions-runner-diagnostic","head":"docs/v1-rc1-stack-landing-v2","role":"landing topology V2 reconciliation"}
   ],
   "knownMissingPrNumber": {
     "number": 6,
