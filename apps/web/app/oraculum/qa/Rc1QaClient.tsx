@@ -37,6 +37,24 @@ export function Rc1QaClient(){
     }
   }
 
+  function downloadEvidence(){
+    if(!report)return;
+    const evidence={
+      evidenceKind:'HOC-RC1-RUNTIME-QA-EVIDENCE/V1',
+      exportedAt:new Date().toISOString(),
+      releaseId:report.releaseId,
+      report,
+      note:'Runtime QA evidence only. Does not replace repository CI, typecheck, production build, physical QA or human promotion approval.',
+    };
+    const blob=new Blob([JSON.stringify(evidence,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const anchor=document.createElement('a');
+    anchor.href=url;
+    anchor.download=`HOC-RC1-RUNTIME-QA-${report.passed?'PASS':'FAIL'}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
   useEffect(()=>{void run();},[]);
 
   return <main className={styles.shell}>
@@ -45,7 +63,7 @@ export function Rc1QaClient(){
         <p className={styles.kicker}>HOC V1.0 RC1 · QA HUB</p>
         <h1>Validação da Release Candidate</h1>
         <p>Execute o self-test do runtime e navegue pelos gates que exigem evidência física e de dispositivo. Nenhum painel substitui CI, build ou promoção humana.</p>
-        <p><Link href="/oraculum">← voltar ao Oraculum</Link> · <Link href="/oraculum/verify">verificar manifesto →</Link></p>
+        <p><Link href="/oraculum">← voltar ao Oraculum</Link> · <Link href="/oraculum/qa/evidence">Evidence Ledger</Link> · <Link href="/oraculum/verify">verificar manifesto →</Link></p>
       </div>
       <div className={styles.badge}>{report?.passed?'RC1 SELF-TEST PASS':'RC1 QA'}</div>
     </header>
@@ -56,6 +74,7 @@ export function Rc1QaClient(){
         <article className={styles.resultCard}><small>Runtime</small><strong><Link href="/oraculum/qa">Self-test RC1</Link></strong><p>Vetores e protocolos congelados no runtime Node.</p></article>
         <article className={styles.resultCard}><small>Physical</small><strong><Link href="/oraculum/qa/physical">Cubo real</Link></strong><p>STATE resolvido + RITUAL_32 oficial.</p></article>
         <article className={styles.resultCard}><small>Camera / Device</small><strong><Link href="/oraculum/qa/camera">Dispositivo real</Link></strong><p>Câmera, seis faces, confiança e checklist end-to-end.</p></article>
+        <article className={styles.resultCard}><small>Evidence</small><strong><Link href="/oraculum/qa/evidence">Release Evidence Ledger</Link></strong><p>Agrega os JSONs e mostra PASS / PENDING / BLOCKED.</p></article>
         <article className={styles.resultCard}><small>Manifest</small><strong><Link href="/oraculum/verify">Verificador V0.10</Link></strong><p>Recalcula a integridade de um manifesto exportado.</p></article>
       </div>
     </section>
@@ -64,6 +83,7 @@ export function Rc1QaClient(){
       <h2>Runtime self-test</h2>
       <div className={styles.inlineActions}>
         <button type="button" onClick={run} disabled={busy}>{busy?'Executando…':'Executar novamente'}</button>
+        <button type="button" onClick={downloadEvidence} disabled={!report}>Baixar evidência JSON</button>
       </div>
       {error&&<p className={styles.error}>{error}</p>}
       {!report&&busy&&<p>Validando protocolos e vetores oficiais…</p>}
