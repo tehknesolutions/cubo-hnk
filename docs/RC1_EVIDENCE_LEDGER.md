@@ -13,6 +13,7 @@ O ledger não altera nenhum protocolo oracular e não promove automaticamente a 
 Reunir, numa mesma matriz, evidências geradas pelos fluxos de QA da RC1:
 
 - runtime self-test;
+- independent executor validation;
 - physical QA STATE;
 - physical QA RITUAL_32;
 - camera/device QA;
@@ -42,6 +43,26 @@ PASS exige:
 
 - release `HOC-V1.0-RC1`;
 - `report.passed === true`.
+
+### Independent executor
+
+`HOC-RC1-INDEPENDENT-VALIDATION-EVIDENCE/V1`
+
+Gerada por:
+
+`pnpm validate:rc1:independent`
+
+PASS exige simultaneamente:
+
+- release `HOC-V1.0-RC1`;
+- `passed === true`;
+- `authority === INDEPENDENT_EXECUTOR_EVIDENCE_NOT_GITHUB_CI`;
+- `summary.failedCommands === 0`;
+- `governance.replacesGitHubCI === false`;
+- `governance.promotesStable === false`;
+- `governance.promotesHnkCanon === false`.
+
+Esse gate prova execução real naquele executor quando o artefato foi produzido, mas **não transforma GitHub CI em PASS**.
 
 ### Physical QA
 
@@ -78,24 +99,7 @@ PASS exige simultaneamente:
 
 Exportada em `/oraculum/verify` após o servidor recalcular o manifesto V0.10.
 
-A evidência contém apenas:
-
-- resultado válido/inválido;
-- versão do manifesto;
-- `sessionId`;
-- checksum SHA-256;
-- label humano do dispositivo;
-- secure context, viewport e user-agent;
-- timestamp de exportação.
-
-Não contém o corpo do manifesto.
-
-Não contém:
-
-- imagem;
-- `deviceId`;
-- geolocalização;
-- fingerprint de hardware.
+A evidência contém apenas resultado, versão do manifesto, `sessionId`, checksum SHA-256, label humano do dispositivo, contexto básico do navegador e timestamp. Não contém o corpo do manifesto, imagem, `deviceId`, geolocalização ou fingerprint de hardware.
 
 ## Gate cross-device
 
@@ -105,38 +109,41 @@ O gate só recebe PASS quando há pelo menos duas evidências válidas de verifi
 2. mesmo checksum SHA-256;
 3. labels humanos de dispositivo diferentes.
 
-Exemplo:
-
-- `Desktop Edge`;
-- `Android Chrome`.
-
 O label é uma declaração operacional humana, não uma identidade criptográfica do hardware.
 
-Duas evidências com o mesmo label não contam como cross-device.
+## Independent executor versus GitHub CI
 
-Duas evidências com checksums diferentes não contam como cross-device.
+Esses gates são deliberadamente distintos.
 
-## CI / build
+Um Independent Executor PASS pode demonstrar:
 
-Na criação deste protocolo, o gate permanece:
+- instalação real;
+- testes reais;
+- typecheck real;
+- `pnpm check` real;
+- build Next.js real;
+- Runtime Self-Test real.
+
+Mesmo assim, enquanto a Issue #6 continuar produzindo jobs com `steps=null`, o gate:
+
+`GitHub CI / typecheck / build`
+
+permanece:
 
 `BLOCKED`
 
-Motivo:
+O ledger nunca usa evidência local/independente para promover silenciosamente o CI oficial.
 
-GitHub Issue #6 — os jobs do Actions estão terminando com `steps=null` antes de checkout, instalação, testes ou build.
+## Gates fixos refletidos pelo ledger
 
-Nenhuma evidência local pode promover esse gate para PASS.
+O estado atual também registra:
 
-Quando a infraestrutura for resolvida, esta camada deverá ser revisada com um contrato específico de evidência executada de CI/build.
+- Production hardening source: `PASS`;
+- Manual Markdown + DOCX/PDF final: `PASS`;
+- Aprovação humana V1.0: `PENDING`;
+- GitHub CI: `BLOCKED` enquanto Issue #6 persistir.
 
-## Gates finais
-
-Mesmo com todas as evidências de runtime, físico, câmera e cross-device em PASS, continuam independentes:
-
-- manual DOCX/PDF final reconciliado;
-- CI/typecheck/build real;
-- decisão humana explícita de promoção RC1 → V1.0.
+Esses estados não dependem da quantidade de arquivos importados.
 
 ## Artifact consolidado
 
@@ -144,18 +151,9 @@ A tela pode exportar:
 
 `HOC-RC1-RELEASE-EVIDENCE-LEDGER/V1`
 
-Esse JSON inclui:
+Esse JSON inclui relatório de gates, lista dos arquivos importados, classificações e evidências originais importadas.
 
-- relatório de gates;
-- lista dos arquivos importados;
-- classificações;
-- evidências originais importadas.
-
-Ele é um pacote de auditoria operacional.
-
-Ele **não é assinatura criptográfica da release**.
-
-A autenticação criptográfica continua limitada ao Session Manifest V0.10 e ao SHA-256 de seus dados canônicos.
+Ele é um pacote de auditoria operacional e **não é assinatura criptográfica da release**. A autenticação criptográfica continua limitada ao Session Manifest V0.10 e ao SHA-256 de seus dados canônicos.
 
 ## Governança
 
@@ -169,4 +167,4 @@ O Evidence Ledger não altera:
 - HNK40;
 - vetores congelados da RC1.
 
-O ledger existe somente para evidência de promoção de release.
+O ledger existe somente para organizar evidência de promoção de release.
