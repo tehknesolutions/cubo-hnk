@@ -6,6 +6,7 @@
   "scripts": {
     "test": "pnpm --recursive test",
     "typecheck": "pnpm --recursive typecheck",
-    "check": "pnpm test && pnpm typecheck"
+    "check": "pnpm test && pnpm typecheck",
+    "bundle:rc1": "node scripts/build-rc1-qa-bundle.mjs"
   }
 }
