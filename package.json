@@ -1,0 +1,11 @@
+{
+  "name": "cubo-hnk",
+  "version": "0.1.0-candidate",
+  "private": true,
+  "packageManager": "pnpm@10.17.1",
+  "scripts": {
+    "test": "pnpm --recursive test",
+    "typecheck": "pnpm --recursive typecheck",
+    "check": "pnpm test && pnpm typecheck"
+  }
+}
