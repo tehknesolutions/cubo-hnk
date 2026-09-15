@@ -42,15 +42,26 @@ export function Rc1QaClient(){
   return <main className={styles.shell}>
     <header className={styles.hero}>
       <div>
-        <p className={styles.kicker}>HOC V1.0 RC1 · RUNTIME QA</p>
-        <h1>Self-Test da Release Candidate</h1>
-        <p>Executa os vetores congelados diretamente no runtime Node da aplicação. É evidência suplementar; não substitui CI, build de produção nem QA com cubo físico.</p>
+        <p className={styles.kicker}>HOC V1.0 RC1 · QA HUB</p>
+        <h1>Validação da Release Candidate</h1>
+        <p>Execute o self-test do runtime e navegue pelos gates que exigem evidência física e de dispositivo. Nenhum painel substitui CI, build ou promoção humana.</p>
         <p><Link href="/oraculum">← voltar ao Oraculum</Link> · <Link href="/oraculum/verify">verificar manifesto →</Link></p>
       </div>
-      <div className={styles.badge}>{report?.passed?'RC1 SELF-TEST PASS':'RC1 SELF-TEST'}</div>
+      <div className={styles.badge}>{report?.passed?'RC1 SELF-TEST PASS':'RC1 QA'}</div>
     </header>
 
     <section className={styles.card}>
+      <h2>Trilhas de QA</h2>
+      <div className={styles.resultGrid}>
+        <article className={styles.resultCard}><small>Runtime</small><strong><Link href="/oraculum/qa">Self-test RC1</Link></strong><p>Vetores e protocolos congelados no runtime Node.</p></article>
+        <article className={styles.resultCard}><small>Physical</small><strong><Link href="/oraculum/qa/physical">Cubo real</Link></strong><p>STATE resolvido + RITUAL_32 oficial.</p></article>
+        <article className={styles.resultCard}><small>Camera / Device</small><strong><Link href="/oraculum/qa/camera">Dispositivo real</Link></strong><p>Câmera, seis faces, confiança e checklist end-to-end.</p></article>
+        <article className={styles.resultCard}><small>Manifest</small><strong><Link href="/oraculum/verify">Verificador V0.10</Link></strong><p>Recalcula a integridade de um manifesto exportado.</p></article>
+      </div>
+    </section>
+
+    <section className={styles.card}>
+      <h2>Runtime self-test</h2>
       <div className={styles.inlineActions}>
         <button type="button" onClick={run} disabled={busy}>{busy?'Executando…':'Executar novamente'}</button>
       </div>
@@ -86,8 +97,8 @@ export function Rc1QaClient(){
     </section>}
 
     <section className={styles.card}>
-      <h2>O que este painel não prova</h2>
-      <p>Um PASS aqui prova consistência dos vetores dentro do runtime carregado. Ainda são gates separados: instalação limpa, TypeScript, build Next.js, execução em dispositivo, câmera, cubo físico STATE, RITUAL_32 real e validação cross-device do manifesto.</p>
+      <h2>O que este hub não prova</h2>
+      <p>Um PASS de runtime prova consistência dos vetores dentro do runtime carregado. Ainda são gates separados: instalação limpa, TypeScript, build Next.js, execução em dispositivo, câmera, cubo físico STATE, RITUAL_32 real e validação cross-device do manifesto.</p>
     </section>
   </main>;
 }
