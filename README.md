@@ -12,11 +12,12 @@ Repositório dedicado ao **HNK Oraculum Cube (HOC)**: protocolo computacional e 
 - captura assistida por câmera com revisão humana obrigatória;
 - validação mecânica de estados 3×3 (`HOC-CUBE-LEGALITY/V0.8`);
 - prova procedural do modo `RITUAL_32` (`HOC-RITUAL-INTEGRITY/V0.9`);
+- manifesto determinístico e verificável de sessão (`HOC-SESSION-MANIFEST/V0.10`);
 - documentação operacional e governança.
 
 ## Pipeline
 
-`CUBO REAL → HOC-FACELET-SCAN-V1 → LEGALITY V0.8 → RITUAL V0.9 (quando aplicável) → RAW V0.4 → INTERPRETATION V0.5 → MALKUTH`
+`CUBO REAL → HOC-FACELET-SCAN-V1 → LEGALITY V0.8 → RITUAL V0.9 (quando aplicável) → RAW V0.4 → INTERPRETATION V0.5 → MALKUTH → SESSION MANIFEST V0.10`
 
 ## Princípios
 
@@ -27,11 +28,35 @@ Repositório dedicado ao **HNK Oraculum Cube (HOC)**: protocolo computacional e 
 - a câmera nunca gera hash sem revisão humana das 54 casas;
 - estados fisicamente impossíveis são bloqueados antes do SHA;
 - `RITUAL_32` exige que o estado final seja reproduzível a partir do estado inicial + 32 movimentos registrados;
+- toda consulta aprovada pode ser envolvida por um manifesto V0.10 com checksum SHA-256 próprio;
+- o manifesto autentica o registro, mas não altera o seed RAW V0.4;
 - uso simbólico/contemplativo, sem alegação de previsão infalível.
 
 ## Compatibilidade RAW
 
-V0.8 e V0.9 são gates físicos anteriores ao protocolo bruto. Eles não alteram `HNK-ORACULUM-CUBE/V0.4`, a seed SHA-256 ou o mapa B000–B255.
+V0.8 e V0.9 são gates físicos anteriores ao protocolo bruto. V0.10 é um envelope de auditoria posterior. Nenhuma dessas camadas altera `HNK-ORACULUM-CUBE/V0.4`, a seed SHA-256 ou o mapa B000–B255.
+
+## Verificação de manifesto
+
+Interface:
+
+`/oraculum/verify`
+
+API:
+
+`POST /api/oraculum/manifest/verify`
+
+Canonicalização:
+
+`HOC-CANONICAL-JSON/V1`
+
+Cada manifesto válido possui:
+
+- checksum SHA-256 completo;
+- `sessionId` curto `HOC-XXXXXXXXXXXXXXXXXXXXXXXX`;
+- RAW seed preservado;
+- auditoria física V0.8/V0.9;
+- outputs, provenance, sigilo, interpretação e Malkuth.
 
 ## Origem técnica
 
