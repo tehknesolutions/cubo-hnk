@@ -15,6 +15,7 @@ const RITUAL32=[
   'U','R','F','D','L','B',"U'","R'",'F2','D2','L2','B2','U2','R2',"F'","D'",
   "L'","B'",'U','F','R','B','L','D',"U'","F'","R'","B'","L'","D'",'U2','F2'
 ];
+const RITUAL32_GOLDEN_FINAL='513004512451013254000425014533433235324540121221251340';
 
 test('V0.9 keeps the ritual contract at exactly 32 moves',()=>{
   assert.equal(RITUAL_REQUIRED_MOVE_COUNT,32);
@@ -46,9 +47,14 @@ test('an arbitrary sequence followed by its inverse returns exactly to its initi
   assert.equal(restored,SOLVED);
 });
 
+test('locked 32-move sequence reaches the V0.9 golden final state',()=>{
+  assert.equal(simulateCubeMoves(SOLVED,RITUAL32).finalState,RITUAL32_GOLDEN_FINAL);
+  assert.equal(analyzeCubeLegality(RITUAL32_GOLDEN_FINAL).valid,true);
+});
+
 test('exact initial + 32 recorded moves + exact final state passes ritual integrity',()=>{
   const expected=simulateCubeMoves(SOLVED,RITUAL32).finalState;
-  assert.equal(analyzeCubeLegality(expected).valid,true);
+  assert.equal(expected,RITUAL32_GOLDEN_FINAL);
   const report=analyzeRitualIntegrity({initialCubeState:SOLVED,finalCubeState:expected,moves:RITUAL32});
   assert.equal(report.valid,true);
   assert.equal(report.integrityConfirmed,true);
