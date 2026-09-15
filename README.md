@@ -2,6 +2,19 @@
 
 Repositório dedicado ao **HNK Oraculum Cube (HOC)**: protocolo computacional e interface para consultas com cubo físico 3×3.
 
+## Release atual
+
+**HOC V1.0 RC1 — `1.0.0-rc.1`**
+
+Status: `RELEASE_CANDIDATE` — ainda não `STABLE` e não implica promoção automática para `HNK_CANON`.
+
+Arquivos de release:
+
+- `release/v1.0-rc1/RELEASE_MANIFEST.json`
+- `release/v1.0-rc1/OFFICIAL_VECTORS.json`
+- `release/v1.0-rc1/RELEASE_CHECKLIST.md`
+- `docs/PROTOCOL_MATRIX_V1_RC1.md`
+
 ## Escopo
 
 - captura manual reproduzível de um cubo físico;
@@ -57,6 +70,40 @@ Cada manifesto válido possui:
 - RAW seed preservado;
 - auditoria física V0.8/V0.9;
 - outputs, provenance, sigilo, interpretação e Malkuth.
+
+## Comandos RC1
+
+```bash
+pnpm install --no-frozen-lockfile
+pnpm check
+pnpm --filter @hnk/cubo-web build
+pnpm --filter @hnk/cubo-web dev
+```
+
+Bundle portátil de QA:
+
+```bash
+pnpm bundle:rc1
+```
+
+Saída esperada:
+
+`dist/HOC-V1.0-RC1-QA/`
+
+O bundle inclui `SHA256SUMS.txt` para verificar os arquivos copiados.
+
+## Critério de promoção
+
+A RC1 só pode virar V1.0 final depois de:
+
+1. testes/typecheck/build executarem em runner real;
+2. QA físico STATE e RITUAL_32 passar;
+3. QA câmera mínimo passar ou ser explicitamente marcado experimental;
+4. manifesto baixado validar em outro dispositivo;
+5. manual final ser reconciliado com V0.8–V0.10;
+6. revisão humana autorizar a promoção.
+
+Consulte `release/v1.0-rc1/RELEASE_CHECKLIST.md`.
 
 ## Origem técnica
 
