@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { runOracle } from '../src/index.mjs';
+import { getPathDescriptor, getTarotDescriptor } from '../src/profiles.mjs';
+import { interpretOracle, buildInterpretationSignals } from '../src/interpretation.mjs';
+const SOLVED='000000000111111111222222222333333333444444444555555555';
+const INTENT='Qual padrão precisa se manifestar?';
+const SEED='df6bcd1bfd58288fb8f7d7e0f22b69d7e305a24429ba4445c242efc000e3b6fc';
+test('V0.5 never mutates locked V0.4 seed',()=>{const raw=runOracle({intent:INTENT,cubeState:SOLVED});const i=interpretOracle(raw);assert.equal(raw.raw.seed256,SEED);assert.equal(i.rawSeed256,SEED);assert.equal(i.rawSeedInvariant,true);});
+test('golden vector resolves Path-32 and Tarot',()=>{const p=getPathDescriptor(24);assert.equal(p.letter,'NUN');assert.equal(p.tarot,'DEATH');assert.equal(p.attribution.value,'SCORPIO');assert.equal(p.derivedElement,'WATER');const t=getTarotDescriptor(71);assert.equal(t.kind,'MINOR');assert.equal(t.suit,'PENTACLES');assert.equal(t.rank,'SEVEN');assert.equal(t.element,'EARTH');});
+test('golden vector produces independent FIRE convergence',()=>{const i=interpretOracle(runOracle({intent:INTENT,cubeState:SOLVED}));assert.equal(i.convergences.length,1);assert.equal(i.convergences[0].id,'ELEMENT:FIRE');assert.equal(i.convergences[0].score,4);assert.deepEqual(i.convergences[0].families,['ASTROLOGY','ICHING']);});
+test('same-source Li/Li does not create pseudo-convergence',()=>{const raw=runOracle({intent:INTENT,cubeState:SOLVED});const s=buildInterpretationSignals(raw);const fire=s.filter(x=>x.category==='ELEMENT'&&x.key==='FIRE'&&x.family==='ICHING');assert.equal(fire.length,2);assert.equal(new Set(fire.map(x=>x.sourceChainId)).size,1);});
+test('tensions and resulting I Ching remain phase-separated',()=>{const i=interpretOracle(runOracle({intent:INTENT,cubeState:SOLVED}),{includeResultingIChing:true});assert.deepEqual(i.tensions.map(x=>x.axis),['FIRE<->WATER','AIR<->EARTH']);assert.ok(i.signals.some(x=>x.phase==='RESULTING'));assert.equal(i.convergences[0].id,'ELEMENT:FIRE');});
+test('candidate HNK semantics remain opt-out',()=>{const i=interpretOracle(runOracle({intent:INTENT,cubeState:SOLVED}));assert.equal(i.hnkOracleSemantics.status,'NOT_CONSUMED');assert.equal(i.malkuth.verificationRequired,true);});
