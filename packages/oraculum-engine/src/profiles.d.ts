@@ -1,0 +1,12 @@
+export const PROFILE_REGISTRY_VERSION:string;
+export const PROFILE_SOURCES:Readonly<Record<string,Readonly<{url:string;note:string}>>>;
+export const ZODIAC_ELEMENTS:Readonly<Record<string,string>>;
+export const TRIGRAM_ARCHETYPES:Readonly<Record<string,Readonly<{image:string;element?:string}>>>;
+export const KABBALAH_TREE_10:ReadonlyArray<string>;
+export const HERMETIC_GD_PATHS:ReadonlyArray<Readonly<Record<string,unknown>>>;
+export const TAROT_MINOR_SUITS:ReadonlyArray<Readonly<{suit:string;start:number;end:number;element:string}>>;
+export const TAROT_RANKS:ReadonlyArray<string>;
+export const HNK_ORACULUM_PROFILES:Readonly<Record<string,Readonly<Record<string,unknown>>>>;
+export function getOraculumProfile(profileId?:string):Readonly<Record<string,unknown>>;
+export function getPathDescriptor(pathIndex:number):Readonly<Record<string,unknown>>;
+export function getTarotDescriptor(cardIndex:number):Readonly<Record<string,unknown>>;
