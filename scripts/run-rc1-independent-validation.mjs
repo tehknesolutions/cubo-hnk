@@ -1,7 +1,7 @@
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
-import {resolve} from 'node:path';
+import {basename,resolve} from 'node:path';
 import process from 'node:process';
 
 const EVIDENCE_VERSION='HOC-RC1-INDEPENDENT-VALIDATION-EVIDENCE/V1';
@@ -9,6 +9,7 @@ const RELEASE_ID='HOC-V1.0-RC1';
 const OUT_DIR=resolve('dist','rc1-validation');
 const OUT_FILE=resolve(OUT_DIR,'HOC-RC1-INDEPENDENT-VALIDATION-EVIDENCE.json');
 const MAX_CAPTURE_CHARS=200_000;
+const COREPACK=process.platform==='win32'?'corepack.cmd':'corepack';
 
 function sha256(text){return createHash('sha256').update(text).digest('hex');}
 function clip(text){
@@ -48,13 +49,13 @@ const environment={
   platform:process.platform,
   arch:process.arch,
   node:process.version,
-  cwd:process.cwd(),
+  repositoryDirectory:basename(process.cwd()),
   packageVersion:readPackageVersion(),
 };
 
 const gitHead=exec('git',['rev-parse','HEAD'],{required:false});
 const gitStatus=exec('git',['status','--porcelain'],{required:false});
-const pnpmVersion=exec('corepack',['pnpm','--version']);
+const pnpmVersion=exec(COREPACK,['pnpm','--version']);
 
 const commands=[];
 function run(command,args,options){
@@ -65,12 +66,12 @@ function run(command,args,options){
 }
 
 let chainOk=pnpmVersion.passed;
-if(chainOk)chainOk=run('corepack',['pnpm','install','--no-frozen-lockfile']);
-if(chainOk)chainOk=run('corepack',['pnpm','test']);
-if(chainOk)chainOk=run('corepack',['pnpm','typecheck']);
-if(chainOk)chainOk=run('corepack',['pnpm','check']);
-if(chainOk)chainOk=run('corepack',['pnpm','--filter','@hnk/cubo-web','build']);
-if(chainOk)chainOk=run('node',['--input-type=module','-e',`import {runRc1RuntimeSelfTest} from './packages/oraculum-engine/src/selftest.mjs'; const r=runRc1RuntimeSelfTest(); console.log(JSON.stringify(r)); if(!r.passed) process.exit(1);`]);
+if(chainOk)chainOk=run(COREPACK,['pnpm','install','--no-frozen-lockfile']);
+if(chainOk)chainOk=run(COREPACK,['pnpm','test']);
+if(chainOk)chainOk=run(COREPACK,['pnpm','typecheck']);
+if(chainOk)chainOk=run(COREPACK,['pnpm','check']);
+if(chainOk)chainOk=run(COREPACK,['pnpm','--filter','@hnk/cubo-web','build']);
+if(chainOk)chainOk=run(process.execPath,['--input-type=module','-e',`import {runRc1RuntimeSelfTest} from './packages/oraculum-engine/src/selftest.mjs'; const r=runRc1RuntimeSelfTest(); console.log(JSON.stringify(r)); if(!r.passed) process.exit(1);`]);
 
 const requiredResults=[pnpmVersion,...commands.filter(item=>item.required)];
 const passed=requiredResults.length>0&&requiredResults.every(item=>item.passed);
