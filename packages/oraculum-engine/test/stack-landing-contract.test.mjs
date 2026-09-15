@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 
 const plan=JSON.parse(readFileSync(new URL('../../../release/v1.0-rc1/STACK_LANDING_PLAN.json',import.meta.url),'utf8'));
 
-const expectedPrOrder=[1,2,3,4,5,7,8,9,10,11,12,13,14,15,16,17,18,19];
+const expectedPrOrder=[1,2,3,4,5,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
 const expectedHeadOrder=[
   'feat/bootstrap-hoc-v1',
   'feat/v08-cube-legality',
@@ -24,6 +24,7 @@ const expectedHeadOrder=[
   'feat/v1-rc1-deployment-verification',
   'feat/v1-rc1-deployment-ledger',
   'infra/actions-runner-diagnostic',
+  'docs/v1-rc1-stack-landing-v2',
 ];
 
 test('stack landing plan keeps all promotion authorities false',()=>{
@@ -34,7 +35,7 @@ test('stack landing plan keeps all promotion authorities false',()=>{
   assert.equal(plan.hnkCanonPromotionAuthorized,false);
 });
 
-test('stack landing order is frozen parent-first through runner diagnostic',()=>{
+test('stack landing order is frozen parent-first through V2 governance refresh',()=>{
   assert.deepEqual(plan.orderedPullRequests.map(item=>item.pr),expectedPrOrder);
   assert.deepEqual(plan.orderedPullRequests.map(item=>item.head),expectedHeadOrder);
   assert.deepEqual(plan.orderedPullRequests.map(item=>item.order),expectedPrOrder.map((_,index)=>index+1));
