@@ -1,18 +1,31 @@
-import { NextResponse } from 'next/server';
 import { runOracle } from '@hnk/oraculum-engine';
 import { interpretOracle } from '@hnk/oraculum-engine/interpretation';
 import { analyzeCubeLegality } from '@hnk/oraculum-engine/legality';
 import { analyzeRitualIntegrity } from '@hnk/oraculum-engine/ritual';
 import { buildSessionManifest, verifySessionManifest } from '@hnk/oraculum-engine/manifest';
+import {hocErrorStatus,hocJson,readBoundedJson} from '../../../lib/oraculum-http';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+const MAX_ORACLE_PAYLOAD_BYTES=32*1024;
+
+type OracleRequestBody={
+  intent?:unknown;
+  cubeState?:unknown;
+  mode?:unknown;
+  moves?:unknown;
+  initialCubeState?:unknown;
+  profileId?:unknown;
+  includeResultingIChing?:unknown;
+};
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body=await readBoundedJson<OracleRequestBody>(request,MAX_ORACLE_PAYLOAD_BYTES);
     const legality = analyzeCubeLegality(body.cubeState);
     if (!legality.valid) {
-      return NextResponse.json(
+      return hocJson(
         {
           ok: false,
           error: `Estado impossível para um cubo 3×3 físico: ${legality.errors.map(item => item.code).join(', ')}`,
@@ -33,7 +46,7 @@ export async function POST(request: Request) {
         moves: body.moves,
       });
       if (!ritualIntegrity.valid) {
-        return NextResponse.json(
+        return hocJson(
           {
             ok: false,
             error: `Integridade RITUAL_32 não confirmada: ${ritualIntegrity.errors.map(item => item.code).join(', ')}`,
@@ -47,8 +60,17 @@ export async function POST(request: Request) {
       }
     }
 
-    const raw = runOracle({ intent: body.intent, cubeState: body.cubeState, mode: body.mode, moves: body.moves, profileId: body.profileId });
-    const interpretation = interpretOracle(raw, { profileId: body.profileId, includeResultingIChing: Boolean(body.includeResultingIChing) });
+    const raw = runOracle({
+      intent: body.intent,
+      cubeState: body.cubeState,
+      mode: body.mode,
+      moves: body.moves,
+      profileId: body.profileId,
+    });
+    const interpretation = interpretOracle(raw, {
+      profileId: body.profileId,
+      includeResultingIChing: Boolean(body.includeResultingIChing),
+    });
     const manifest = buildSessionManifest({
       scanProfile: 'HOC-FACELET-SCAN-V1',
       legality,
@@ -58,7 +80,7 @@ export async function POST(request: Request) {
     });
     if (!verifySessionManifest(manifest)) throw new Error('Internal V0.10 manifest verification failed');
 
-    return NextResponse.json({
+    return hocJson({
       ok: true,
       scanProfile: 'HOC-FACELET-SCAN-V1',
       legality,
@@ -73,6 +95,9 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : 'Unknown Oraculum error' }, { status: 400 });
+    return hocJson({
+      ok: false,
+      error: error instanceof Error ? error.message : 'Unknown Oraculum error',
+    }, { status: hocErrorStatus(error,400) });
   }
 }
