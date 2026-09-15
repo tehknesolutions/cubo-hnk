@@ -8,12 +8,19 @@ Repositório dedicado ao **HNK Oraculum Cube (HOC)**: protocolo computacional e 
 
 Status: `RELEASE_CANDIDATE` — ainda não `STABLE` e não implica promoção automática para `HNK_CANON`.
 
-Arquivos de release:
+Arquivos centrais da release:
 
-- `release/v1.0-rc1/RELEASE_MANIFEST.json`
-- `release/v1.0-rc1/OFFICIAL_VECTORS.json`
-- `release/v1.0-rc1/RELEASE_CHECKLIST.md`
-- `docs/PROTOCOL_MATRIX_V1_RC1.md`
+- `docs/MANUAL_V1_RC1.md` — manual operacional consolidado da RC1;
+- `release/v1.0-rc1/RELEASE_AUDIT_REPORT.md` — relatório humano de auditoria;
+- `release/v1.0-rc1/AUDIT_STATUS.json` — estado machine-readable dos gates;
+- `release/v1.0-rc1/RELEASE_MANIFEST.json`;
+- `release/v1.0-rc1/OFFICIAL_VECTORS.json`;
+- `release/v1.0-rc1/RELEASE_CHECKLIST.md`;
+- `docs/PROTOCOL_MATRIX_V1_RC1.md`.
+
+Princípio de auditoria:
+
+`IMPLEMENTADO ≠ INSTRUMENTADO ≠ EXECUTADO ≠ APROVADO`
 
 ## Escopo
 
@@ -26,6 +33,7 @@ Arquivos de release:
 - validação mecânica de estados 3×3 (`HOC-CUBE-LEGALITY/V0.8`);
 - prova procedural do modo `RITUAL_32` (`HOC-RITUAL-INTEGRITY/V0.9`);
 - manifesto determinístico e verificável de sessão (`HOC-SESSION-MANIFEST/V0.10`);
+- esteira de QA e Evidence Ledger da RC1;
 - documentação operacional e governança.
 
 ## Pipeline
@@ -173,16 +181,35 @@ Saída esperada:
 
 O bundle inclui `SHA256SUMS.txt` para verificar os arquivos copiados.
 
+## Estado de auditoria
+
+Consulte:
+
+- `release/v1.0-rc1/RELEASE_AUDIT_REPORT.md`
+- `release/v1.0-rc1/AUDIT_STATUS.json`
+
+Na RC1 atual:
+
+- protocolo e vetores: congelados;
+- QA: instrumentado;
+- Markdown final: reconciliado;
+- execução real de hardware/cross-device: ainda pendente;
+- CI/typecheck/build: bloqueado pela Issue #6 enquanto jobs chegam com `steps=null`;
+- DOCX/PDF visual final: pendente;
+- aprovação humana V1.0: pendente.
+
 ## Critério de promoção
 
 A RC1 só pode virar V1.0 final depois de:
 
 1. testes/typecheck/build executarem em runner real;
-2. QA físico STATE e RITUAL_32 passar;
-3. QA câmera mínimo passar ou ser explicitamente marcado experimental;
-4. manifesto baixado validar em outro dispositivo;
-5. manual final ser reconciliado com V0.8–V0.10;
-6. revisão humana autorizar a promoção.
+2. runtime self-test ser executado e preservado como evidência;
+3. QA físico STATE e RITUAL_32 passar;
+4. QA câmera mínimo passar ou ser explicitamente marcado experimental;
+5. manifesto V0.10 validar cross-device;
+6. DOCX/PDF final ser reconciliado com `docs/MANUAL_V1_RC1.md`;
+7. revisão de segurança/cache/logging ser fechada;
+8. revisão humana autorizar a promoção.
 
 Consulte `release/v1.0-rc1/RELEASE_CHECKLIST.md`.
 
