@@ -135,7 +135,8 @@ Documentação: `docs/RC1_PRODUCTION_HARDENING.md`.
 - [x] Audit status machine-readable: `release/v1.0-rc1/AUDIT_STATUS.json`.
 - [x] Release manifest machine-readable.
 - [x] Official vectors machine-readable.
-- [ ] Manual DOCX/PDF visual deve ser regenerado/reconciliado contra `MANUAL_V1_RC1.md` antes de V1.0 final.
+- [x] Manual visual DOCX/PDF RC1 regenerado em 36 páginas e QA visual concluído.
+- [x] Hashes exatos dos artefatos registrados em `release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json`.
 
 ## J. Promotion gate
 
@@ -146,10 +147,11 @@ V1.0 final só pode ser marcada quando:
 3. QA físico STATE e RITUAL_32 estiver fechado;
 4. QA câmera mínimo estiver fechado ou câmera for explicitamente marcada experimental;
 5. cross-device Manifest V0.10 estiver fechado;
-6. DOCX/PDF final estiver reconciliado com o manual Markdown RC1;
-7. deployed headers/log-retention e abuso/rate-limit estiverem revisados para o ambiente de produção escolhido;
-8. diff RC1 → V1.0 não alterar contratos congelados sem nova revisão;
-9. revisão humana autorizar promoção.
+6. deployed headers/log-retention e abuso/rate-limit estiverem revisados para o ambiente de produção escolhido;
+7. diff RC1 → V1.0 não alterar contratos congelados sem nova revisão;
+8. revisão humana autorizar promoção.
+
+Gate documental visual: **PASS**. Os arquivos revisados são identificados pelos hashes em `VISUAL_MANUAL_ARTIFACTS.json`.
 
 Até lá: `RELEASE_CANDIDATE`, não `STABLE`, não `HNK_CANON`.
 
