@@ -1,5 +1,5 @@
 {
-  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V1",
+  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V2",
   "releaseId": "HOC-V1.0-RC1",
   "repository": "tehknesolutions/cubo-hnk",
   "mergeAuthorized": false,
@@ -21,7 +21,11 @@
     {"order":11,"pr":12,"base":"docs/v1-rc1-manual-audit","head":"feat/v1-rc1-production-hardening","role":"production HTTP/security hardening"},
     {"order":12,"pr":13,"base":"feat/v1-rc1-production-hardening","head":"docs/v1-rc1-visual-manual","role":"visual DOCX/PDF manual QA hashes"},
     {"order":13,"pr":14,"base":"docs/v1-rc1-visual-manual","head":"feat/v1-rc1-independent-validation","role":"independent real-executor validation runner"},
-    {"order":14,"pr":15,"base":"feat/v1-rc1-independent-validation","head":"feat/v1-rc1-independent-ledger","role":"independent executor evidence integration"}
+    {"order":14,"pr":15,"base":"feat/v1-rc1-independent-validation","head":"feat/v1-rc1-independent-ledger","role":"independent executor evidence integration"},
+    {"order":15,"pr":16,"base":"feat/v1-rc1-independent-ledger","head":"docs/v1-rc1-stack-landing","role":"stack landing governance V1"},
+    {"order":16,"pr":17,"base":"docs/v1-rc1-stack-landing","head":"feat/v1-rc1-deployment-verification","role":"deployment runtime verification runner"},
+    {"order":17,"pr":18,"base":"feat/v1-rc1-deployment-verification","head":"feat/v1-rc1-deployment-ledger","role":"deployment runtime evidence integration"},
+    {"order":18,"pr":19,"base":"feat/v1-rc1-deployment-ledger","head":"infra/actions-runner-diagnostic","role":"zero-dependency Actions runner diagnostic and support packet"}
   ],
   "knownMissingPrNumber": {
     "number": 6,
@@ -29,10 +33,12 @@
   },
   "preLandingGates": [
     {"id":"humanMergeAuthorization","required":true,"status":"PENDING"},
-    {"id":"realAutomatedExecution","required":true,"status":"BLOCKED","reason":"GitHub Issue #6: Actions jobs end with steps=null before execution"},
-    {"id":"independentExecutorEvidence","required":false,"status":"PENDING","reason":"supplementary fallback evidence runner is instrumented but not yet executed"},
+    {"id":"realAutomatedExecution","required":true,"status":"BLOCKED","reason":"GitHub Issue #6: even zero-dependency ubuntu/windows probes end with steps=null before first shell step"},
+    {"id":"independentExecutorEvidence","required":false,"status":"PENDING","reason":"supplementary real-executor runner is instrumented but not yet executed"},
+    {"id":"deploymentVerificationEvidence","required":false,"status":"PENDING","reason":"deployment verification runner is instrumented but no approved URL has been tested"},
     {"id":"protocolFreezeIntegrity","required":true,"status":"PASS"},
-    {"id":"visualManualArtifacts","required":true,"status":"PASS"}
+    {"id":"visualManualArtifacts","required":true,"status":"PASS"},
+    {"id":"actionsRootCauseLocatedToPreStepLayer","required":false,"status":"PASS","reason":"PR #19 zero-dependency ubuntu-latest and windows-latest jobs both failed with steps=null/logs_url=null"}
   ],
   "stablePromotionGatesRemainSeparate": [
     "runtime self-test execution evidence",
@@ -40,7 +46,8 @@
     "physical RITUAL_32 evidence",
     "camera/device evidence or explicit experimental downgrade",
     "cross-device Manifest V0.10 verification",
-    "production deployment hardening verification",
+    "deployment runtime verification",
+    "production host logging/retention and abuse strategy review",
     "GitHub CI/typecheck/build gate",
     "explicit human V1.0 stable promotion approval"
   ],
@@ -49,7 +56,8 @@
     "Do not squash or reorder protocol-layer commits in a way that changes frozen vectors or provenance history without a new audit.",
     "After each parent lands, refresh the next PR base and re-check the diff before merging it.",
     "A mergeable=true GitHub state is not equivalent to merge authorization.",
-    "Independent executor evidence cannot be used to silently mark GitHub CI as PASS.",
+    "Independent executor or deployment evidence cannot be used to silently mark GitHub CI as PASS.",
+    "The Actions diagnostic localizes the current blocker but does not itself satisfy the CI gate.",
     "Landing RC1 code does not by itself authorize V1.0 stable or HNK_CANON promotion."
   ]
 }
