@@ -30,7 +30,7 @@ A release gate is considered satisfied only by the level required for that gate.
 | Runtime QA | `HOC-RC1-RUNTIME-SELFTEST/V1` | QA CONTRACT |
 | Evidence ledger | `HOC-RC1-EVIDENCE-LEDGER/V1` | QA CONTRACT |
 
-No RC1 documentation change authorizes mutation of these protocol identities.
+No RC1 documentation or HTTP-hardening change authorizes mutation of these protocol identities.
 
 ## 3. Frozen vectors
 
@@ -66,8 +66,9 @@ HNK40 remains `PREPRODUCTION_NOT_OFFICIAL`.
 | Physical RITUAL_32 | IMPLEMENTED | INSTRUMENTED | physical-cube evidence not yet recorded | PENDING |
 | Camera/device | IMPLEMENTED | INSTRUMENTED | real-device evidence not yet recorded | PENDING |
 | Cross-device manifest | IMPLEMENTED | INSTRUMENTED | two-device matching evidence not yet recorded | PENDING |
+| Production hardening source contract | IMPLEMENTED | CONTRACT TEST ADDED | build/deploy verification still required | PASS (SOURCE) |
 | CI / typecheck / build | workflow IMPLEMENTED | runner configured | GitHub jobs terminate with `steps=null`; no command executed | BLOCKED |
-| Markdown manual reconciliation | IMPLEMENTED | N/A | this audit branch reconciles V0.8–V0.10 + RC1 QA docs | PASS |
+| Markdown manual reconciliation | IMPLEMENTED | N/A | V0.8–V0.10 + RC1 QA/hardening reconciled | PASS |
 | DOCX/PDF manual reconciliation | historical artifacts exist | N/A | not regenerated against RC1 | PENDING |
 | Human V1.0 promotion | N/A | N/A | no explicit promotion decision | PENDING |
 
@@ -75,13 +76,8 @@ Overall: `NOT_READY_FOR_STABLE`.
 
 ## 5. Runtime QA
 
-Route:
-
-`/oraculum/qa`
-
-API:
-
-`GET /api/oraculum/rc1-selftest`
+Route: `/oraculum/qa`  
+API: `GET /api/oraculum/rc1-selftest`
 
 The runtime self-test checks protocol identities, STATE golden vector, interpretation invariants, V0.8, V0.9, V0.10 and HNK40 structural identity.
 
@@ -95,9 +91,7 @@ A source-level implementation is not equivalent to an executed PASS.
 
 ## 6. Physical QA
 
-Wizard:
-
-`/oraculum/qa/physical`
+Wizard: `/oraculum/qa/physical`
 
 Cases:
 
@@ -116,13 +110,8 @@ The final RITUAL_32 state is intentionally hidden before evaluation.
 
 ## 7. Camera / Device QA
 
-Route:
-
-`/oraculum/qa/camera`
-
-Evidence type:
-
-`HOC-RC1-CAMERA-QA-EVIDENCE/V1`
+Route: `/oraculum/qa/camera`  
+Evidence type: `HOC-RC1-CAMERA-QA-EVIDENCE/V1`
 
 The panel records secure context, camera API capability, permission, video dimensions, six face samples, candidate color counts/confidence and a human end-to-end checklist.
 
@@ -140,13 +129,8 @@ Current audit conclusion:
 
 ## 8. Cross-device manifest verification
 
-Verifier:
-
-`/oraculum/verify`
-
-Verification evidence:
-
-`HOC-RC1-MANIFEST-VERIFY-EVIDENCE/V1`
+Verifier: `/oraculum/verify`  
+Verification evidence: `HOC-RC1-MANIFEST-VERIFY-EVIDENCE/V1`
 
 Cross-device PASS requires at least two valid evidence records with:
 
@@ -163,13 +147,8 @@ Current audit conclusion:
 
 ## 9. Release Evidence Ledger
 
-Route:
-
-`/oraculum/qa/evidence`
-
-Protocol:
-
-`HOC-RC1-EVIDENCE-LEDGER/V1`
+Route: `/oraculum/qa/evidence`  
+Protocol: `HOC-RC1-EVIDENCE-LEDGER/V1`
 
 Recognized evidence classes:
 
@@ -186,7 +165,43 @@ Consolidated export:
 
 This export is an operational audit package, not a cryptographic signature of the release.
 
-## 10. CI / build blocker
+## 10. Production hardening source review
+
+Documentation:
+
+`docs/RC1_PRODUCTION_HARDENING.md`
+
+Implemented controls:
+
+- bounded JSON parsing shared helper;
+- 32 KiB cap for `POST /api/oraculum`;
+- 16 KiB cap for Physical QA POST;
+- 512 KiB cap for Manifest Verify POST;
+- request-shape guard before engine execution;
+- `no-store`/`no-cache` for HOC APIs;
+- defensive global headers (`nosniff`, frame deny, no-referrer, COOP, permissions policy);
+- camera allowed only same-origin by permissions policy;
+- microphone and geolocation disabled by permissions policy;
+- protected HOC API source contract forbids `console.*` logging of payload/manifests;
+- production hardening contract test added.
+
+Audit conclusion:
+
+`PRODUCTION_HARDENING_SOURCE = PASS`
+
+However this does not establish runtime/deployment verification. Still pending:
+
+- real build;
+- deployed response-header inspection;
+- host access-log/retention review;
+- public abuse/rate-limit strategy if needed;
+- CSP evaluation after a buildable deployment exists.
+
+Therefore:
+
+`PRODUCTION_HARDENING_RUNTIME = PENDING`
+
+## 11. CI / build blocker
 
 GitHub Issue #6 tracks a recurring infrastructure condition:
 
@@ -200,7 +215,7 @@ GitHub Issue #6 tracks a recurring infrastructure condition:
 - no Next.js build;
 - logs unavailable or non-executed.
 
-This has reproduced through multiple PR layers, including RC1 QA work.
+This has reproduced through multiple PR layers, including RC1 QA and documentation work.
 
 Audit conclusion:
 
@@ -208,7 +223,7 @@ Audit conclusion:
 
 Do not classify these runs as application failures or as PASS. No application command has executed.
 
-## 11. Documentation reconciliation
+## 12. Documentation reconciliation
 
 New consolidated source of truth:
 
@@ -226,6 +241,8 @@ It reconciles:
 - Evidence Ledger;
 - protocol matrix.
 
+Production hardening is separately documented and referenced by the release checklist/audit status.
+
 Audit conclusion:
 
 `MARKDOWN_DOCUMENTATION = PASS`
@@ -236,7 +253,7 @@ However:
 
 The previously generated visual DOCX/PDF must be regenerated or reconciled against the RC1 content before stable V1.0.
 
-## 12. Required evidence before stable V1.0
+## 13. Required evidence before stable V1.0
 
 The release may not be promoted merely because all mechanisms exist. Required remaining evidence includes:
 
@@ -249,17 +266,18 @@ The release may not be promoted merely because all mechanisms exist. Required re
 7. Physical RITUAL_32 evidence PASS;
 8. Camera QA PASS on at least one target device, or explicit experimental downgrade;
 9. same Manifest V0.10 validated on at least two distinct labeled environments;
-10. final DOCX/PDF manual reconciliation;
-11. review of security/cache/logging production settings;
-12. explicit human approval for V1.0 promotion.
+10. deployed hardening headers verified;
+11. host logging/retention and public abuse strategy reviewed for the selected production environment;
+12. final DOCX/PDF manual reconciliation;
+13. explicit human approval for V1.0 promotion.
 
-## 13. Current release conclusion
+## 14. Current release conclusion
 
-The HOC V1.0 RC1 architecture is substantially consolidated and has dedicated instrumentation for the major release gates.
+The HOC V1.0 RC1 architecture is substantially consolidated and has dedicated instrumentation for the major release gates plus source-level production hardening.
 
 The correct current statement is:
 
-`PROTOCOLS FROZEN + QA INSTRUMENTED + DOCUMENTATION RECONCILED (MARKDOWN) + EXECUTION EVIDENCE INCOMPLETE + CI BLOCKED`
+`PROTOCOLS FROZEN + QA INSTRUMENTED + SOURCE HARDENING PASS + DOCUMENTATION RECONCILED (MARKDOWN) + EXECUTION EVIDENCE INCOMPLETE + CI BLOCKED`
 
 Therefore:
 
