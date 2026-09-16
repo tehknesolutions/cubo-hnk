@@ -1,0 +1,136 @@
+TAP version 13
+# Subtest: genesis state remains V1, fingerprinted and points to exact first step
+ok 1 - genesis state remains V1, fingerprinted and points to exact first step
+  ---
+  duration_ms: 7.12609
+  type: 'test'
+  ...
+# Subtest: Transition V2 binds current state, Guard V2 and verified evidence into one fingerprinted record
+ok 2 - Transition V2 binds current state, Guard V2 and verified evidence into one fingerprinted record
+  ---
+  duration_ms: 5.134439
+  type: 'test'
+  ...
+# Subtest: state swap between Guard V2 ALLOW and Transition V2 is rejected
+ok 3 - state swap between Guard V2 ALLOW and Transition V2 is rejected
+  ---
+  duration_ms: 3.311172
+  type: 'test'
+  ...
+# Subtest: sourceGuard or transition tampering invalidates Transition V2 fingerprint
+ok 4 - sourceGuard or transition tampering invalidates Transition V2 fingerprint
+  ---
+  duration_ms: 4.419801
+  type: 'test'
+  ...
+# Subtest: state tampering, replay and chronology fail closed
+ok 5 - state tampering, replay and chronology fail closed
+  ---
+  duration_ms: 2.906576
+  type: 'test'
+  ...
+# Subtest: CLI only writes logical state artifacts and exposes no technical executor or network surface
+ok 6 - CLI only writes logical state artifacts and exposes no technical executor or network surface
+  ---
+  duration_ms: 0.477465
+  type: 'test'
+  ...
+# Subtest: SUCCESS receipt evidence can be verified while preserving Guard V2 state binding
+ok 7 - SUCCESS receipt evidence can be verified while preserving Guard V2 state binding
+  ---
+  duration_ms: 5.659615
+  type: 'test'
+  ...
+# Subtest: tampering or evidence hash mismatch fails closed
+ok 8 - tampering or evidence hash mismatch fails closed
+  ---
+  duration_ms: 3.382668
+  type: 'test'
+  ...
+# Subtest: missing observations and non-SUCCESS receipts cannot become prefix-eligible
+ok 9 - missing observations and non-SUCCESS receipts cannot become prefix-eligible
+  ---
+  duration_ms: 5.978271
+  type: 'test'
+  ...
+# Subtest: CLI is local-record verification only and has no mutation/network executor
+ok 10 - CLI is local-record verification only and has no mutation/network executor
+  ---
+  duration_ms: 0.384467
+  type: 'test'
+  ...
+# Subtest: first runbook step ALLOW consumes fingerprint-bound genesis state
+ok 11 - first runbook step ALLOW consumes fingerprint-bound genesis state
+  ---
+  duration_ms: 7.152061
+  type: 'test'
+  ...
+# Subtest: authorized future step is denied until fingerprint-bound state reaches exact prefix
+ok 12 - authorized future step is denied until fingerprint-bound state reaches exact prefix
+  ---
+  duration_ms: 8.865976
+  type: 'test'
+  ...
+# Subtest: next step without authorization is denied even with valid state
+ok 13 - next step without authorization is denied even with valid state
+  ---
+  duration_ms: 1.807592
+  type: 'test'
+  ...
+# Subtest: tampered completed-prefix state is rejected before sequence evaluation
+ok 14 - tampered completed-prefix state is rejected before sequence evaluation
+  ---
+  duration_ms: 2.216202
+  type: 'test'
+  ...
+# Subtest: tampered plan, authorization or guard fingerprint fails closed
+ok 15 - tampered plan, authorization or guard fingerprint fails closed
+  ---
+  duration_ms: 2.946324
+  type: 'test'
+  ...
+# Subtest: guard CLI requires state artifact and has no action/network surface
+ok 16 - guard CLI requires state artifact and has no action/network surface
+  ---
+  duration_ms: 0.392584
+  type: 'test'
+  ...
+# Subtest: SUCCESS receipt binds exact Guard V2 and Completed Prefix State fingerprint
+ok 17 - SUCCESS receipt binds exact Guard V2 and Completed Prefix State fingerprint
+  ---
+  duration_ms: 7.197124
+  type: 'test'
+  ...
+# Subtest: SUCCESS requires external evidence but FAILED/CANCELLED remain recordable
+ok 18 - SUCCESS requires external evidence but FAILED/CANCELLED remain recordable
+  ---
+  duration_ms: 7.189121
+  type: 'test'
+  ...
+# Subtest: tampered Guard V2 fingerprint/state binding cannot produce or validate receipt
+ok 19 - tampered Guard V2 fingerprint/state binding cannot produce or validate receipt
+  ---
+  duration_ms: 3.076851
+  type: 'test'
+  ...
+# Subtest: receipt enforces chronology and evidence-reference shape
+ok 20 - receipt enforces chronology and evidence-reference shape
+  ---
+  duration_ms: 3.652756
+  type: 'test'
+  ...
+# Subtest: local receipt CLI contains no mutation executor or verification inflation
+ok 21 - local receipt CLI contains no mutation executor or verification inflation
+  ---
+  duration_ms: 0.382943
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 162.354929
