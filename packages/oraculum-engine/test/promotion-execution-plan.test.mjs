@@ -72,11 +72,14 @@ test('promotion execution plan is dry-run only and every step is non-executable'
   assert.equal(plan.governance.promotesHnkCanon,false);
 });
 
-test('non-approved or incoherent human decision cannot generate an execution plan',()=>{
+test('non-approved, incoherent or forged human decision cannot generate an execution plan',()=>{
   assert.throws(()=>buildRc1PromotionExecutionPlan({decisionRecord:{...approvedDecision(),decision:'DEFER'},stackPlan:stack}),/APPROVE_V1_0/);
-  const forged=approvedDecision();
-  forged.sourceReadiness.required={total:9,pass:8,pending:1,blocked:0,missing:0,invalid:0};
-  assert.throws(()=>buildRc1PromotionExecutionPlan({decisionRecord:forged,stackPlan:stack}),/APPROVE_V1_0/);
+  const forgedMatrix=approvedDecision();
+  forgedMatrix.sourceReadiness.required={total:9,pass:8,pending:1,blocked:0,missing:0,invalid:0};
+  assert.throws(()=>buildRc1PromotionExecutionPlan({decisionRecord:forgedMatrix,stackPlan:stack}),/APPROVE_V1_0/);
+  const forgedSource=approvedDecision();
+  forgedSource.sourceReadiness.evidenceKind='OTHER';
+  assert.throws(()=>buildRc1PromotionExecutionPlan({decisionRecord:forgedSource,stackPlan:stack}),/Human promotion decision record is invalid/);
 });
 
 test('unsafe or reordered stack cannot generate an execution plan',()=>{
