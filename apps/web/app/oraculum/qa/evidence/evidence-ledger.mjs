@@ -2,6 +2,7 @@ export const RC1_EVIDENCE_LEDGER_VERSION='HOC-RC1-EVIDENCE-LEDGER/V1';
 export const RC1_RELEASE_ID='HOC-V1.0-RC1';
 export const RC1_RELEASE_ATTESTATION_VERSION='HOC-RC1-RELEASE-ATTESTATION/V1';
 export const RC1_RELEASE_FINGERPRINT='08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90';
+export const RC1_BUILD_PROVENANCE_VERSION='HOC-RC1-BUILD-PROVENANCE/V1';
 export const EVIDENCE_KINDS=Object.freeze({
   RUNTIME:'HOC-RC1-RUNTIME-QA-EVIDENCE/V1',
   INDEPENDENT:'HOC-RC1-INDEPENDENT-VALIDATION-EVIDENCE/V1',
@@ -32,6 +33,21 @@ function validIndependent(record){
     &&record?.governance?.promotesHnkCanon===false
     &&record?.summary?.failedCommands===0;
 }
+function validBuildProvenance(provenance){
+  if(provenance?.version!==RC1_BUILD_PROVENANCE_VERSION)return false;
+  if(provenance?.authority!=='BUILD_PROVENANCE_METADATA_NOT_RELEASE_IDENTITY')return false;
+  if(provenance?.source!=='RUNTIME_ENV_METADATA_UNHASHED')return false;
+  if(provenance?.entersReleaseFingerprint!==false)return false;
+  if(typeof provenance?.provider!=='string'||provenance.provider.trim()==='')return false;
+  if(!['COMMIT_AND_REF','PARTIAL','NONE'].includes(provenance?.completeness))return false;
+
+  const expected=provenance?.expectedCommit;
+  if(expected===null)return provenance?.commitMatch===null;
+  if(typeof expected!=='string'||!/^[0-9a-f]{7,64}$/u.test(expected))return false;
+  if(provenance?.commitMatch!==true)return false;
+  if(typeof provenance?.commitSha!=='string')return false;
+  return provenance.commitSha.toLowerCase().startsWith(expected.toLowerCase());
+}
 function validDeployment(record){
   return record?.evidenceKind===EVIDENCE_KINDS.DEPLOYMENT
     &&sameRelease(record)
@@ -42,6 +58,7 @@ function validDeployment(record){
     &&record?.releaseAttestation?.expectedFingerprint===RC1_RELEASE_FINGERPRINT
     &&record?.releaseAttestation?.actualFingerprint===RC1_RELEASE_FINGERPRINT
     &&record?.releaseAttestation?.matchesExpected===true
+    &&validBuildProvenance(record?.buildProvenance)
     &&typeof record?.golden?.expectedSeed256==='string'
     &&record?.golden?.actualSeed256===record?.golden?.expectedSeed256
     &&record?.governance?.promotesStable===false
@@ -109,7 +126,7 @@ export function evaluateRc1Evidence(recordsInput=[]){
   const gates=Object.freeze([
     gate('runtimeSelfTest','Runtime self-test',runtime.status,runtime.status==='PASS'?'Vetor RC1 reproduzido no runtime carregado.':'Importe uma evidência PASS de /oraculum/qa.',runtime.count),
     gate('independentValidation','Independent executor',independent.status,independent.status==='PASS'?'Install, tests, typecheck, check, web build e runtime self-test passaram em executor independente. GitHub CI continua um gate separado.':'Execute pnpm validate:rc1:independent em um executor real e importe a evidência gerada.',independent.count),
-    gate('deploymentVerification','Deployment runtime',deployment.status,deployment.status==='PASS'?'Host reproduziu fingerprint RC1, self-test, headers, seed dourado e verificação V0.10.':'Execute pnpm verify:rc1:deployment contra uma URL aprovada e importe evidência com Release Attestation V1 válida.',deployment.count),
+    gate('deploymentVerification','Deployment runtime',deployment.status,deployment.status==='PASS'?'Host reproduziu fingerprint RC1, Build Provenance V1, self-test, headers, seed dourado e verificação V0.10.':'Execute pnpm verify:rc1:deployment contra uma URL aprovada e importe evidência com Release Attestation V1 + Build Provenance V1 válidas.',deployment.count),
     gate('physicalState','Physical QA · STATE',state.status,state.status==='PASS'?'Cubo resolvido físico reproduziu legalidade, commit e seed oficiais.':'Execute STATE_SOLVED com cubo real.',state.count),
     gate('physicalRitual','Physical QA · RITUAL_32',ritual.status,ritual.status==='PASS'?'RITUAL_32 físico reproduziu o estado final V0.9 oficial.':'Execute o vetor físico de 32 movimentos.',ritual.count),
     gate('cameraDevice','Camera / device QA',camera.status,camera.status==='PASS'?'Fluxo de câmera passou no dispositivo registrado.':'Execute /oraculum/qa/camera e importe a evidência.',camera.count),
