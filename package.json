@@ -11,6 +11,7 @@
     "validate:rc1:independent": "node scripts/run-rc1-independent-validation.mjs",
     "verify:rc1:deployment": "node scripts/verify-rc1-deployment.mjs",
     "plan:rc1:promotion": "node scripts/build-rc1-promotion-execution-plan.mjs",
+    "authorize:rc1:technical": "node scripts/build-rc1-technical-execution-authorization.mjs",
     "preview:preflight": "node scripts/check-vercel-preview-bootstrap.mjs"
   }
 }

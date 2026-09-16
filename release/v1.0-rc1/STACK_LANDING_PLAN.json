@@ -1,5 +1,5 @@
 {
-  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V9",
+  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V10",
   "releaseId": "HOC-V1.0-RC1",
   "repository": "tehknesolutions/cubo-hnk",
   "mergeAuthorized": false,
@@ -33,7 +33,8 @@
     {"order":23,"pr":24,"base":"feat/v1-rc1-release-attestation","head":"feat/v1-rc1-build-provenance","role":"runtime build provenance and optional deployment commit pinning"},
     {"order":24,"pr":25,"base":"feat/v1-rc1-build-provenance","head":"feat/v1-rc1-promotion-readiness","role":"final RC1 to V1.0 promotion readiness assessment without promotion authority"},
     {"order":25,"pr":26,"base":"feat/v1-rc1-promotion-readiness","head":"feat/v1-rc1-human-promotion-decision","role":"human APPROVE DEFER REJECT decision record without technical execution authority"},
-    {"order":26,"pr":27,"base":"feat/v1-rc1-human-promotion-decision","head":"feat/v1-rc1-promotion-execution-plan","role":"dry-run-only V1.0 technical promotion execution plan without execution authority"}
+    {"order":26,"pr":27,"base":"feat/v1-rc1-human-promotion-decision","head":"feat/v1-rc1-promotion-execution-plan","role":"dry-run-only V1.0 technical promotion execution plan without execution authority"},
+    {"order":27,"pr":28,"base":"feat/v1-rc1-promotion-execution-plan","head":"feat/v1-rc1-technical-execution-authorization","role":"exact-plan-bound step-scoped technical execution authorization recorder without action executor"}
   ],
   "knownMissingPrNumber": {"number":6,"reason":"GitHub Issue #6 is the Actions runner blocker; there is intentionally no PR #6 in the landing chain"},
   "preLandingGates": [
@@ -46,7 +47,8 @@
     {"id":"buildProvenanceInstrumentation","required":false,"status":"PASS","reason":"PR #24 adds HOC-RC1-BUILD-PROVENANCE/V1 as unhashed runtime metadata and optional commit pinning; real deployment provenance remains pending"},
     {"id":"promotionReadinessInstrumentation","required":false,"status":"PASS","reason":"PR #25 adds HOC-RC1-PROMOTION-READINESS/V1 to classify mandatory blockers/evidence and readiness for explicit human review without promotion authority"},
     {"id":"humanDecisionRecorderInstrumentation","required":false,"status":"PASS","reason":"PR #26 adds HOC-RC1-HUMAN-PROMOTION-DECISION/V1; APPROVE requires coherent READY_FOR_HUMAN_REVIEW but the record performs no merge/deploy/version/HNK_CANON action"},
-    {"id":"promotionExecutionPlanInstrumentation","required":false,"status":"PASS","reason":"PR #27 adds HOC-RC1-PROMOTION-EXECUTION-PLAN/V1 as DRY_RUN_ONLY; all steps are executable=false and require separate execution authorization"},
+    {"id":"promotionExecutionPlanInstrumentation","required":false,"status":"PASS","reason":"PR #27 adds HOC-RC1-PROMOTION-EXECUTION-PLAN/V1 as DRY_RUN_ONLY and binds the operational plan with HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1"},
+    {"id":"technicalExecutionAuthorizationInstrumentation","required":false,"status":"PASS","reason":"PR #28 adds HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1 as exact-plan-bound STEP_SCOPED authorization; no real authorization record or action execution is created"},
     {"id":"visualManualArtifacts","required":true,"status":"PASS"},
     {"id":"actionsRootCauseLocatedToPreStepLayer","required":false,"status":"PASS","reason":"PR #19 zero-dependency ubuntu-latest and windows-latest jobs both failed with steps=null/logs_url=null"},
     {"id":"actionsRecoveryControls","required":false,"status":"PASS","reason":"PR #21 makes runner diagnostic manual-only and adds workflow_dispatch/concurrency/timeout recovery controls to main CI"},
@@ -63,8 +65,9 @@
     "GitHub CI/typecheck/build gate",
     "Promotion Readiness status READY_FOR_HUMAN_REVIEW",
     "explicit HOC-RC1-HUMAN-PROMOTION-DECISION/V1 APPROVE_V1_0 record",
-    "HOC-RC1-PROMOTION-EXECUTION-PLAN/V1 generated in DRY_RUN_ONLY mode",
-    "separate technical V1.0 promotion execution authorization"
+    "HOC-RC1-PROMOTION-EXECUTION-PLAN/V1 generated and fingerprint-verified",
+    "explicit HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1 record covering only the intended technical action step IDs",
+    "separately implemented technical executor or manual action that verifies authorization again immediately before mutation"
   ],
   "landingRules": [
     "Do not merge a child PR before its parent PR has landed or the child has been correctly rebased/retargeted.",
@@ -79,7 +82,9 @@
     "Build Provenance V1 is unhashed operational metadata; it can trace/pin a build but cannot change the frozen RC1 fingerprint or authorize promotion.",
     "Promotion Readiness V1 may return READY_FOR_HUMAN_REVIEW only after mandatory pre-human gates PASS; that status never authorizes merge, V1.0 stable or HNK_CANON.",
     "Human Promotion Decision V1 records APPROVE/DEFER/REJECT only; even APPROVE_V1_0 does not execute merge, deployment, version changes or HNK_CANON promotion.",
-    "Promotion Execution Plan V1 is DRY_RUN_ONLY; every step is non-executable and requires separate execution authorization.",
+    "Promotion Execution Plan V1 is DRY_RUN_ONLY and its planFingerprint must verify before any authorization record is accepted.",
+    "Technical Execution Authorization V1 authorizes only listed step IDs on the exact fingerprinted plan; non-production scope never implies stable or production scope, and the record itself executes nothing.",
+    "HNK_CANON remains outside Technical Execution Authorization V1 and cannot be promoted through this release-operation pipeline.",
     "Landing RC1 code does not by itself authorize V1.0 stable or HNK_CANON promotion."
   ]
 }

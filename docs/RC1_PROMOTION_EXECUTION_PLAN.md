@@ -30,6 +30,24 @@ It does **not** execute those actions.
 
 `DEFER`, `REJECT`, malformed approval records or reordered/unsafe stack plans fail closed.
 
+## Operational plan fingerprint
+
+Each generated plan now carries:
+
+`planFingerprint`
+
+using:
+
+`HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1`
+
+The fingerprint deliberately excludes `generatedAt`, but binds the release ID, source human decision, Stack Landing identity, target stable version/tag, ordered steps, step instructions, summary and non-execution governance.
+
+Therefore two equivalent plan generations at different timestamps have the same fingerprint, while any bound plan mutation invalidates the fingerprint.
+
+`verifyRc1PromotionExecutionPlan()` recalculates this fingerprint and fails closed on mismatch.
+
+This fingerprint is operational metadata. It does not enter or alter the frozen HOC RC1 Release Attestation fingerprint.
+
 ## CLI
 
 ```bash
@@ -97,7 +115,7 @@ The runbook is ordered as:
 8. verify production Release Attestation, Build Provenance, golden RAW seed, Manifest V0.10 and hardening behavior;
 9. archive final V1.0 evidence.
 
-For Stack Landing V9, the current runbook contains 26 PR landing steps and 34 total steps.
+For Stack Landing V10, the current runbook contains 27 PR landing steps and 35 total steps.
 
 ## Governance boundary
 
@@ -122,8 +140,9 @@ QA evidence
   -> Release Evidence Ledger
   -> Promotion Readiness V1
   -> Human Promotion Decision V1
-  -> Promotion Execution Plan V1 (DRY_RUN_ONLY)
-  -> separate future technical execution authorization
+  -> Promotion Execution Plan V1 (DRY_RUN_ONLY + planFingerprint)
+  -> Technical Execution Authorization V1 (STEP_SCOPED)
+  -> separately implemented/executed technical action
 ```
 
 No arrow in this chain performs a technical promotion automatically.

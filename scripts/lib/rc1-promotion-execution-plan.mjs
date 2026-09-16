@@ -1,10 +1,18 @@
+import {createHash} from 'node:crypto';
 import {inspectRc1HumanPromotionDecisionRecord} from '../../apps/web/app/oraculum/qa/readiness/human-decision.mjs';
 
 export const RC1_PROMOTION_EXECUTION_PLAN_VERSION='HOC-RC1-PROMOTION-EXECUTION-PLAN/V1';
+export const RC1_PROMOTION_PLAN_FINGERPRINT_VERSION='HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1';
 export const RC1_RELEASE_ID='HOC-V1.0-RC1';
 
 function assert(condition,message){if(!condition)throw new Error(message);}
 function freezeStep(step){return Object.freeze({...step,executable:false,requiresSeparateExecutionAuthorization:true});}
+function canonicalize(value){
+  if(Array.isArray(value))return value.map(canonicalize);
+  if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonicalize(value[key])]));
+  return value;
+}
+function canonicalJson(value){return JSON.stringify(canonicalize(value));}
 
 export function inspectRc1StackLandingPlan(stackPlan){
   const entries=Array.isArray(stackPlan?.orderedPullRequests)?stackPlan.orderedPullRequests:[];
@@ -25,6 +33,54 @@ export function inspectRc1StackLandingPlan(stackPlan){
     &&parentFirst,
   );
   return Object.freeze({valid,parentFirst,prCount:entries.length,planVersion:valid?stackPlan.planVersion:null,lastPr:valid?entries.at(-1)?.pr??null:null});
+}
+
+export function rc1PromotionPlanFingerprintCore(plan){
+  return Object.freeze({
+    fingerprintVersion:RC1_PROMOTION_PLAN_FINGERPRINT_VERSION,
+    version:plan.version,
+    releaseId:plan.releaseId,
+    mode:plan.mode,
+    sourceDecision:plan.sourceDecision,
+    sourceStack:plan.sourceStack,
+    target:plan.target,
+    steps:plan.steps,
+    summary:plan.summary,
+    governance:plan.governance,
+  });
+}
+
+export function computeRc1PromotionPlanFingerprint(plan){
+  return createHash('sha256').update(`${RC1_PROMOTION_PLAN_FINGERPRINT_VERSION}|${canonicalJson(rc1PromotionPlanFingerprintCore(plan))}`,'utf8').digest('hex');
+}
+
+export function verifyRc1PromotionExecutionPlan(plan){
+  const structurallyValid=Boolean(
+    plan
+    &&plan.version===RC1_PROMOTION_EXECUTION_PLAN_VERSION
+    &&plan.releaseId===RC1_RELEASE_ID
+    &&plan.mode==='DRY_RUN_ONLY'
+    &&Array.isArray(plan.steps)&&plan.steps.length>0
+    &&plan.steps.every(step=>step?.executable===false&&step?.requiresSeparateExecutionAuthorization===true)
+    &&plan.summary?.allExecutable===false
+    &&plan.governance?.executionAuthorized===false
+    &&plan.governance?.executesMerge===false
+    &&plan.governance?.executesVersionChange===false
+    &&plan.governance?.createsTagOrRelease===false
+    &&plan.governance?.executesDeployment===false
+    &&plan.governance?.promotesHnkCanon===false
+    &&plan.governance?.authority==='PROMOTION_EXECUTION_PLAN_NOT_EXECUTION_AUTHORITY'
+    &&typeof plan.planFingerprint==='string'
+    &&/^[0-9a-f]{64}$/u.test(plan.planFingerprint)
+  );
+  const expectedFingerprint=structurallyValid?computeRc1PromotionPlanFingerprint(plan):null;
+  return Object.freeze({
+    valid:structurallyValid&&expectedFingerprint===plan.planFingerprint,
+    structurallyValid,
+    fingerprintMatches:structurallyValid&&expectedFingerprint===plan.planFingerprint,
+    expectedFingerprint,
+    observedFingerprint:typeof plan?.planFingerprint==='string'?plan.planFingerprint:null,
+  });
 }
 
 export function buildRc1PromotionExecutionPlan({decisionRecord,stackPlan,generatedAt=new Date().toISOString()}){
@@ -55,7 +111,7 @@ export function buildRc1PromotionExecutionPlan({decisionRecord,stackPlan,generat
     freezeStep({id:'ARCHIVE_V1_RELEASE_EVIDENCE',phase:'ARCHIVE',instruction:'Archive final evidence, hashes, decision record, release metadata and production verification. HNK_CANON remains a separate governance domain.'}),
   ];
 
-  return Object.freeze({
+  const plan={
     version:RC1_PROMOTION_EXECUTION_PLAN_VERSION,
     releaseId:RC1_RELEASE_ID,
     generatedAt:String(generatedAt),
@@ -74,5 +130,7 @@ export function buildRc1PromotionExecutionPlan({decisionRecord,stackPlan,generat
       promotesHnkCanon:false,
       authority:'PROMOTION_EXECUTION_PLAN_NOT_EXECUTION_AUTHORITY',
     }),
-  });
+  };
+  const planFingerprint=computeRc1PromotionPlanFingerprint(plan);
+  return Object.freeze({...plan,planFingerprint});
 }
