@@ -13,6 +13,7 @@
     "plan:rc1:promotion": "node scripts/build-rc1-promotion-execution-plan.mjs",
     "authorize:rc1:technical": "node scripts/build-rc1-technical-execution-authorization.mjs",
     "guard:rc1:mutation": "node scripts/check-rc1-pre-mutation-guard.mjs",
+    "record:rc1:mutation": "node scripts/build-rc1-technical-mutation-receipt.mjs",
     "preview:preflight": "node scripts/check-vercel-preview-bootstrap.mjs"
   }
 }
