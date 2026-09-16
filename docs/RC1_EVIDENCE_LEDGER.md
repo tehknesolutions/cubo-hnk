@@ -14,6 +14,7 @@ Reunir, numa mesma matriz, evidências geradas pelos fluxos de QA da RC1:
 
 - runtime self-test;
 - independent executor validation;
+- deployment/runtime verification;
 - physical QA STATE;
 - physical QA RITUAL_32;
 - camera/device QA;
@@ -39,10 +40,7 @@ Os arquivos JSON são processados somente no navegador e permanecem em memória 
 
 Exportada em `/oraculum/qa`.
 
-PASS exige:
-
-- release `HOC-V1.0-RC1`;
-- `report.passed === true`.
+PASS exige release `HOC-V1.0-RC1` e `report.passed === true`.
 
 ### Independent executor
 
@@ -54,15 +52,37 @@ Gerada por:
 
 PASS exige simultaneamente:
 
-- release `HOC-V1.0-RC1`;
+- release RC1;
 - `passed === true`;
-- `authority === INDEPENDENT_EXECUTOR_EVIDENCE_NOT_GITHUB_CI`;
-- `summary.failedCommands === 0`;
-- `governance.replacesGitHubCI === false`;
-- `governance.promotesStable === false`;
-- `governance.promotesHnkCanon === false`.
+- autoridade `INDEPENDENT_EXECUTOR_EVIDENCE_NOT_GITHUB_CI`;
+- zero comandos obrigatórios falhos;
+- `replacesGitHubCI === false`;
+- `promotesStable === false`;
+- `promotesHnkCanon === false`.
 
-Esse gate prova execução real naquele executor quando o artefato foi produzido, mas **não transforma GitHub CI em PASS**.
+Esse gate prova execução real naquele executor, mas não transforma GitHub CI em PASS.
+
+### Deployment runtime
+
+`HOC-RC1-DEPLOYMENT-VERIFY-EVIDENCE/V1`
+
+Gerada por:
+
+`pnpm verify:rc1:deployment -- --url <URL_APROVADA>`
+
+PASS exige simultaneamente:
+
+- release RC1;
+- `passed === true`;
+- autoridade `DEPLOYMENT_RUNTIME_EVIDENCE_NOT_PRODUCTION_PROMOTION`;
+- zero checks falhos;
+- seed RAW observado exatamente igual ao seed dourado esperado;
+- `promotesStable === false`;
+- `promotesHnkCanon === false`;
+- `replacesGitHubCI === false`;
+- `replacesPhysicalQa === false`.
+
+O runner remoto verifica self-test, headers reais do host, `no-store`, vetor STATE dourado, Session Manifest headers e revalidação V0.10. Um PASS vale somente para a URL/runtime testados e não constitui promoção de produção.
 
 ### Physical QA
 
@@ -70,16 +90,7 @@ Esse gate prova execução real naquele executor quando o artefato foi produzido
 
 Exportada em `/oraculum/qa/physical`.
 
-Os casos são independentes:
-
-- `STATE_SOLVED`;
-- `RITUAL32_OFFICIAL`.
-
-PASS exige:
-
-- release RC1;
-- `report.passed === true`;
-- `physicalTranscriptionConfirmed === true`.
+Os casos `STATE_SOLVED` e `RITUAL32_OFFICIAL` são independentes. PASS exige `report.passed === true` e confirmação de transcrição física.
 
 ### Camera / Device QA
 
@@ -87,11 +98,7 @@ PASS exige:
 
 Exportada em `/oraculum/qa/camera`.
 
-PASS exige simultaneamente:
-
-- `fullQaPass === true`;
-- `capabilityPass === true`;
-- `manualPass === true`.
+PASS exige simultaneamente `fullQaPass`, `capabilityPass` e `manualPass`.
 
 ### Manifest verification
 
@@ -99,32 +106,21 @@ PASS exige simultaneamente:
 
 Exportada em `/oraculum/verify` após o servidor recalcular o manifesto V0.10.
 
-A evidência contém apenas resultado, versão do manifesto, `sessionId`, checksum SHA-256, label humano do dispositivo, contexto básico do navegador e timestamp. Não contém o corpo do manifesto, imagem, `deviceId`, geolocalização ou fingerprint de hardware.
+A evidência contém apenas identidade/resultados necessários ao QA e não contém corpo do manifesto, imagem, `deviceId`, geolocalização ou fingerprint de hardware.
 
 ## Gate cross-device
 
-O gate só recebe PASS quando há pelo menos duas evidências válidas de verificação que possuem:
+O gate só recebe PASS quando há pelo menos duas evidências válidas de verificação com mesmo `sessionId`, mesmo checksum SHA-256 e labels humanos de dispositivo diferentes.
 
-1. mesmo `sessionId`;
-2. mesmo checksum SHA-256;
-3. labels humanos de dispositivo diferentes.
-
-O label é uma declaração operacional humana, não uma identidade criptográfica do hardware.
-
-## Independent executor versus GitHub CI
+## Executor / deployment versus GitHub CI
 
 Esses gates são deliberadamente distintos.
 
-Um Independent Executor PASS pode demonstrar:
+Independent Executor PASS pode provar install/test/typecheck/build/self-test em uma máquina real.
 
-- instalação real;
-- testes reais;
-- typecheck real;
-- `pnpm check` real;
-- build Next.js real;
-- Runtime Self-Test real.
+Deployment Runtime PASS pode provar que um host real serve a aplicação com os headers, seed e verificação V0.10 esperados.
 
-Mesmo assim, enquanto a Issue #6 continuar produzindo jobs com `steps=null`, o gate:
+Mesmo com ambos em PASS, enquanto a Issue #6 continuar produzindo jobs GitHub Actions com `steps=null`, o gate:
 
 `GitHub CI / typecheck / build`
 
@@ -132,7 +128,7 @@ permanece:
 
 `BLOCKED`
 
-O ledger nunca usa evidência local/independente para promover silenciosamente o CI oficial.
+Nenhuma dessas evidências substitui Physical QA.
 
 ## Gates fixos refletidos pelo ledger
 
@@ -142,8 +138,6 @@ O estado atual também registra:
 - Manual Markdown + DOCX/PDF final: `PASS`;
 - Aprovação humana V1.0: `PENDING`;
 - GitHub CI: `BLOCKED` enquanto Issue #6 persistir.
-
-Esses estados não dependem da quantidade de arquivos importados.
 
 ## Artifact consolidado
 
@@ -157,14 +151,6 @@ Ele é um pacote de auditoria operacional e **não é assinatura criptográfica 
 
 ## Governança
 
-O Evidence Ledger não altera:
-
-- `HNK-ORACULUM-CUBE/V0.4`;
-- Interpretation V0.5;
-- `HOC-CUBE-LEGALITY/V0.8`;
-- `HOC-RITUAL-INTEGRITY/V0.9`;
-- `HOC-SESSION-MANIFEST/V0.10`;
-- HNK40;
-- vetores congelados da RC1.
+O Evidence Ledger não altera RAW V0.4, Interpretation V0.5, V0.8, V0.9, V0.10, HNK40 nem vetores congelados da RC1.
 
 O ledger existe somente para organizar evidência de promoção de release.
