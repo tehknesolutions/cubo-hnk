@@ -69,6 +69,27 @@ Documentação:
 
 `docs/RC1_RUNTIME_SELFTEST.md`
 
+## Physical QA da RC1
+
+Wizard:
+
+`/oraculum/qa/physical`
+
+API:
+
+`POST /api/oraculum/qa/physical`
+
+Casos oficiais:
+
+- `STATE_SOLVED`: transcrição de um cubo físico resolvido precisa reproduzir legalidade V0.8, RAW commit e seed congelados;
+- `RITUAL32_OFFICIAL`: a transcrição física após os 32 movimentos oficiais precisa reproduzir o estado final V0.9 congelado.
+
+O RITUAL_32 não revela o estado esperado antes da avaliação. A API exige confirmação explícita de que a sequência foi transcrita de um cubo real. O resultado pode ser exportado como evidência JSON, mas esse arquivo não é uma assinatura criptográfica e não substitui CI/build.
+
+Documentação:
+
+`docs/RC1_PHYSICAL_QA.md`
+
 ## Verificação de manifesto
 
 Interface:

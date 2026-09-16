@@ -18,6 +18,30 @@ const MANIFEST_CHECKSUM='e8510e6f8eb299ef57ecc2481d7ac5e3e4b0dd754284c2c5728d48f
 const MANIFEST_SESSION_ID='HOC-E8510E6F8EB299EF57ECC248';
 const HNK40_HASH='78668df0f707952b7c280de52526abaa2b7900597fb8ff362a3a08641fd1bce5';
 
+export const RC1_QA_VECTORS = Object.freeze({
+  stateSolved:Object.freeze({
+    caseId:'STATE_SOLVED',
+    intent:STATE_INTENT,
+    cubeState:SOLVED,
+    commit:STATE_COMMIT,
+    seed256:STATE_SEED,
+  }),
+  ritual32:Object.freeze({
+    caseId:'RITUAL32_OFFICIAL',
+    initialCubeState:SOLVED,
+    moves:RITUAL32,
+    expectedFinalState:RITUAL_FINAL,
+  }),
+  manifestSynthetic:Object.freeze({
+    checksum:MANIFEST_CHECKSUM,
+    sessionId:MANIFEST_SESSION_ID,
+  }),
+  hnk40:Object.freeze({
+    glyphSetSha256:HNK40_HASH,
+    status:'PREPRODUCTION_NOT_OFFICIAL',
+  }),
+});
+
 function syntheticFixture(){
   const raw={
     protocol:'HNK-ORACULUM-CUBE/V0.4',engineVersion:'0.10-test',mode:'STATE',profileId:'HNK_ORACULUM_DEFAULT_V1',
