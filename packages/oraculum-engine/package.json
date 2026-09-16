@@ -1,0 +1,31 @@
+{
+  "name": "@hnk/oraculum-engine",
+  "version": "0.5.0-candidate",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.mjs"
+    },
+    "./profiles": {
+      "types": "./src/profiles.d.ts",
+      "import": "./src/profiles.mjs"
+    },
+    "./interpretation": {
+      "types": "./src/interpretation.d.ts",
+      "import": "./src/interpretation.mjs"
+    },
+    "./hnk40-runtime": {
+      "types": "./src/hnk40-runtime.d.ts",
+      "import": "./src/hnk40-runtime.mjs"
+    }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}
