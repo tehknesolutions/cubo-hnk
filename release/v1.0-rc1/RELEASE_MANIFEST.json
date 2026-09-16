@@ -1,30 +1,53 @@
 {
-  "releaseId":"HOC-V1.0-RC1",
-  "semver":"1.0.0-rc.1",
-  "status":"RELEASE_CANDIDATE",
-  "canonPromotion":"NOT_HNK_CANON",
-  "protocols":{
-    "scan":"HOC-FACELET-SCAN-V1","raw":"HNK-ORACULUM-CUBE/V0.4","interpretation":"0.5.0-candidate","cubeLegality":"HOC-CUBE-LEGALITY/V0.8","ritualIntegrity":"HOC-RITUAL-INTEGRITY/V0.9","sessionManifest":"HOC-SESSION-MANIFEST/V0.10","canonicalJson":"HOC-CANONICAL-JSON/V1","runtimeSelfTest":"HOC-RC1-RUNTIME-SELFTEST/V1","releaseAttestation":"HOC-RC1-RELEASE-ATTESTATION/V1"
+  "releaseId": "HOC-V1.0-RC1",
+  "semver": "1.0.0-rc.1",
+  "status": "RELEASE_CANDIDATE",
+  "canonPromotion": "NOT_HNK_CANON",
+  "protocols": {
+    "scan": "HOC-FACELET-SCAN-V1",
+    "raw": "HNK-ORACULUM-CUBE/V0.4",
+    "interpretation": "0.5.0-candidate",
+    "cubeLegality": "HOC-CUBE-LEGALITY/V0.8",
+    "ritualIntegrity": "HOC-RITUAL-INTEGRITY/V0.9",
+    "sessionManifest": "HOC-SESSION-MANIFEST/V0.10",
+    "canonicalJson": "HOC-CANONICAL-JSON/V1",
+    "runtimeSelfTest": "HOC-RC1-RUNTIME-SELFTEST/V1",
+    "releaseAttestation": "HOC-RC1-RELEASE-ATTESTATION/V1"
   },
-  "operationalMetadata":{
-    "buildProvenance":"HOC-RC1-BUILD-PROVENANCE/V1",
-    "promotionReadiness":"HOC-RC1-PROMOTION-READINESS/V1",
-    "humanPromotionDecision":"HOC-RC1-HUMAN-PROMOTION-DECISION/V1",
-    "entersReleaseFingerprint":false,
-    "buildProvenanceAuthority":"BUILD_PROVENANCE_METADATA_NOT_RELEASE_IDENTITY",
-    "promotionReadinessAuthority":"READINESS_ASSESSMENT_NOT_PROMOTION_AUTHORITY",
-    "humanDecisionAuthority":"HUMAN_DECISION_RECORD_NOT_EXECUTION_AUTHORITY"
+  "operationalMetadata": {
+    "buildProvenance": "HOC-RC1-BUILD-PROVENANCE/V1",
+    "promotionReadiness": "HOC-RC1-PROMOTION-READINESS/V1",
+    "humanPromotionDecision": "HOC-RC1-HUMAN-PROMOTION-DECISION/V1",
+    "entersReleaseFingerprint": false,
+    "buildProvenanceAuthority": "BUILD_PROVENANCE_METADATA_NOT_RELEASE_IDENTITY",
+    "promotionReadinessAuthority": "READINESS_ASSESSMENT_NOT_PROMOTION_AUTHORITY",
+    "humanDecisionAuthority": "HUMAN_DECISION_RECORD_NOT_EXECUTION_AUTHORITY"
   },
-  "packages":{"workspace":"1.0.0-rc.1","@hnk/oraculum-engine":"1.0.0-rc.1","@hnk/cubo-web":"1.0.0-rc.1"},
-  "hnk40":{"status":"PREPRODUCTION_NOT_OFFICIAL","glyphCount":40,"glyphSetSha256":"78668df0f707952b7c280de52526abaa2b7900597fb8ff362a3a08641fd1bce5","candidateOracleSemanticsRemainNonCanonical":true},
-  "frozenVectors":{"stateRawSeed256":"df6bcd1bfd58288fb8f7d7e0f22b69d7e305a24429ba4445c242efc000e3b6fc","ritualV09FinalState":"513004512451013254000425014533433235324540121221251340","manifestSyntheticChecksum":"e8510e6f8eb299ef57ecc2481d7ac5e3e4b0dd754284c2c5728d48febbb60041","manifestSyntheticSessionId":"HOC-E8510E6F8EB299EF57ECC248","releaseAttestationFingerprint":"08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90"},
-  "compatibility":{
-    "stateMode":["SCAN_V1","LEGALITY_V0.8","RAW_V0.4","INTERPRETATION_V0.5","MANIFEST_V0.10"],
-    "ritual32Mode":["SCAN_V1","LEGALITY_V0.8","RITUAL_V0.9","RAW_V0.4","INTERPRETATION_V0.5","MANIFEST_V0.10"],
-    "deploymentVerification":["RELEASE_ATTESTATION_V1","BUILD_PROVENANCE_V1","RUNTIME_SELFTEST_V1","RAW_V0.4_GOLDEN","MANIFEST_V0.10_VERIFY"],
-    "promotionReadiness":["EVIDENCE_LEDGER_V1","MANDATORY_GATE_MATRIX","HUMAN_PROMOTION_DECISION_V1"]
+  "packages": {
+    "workspace": "1.0.0-rc.1",
+    "@hnk/oraculum-engine": "1.0.0-rc.1",
+    "@hnk/cubo-web": "1.0.0-rc.1"
   },
-  "releaseGuarantees":[
+  "hnk40": {
+    "status": "PREPRODUCTION_NOT_OFFICIAL",
+    "glyphCount": 40,
+    "glyphSetSha256": "78668df0f707952b7c280de52526abaa2b7900597fb8ff362a3a08641fd1bce5",
+    "candidateOracleSemanticsRemainNonCanonical": true
+  },
+  "frozenVectors": {
+    "stateRawSeed256": "df6bcd1bfd58288fb8f7d7e0f22b69d7e305a24429ba4445c242efc000e3b6fc",
+    "ritualV09FinalState": "513004512451013254000425014533433235324540121221251340",
+    "manifestSyntheticChecksum": "e8510e6f8eb299ef57ecc2481d7ac5e3e4b0dd754284c2c5728d48febbb60041",
+    "manifestSyntheticSessionId": "HOC-E8510E6F8EB299EF57ECC248",
+    "releaseAttestationFingerprint": "08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90"
+  },
+  "compatibility": {
+    "stateMode": ["SCAN_V1", "LEGALITY_V0.8", "RAW_V0.4", "INTERPRETATION_V0.5", "MANIFEST_V0.10"],
+    "ritual32Mode": ["SCAN_V1", "LEGALITY_V0.8", "RITUAL_V0.9", "RAW_V0.4", "INTERPRETATION_V0.5", "MANIFEST_V0.10"],
+    "deploymentVerification": ["RELEASE_ATTESTATION_V1", "BUILD_PROVENANCE_V1", "RUNTIME_SELFTEST_V1", "RAW_V0.4_GOLDEN", "MANIFEST_V0.10_VERIFY"],
+    "promotionReadiness": ["EVIDENCE_LEDGER_V1", "MANDATORY_GATE_MATRIX", "HUMAN_PROMOTION_DECISION_V1"]
+  },
+  "releaseGuarantees": [
     "RAW V0.4 seed construction is unchanged",
     "profiles do not enter RAW SHA-256",
     "V0.8 and V0.9 are pre-RAW physical gates",
@@ -36,7 +59,7 @@
     "promotion readiness separates mandatory gates, supplemental evidence and the final human decision without automatic promotion authority",
     "human APPROVE/DEFER/REJECT can be recorded without executing merge, deployment, version changes or HNK_CANON promotion"
   ],
-  "nonGuarantees":[
+  "nonGuarantees": [
     "No claim of supernatural certainty or infallible prediction",
     "No automatic promotion of HNK40 oracle semantics to linguistic or spiritual canon",
     "No claim that historical traditions are interchangeable",
