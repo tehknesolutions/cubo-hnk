@@ -1,0 +1,55 @@
+{
+  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V1",
+  "releaseId": "HOC-V1.0-RC1",
+  "repository": "tehknesolutions/cubo-hnk",
+  "mergeAuthorized": false,
+  "stablePromotionAuthorized": false,
+  "hnkCanonPromotionAuthorized": false,
+  "blockerIssue": 6,
+  "currentState": "STACK_READY_FOR_ORDERED_REVIEW_NOT_AUTHORIZED_TO_LAND",
+  "orderedPullRequests": [
+    {"order":1,"pr":1,"base":"main","head":"feat/bootstrap-hoc-v1","role":"standalone repository bootstrap"},
+    {"order":2,"pr":2,"base":"feat/bootstrap-hoc-v1","head":"feat/v08-cube-legality","role":"V0.8 mechanical cube legality"},
+    {"order":3,"pr":3,"base":"feat/v08-cube-legality","head":"feat/v09-ritual-integrity","role":"V0.9 RITUAL_32 integrity"},
+    {"order":4,"pr":4,"base":"feat/v09-ritual-integrity","head":"feat/v010-session-manifest","role":"V0.10 deterministic session manifest"},
+    {"order":5,"pr":5,"base":"feat/v010-session-manifest","head":"release/v1.0-rc1","role":"V1.0 RC1 protocol freeze"},
+    {"order":6,"pr":7,"base":"release/v1.0-rc1","head":"feat/v1-rc1-runtime-selftest","role":"runtime self-test and QA hub"},
+    {"order":7,"pr":8,"base":"feat/v1-rc1-runtime-selftest","head":"feat/v1-rc1-physical-qa","role":"physical QA wizard"},
+    {"order":8,"pr":9,"base":"feat/v1-rc1-physical-qa","head":"feat/v1-rc1-camera-qa","role":"camera and device QA"},
+    {"order":9,"pr":10,"base":"feat/v1-rc1-camera-qa","head":"feat/v1-rc1-evidence-ledger","role":"release evidence ledger and cross-device QA"},
+    {"order":10,"pr":11,"base":"feat/v1-rc1-evidence-ledger","head":"docs/v1-rc1-manual-audit","role":"consolidated manual and release audit"},
+    {"order":11,"pr":12,"base":"docs/v1-rc1-manual-audit","head":"feat/v1-rc1-production-hardening","role":"production HTTP/security hardening"},
+    {"order":12,"pr":13,"base":"feat/v1-rc1-production-hardening","head":"docs/v1-rc1-visual-manual","role":"visual DOCX/PDF manual QA hashes"},
+    {"order":13,"pr":14,"base":"docs/v1-rc1-visual-manual","head":"feat/v1-rc1-independent-validation","role":"independent real-executor validation runner"},
+    {"order":14,"pr":15,"base":"feat/v1-rc1-independent-validation","head":"feat/v1-rc1-independent-ledger","role":"independent executor evidence integration"}
+  ],
+  "knownMissingPrNumber": {
+    "number": 6,
+    "reason": "GitHub Issue #6 is the Actions runner blocker; there is intentionally no PR #6 in the landing chain"
+  },
+  "preLandingGates": [
+    {"id":"humanMergeAuthorization","required":true,"status":"PENDING"},
+    {"id":"realAutomatedExecution","required":true,"status":"BLOCKED","reason":"GitHub Issue #6: Actions jobs end with steps=null before execution"},
+    {"id":"independentExecutorEvidence","required":false,"status":"PENDING","reason":"supplementary fallback evidence runner is instrumented but not yet executed"},
+    {"id":"protocolFreezeIntegrity","required":true,"status":"PASS"},
+    {"id":"visualManualArtifacts","required":true,"status":"PASS"}
+  ],
+  "stablePromotionGatesRemainSeparate": [
+    "runtime self-test execution evidence",
+    "physical STATE evidence",
+    "physical RITUAL_32 evidence",
+    "camera/device evidence or explicit experimental downgrade",
+    "cross-device Manifest V0.10 verification",
+    "production deployment hardening verification",
+    "GitHub CI/typecheck/build gate",
+    "explicit human V1.0 stable promotion approval"
+  ],
+  "landingRules": [
+    "Do not merge a child PR before its parent PR has landed or the child has been correctly rebased/retargeted.",
+    "Do not squash or reorder protocol-layer commits in a way that changes frozen vectors or provenance history without a new audit.",
+    "After each parent lands, refresh the next PR base and re-check the diff before merging it.",
+    "A mergeable=true GitHub state is not equivalent to merge authorization.",
+    "Independent executor evidence cannot be used to silently mark GitHub CI as PASS.",
+    "Landing RC1 code does not by itself authorize V1.0 stable or HNK_CANON promotion."
+  ]
+}
