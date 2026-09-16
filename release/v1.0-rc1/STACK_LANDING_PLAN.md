@@ -1,6 +1,6 @@
 # HOC V1.0 RC1 — Stack Landing Plan
 
-Plan: `HOC-V1.0-RC1-STACK-LANDING/V9`
+Plan: `HOC-V1.0-RC1-STACK-LANDING/V10`
 
 Estado atual:
 
@@ -12,7 +12,7 @@ Este documento organiza a sequência dos PRs empilhados. Ele **não autoriza mer
 
 A cadeia é linear:
 
-`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21 → #22 → #23 → #24 → #25 → #26 → #27`
+`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21 → #22 → #23 → #24 → #25 → #26 → #27 → #28`
 
 Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que rastreia o bloqueio GitHub Actions.
 
@@ -36,28 +36,38 @@ Mesmo uma aprovação registrada não executa merge, deploy, mudança de versão
 
 `HOC-RC1-PROMOTION-EXECUTION-PLAN/V1`
 
-Recebe um futuro `APPROVE_V1_0` válido e a stack parent-first e produz apenas um runbook:
+Produz apenas um runbook `DRY_RUN_ONLY`. Cada passo permanece `executable=false` e exige autorização separada.
 
-`DRY_RUN_ONLY`
+O plano também recebe `HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1`, que ignora apenas `generatedAt` e vincula a identidade operacional do plano para impedir autorização silenciosa de um plano modificado.
 
-Cada passo congela:
+### Technical Execution Authorization V1 — PR #28
 
-- `executable=false`;
-- `requiresSeparateExecutionAuthorization=true`.
+`HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1`
 
-O plano inteiro mantém `executionAuthorized=false`. Ele não chama GitHub/Vercel, não executa processos externos e não altera repositório, versão, tags ou deployment.
+Registra autorização técnica **somente para step IDs explicitamente listados** no plano cujo fingerprint foi validado.
+
+A autorização é `STEP_SCOPED`:
+
+- autorizar um PR não autoriza os demais;
+- autorizar landing não autoriza stable/tag;
+- autorizar ações não produtivas não autoriza produção;
+- fases de stable exigem acknowledgement próprio;
+- fases de deployment/post-deployment exigem acknowledgement próprio;
+- `HNK_CANON` permanece fora deste contrato.
+
+Mesmo uma autorização que liste todos os passos mantém `executesActions=false` e `automaticExecution=false`. O registro documenta autoridade; não contém executor.
 
 ## Ordem de aterrissagem
 
-A fonte machine-readable contém a lista completa parent-first dos 26 PRs da stack. A cauda atual é:
+A fonte machine-readable contém a lista completa parent-first dos 27 PRs da stack. A cauda atual é:
 
 | Ordem | PR | Base | Head | Papel |
 | ---: | ---: | --- | --- | --- |
-| 22 | #23 | `feat/v1-rc1-vercel-preview-bootstrap` | `feat/v1-rc1-release-attestation` | identidade determinística RC1 |
 | 23 | #24 | `feat/v1-rc1-release-attestation` | `feat/v1-rc1-build-provenance` | proveniência e commit pinning |
 | 24 | #25 | `feat/v1-rc1-build-provenance` | `feat/v1-rc1-promotion-readiness` | avaliação final de readiness |
 | 25 | #26 | `feat/v1-rc1-promotion-readiness` | `feat/v1-rc1-human-promotion-decision` | registro humano APPROVE/DEFER/REJECT |
 | 26 | #27 | `feat/v1-rc1-human-promotion-decision` | `feat/v1-rc1-promotion-execution-plan` | runbook técnico dry-run sem execução |
+| 27 | #28 | `feat/v1-rc1-promotion-execution-plan` | `feat/v1-rc1-technical-execution-authorization` | autorização técnica step-scoped ligada ao fingerprint exato |
 
 ## GitHub Actions
 
@@ -77,7 +87,7 @@ Nenhum child PR deve aterrissar antes do parent correspondente. Depois que um pa
 
 ## `mergeable=true` não é autorização
 
-O GitHub dizer que um PR é mergeável significa apenas ausência de conflito textual impeditivo naquele instante. Não significa CI PASS, build PASS, QA físico PASS, aprovação humana, autorização de merge, V1.0 estável ou `HNK_CANON`.
+O GitHub dizer que um PR é mergeável significa apenas ausência de conflito textual impeditivo naquele instante. Não significa CI PASS, build PASS, QA físico PASS, aprovação humana, autorização técnica, V1.0 estável ou `HNK_CANON`.
 
 O plano machine-readable continua com:
 
@@ -101,14 +111,22 @@ Continuam independentes:
 - GitHub CI/typecheck/build;
 - Promotion Readiness = `READY_FOR_HUMAN_REVIEW`;
 - Human Promotion Decision = `APPROVE_V1_0`;
-- Promotion Execution Plan = `DRY_RUN_ONLY`;
-- autorização separada para cada mutação técnica da promoção V1.0.
+- Promotion Execution Plan válido e fingerprint verificado;
+- Technical Execution Authorization válido para os step IDs realmente pretendidos;
+- executor/manual action separado que revalide autorização imediatamente antes da mutação.
 
-## Estratégia futura de merge
+## Estratégia futura de execução
 
-Quando houver autorização humana e gates suficientes, usar **parent-first, um PR por vez**. Após cada merge, confirmar SHA, verificar a próxima base, retargetar/rebasear se necessário, recalcular o diff incremental e interromper se qualquer vetor, protocolo ou contrato sair do escopo esperado.
+Quando houver autorização humana, gates suficientes e autorização técnica específica, usar **parent-first, um passo por vez**. Antes de cada mutação:
 
-Não usar merge em massa ou auto-merge da stack enquanto a RC1 estiver sob auditoria.
+1. revalidar o `planFingerprint`;
+2. confirmar que o step ID está listado no authorization record;
+3. confirmar que acknowledgements de stable/produção aplicáveis continuam presentes;
+4. confirmar o estado atual da base/commit;
+5. executar apenas aquela mutação;
+6. registrar evidência do resultado antes do passo seguinte.
+
+Não usar merge em massa, auto-merge da stack ou interpretação de autorização parcial como autorização global.
 
 ## Fontes
 
@@ -121,6 +139,7 @@ Governança final:
 - `docs/RC1_PROMOTION_READINESS.md`
 - `docs/RC1_HUMAN_PROMOTION_DECISION.md`
 - `docs/RC1_PROMOTION_EXECUTION_PLAN.md`
+- `docs/RC1_TECHNICAL_EXECUTION_AUTHORIZATION.md`
 - `release/v1.0-rc1/RELEASE_MANIFEST.json`
 - `release/v1.0-rc1/AUDIT_STATUS.json`
 
