@@ -19,11 +19,14 @@
     "promotionReadiness": "HOC-RC1-PROMOTION-READINESS/V1",
     "humanPromotionDecision": "HOC-RC1-HUMAN-PROMOTION-DECISION/V1",
     "promotionExecutionPlan": "HOC-RC1-PROMOTION-EXECUTION-PLAN/V1",
+    "promotionPlanFingerprint": "HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1",
+    "technicalExecutionAuthorization": "HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1",
     "entersReleaseFingerprint": false,
     "buildProvenanceAuthority": "BUILD_PROVENANCE_METADATA_NOT_RELEASE_IDENTITY",
     "promotionReadinessAuthority": "READINESS_ASSESSMENT_NOT_PROMOTION_AUTHORITY",
     "humanDecisionAuthority": "HUMAN_DECISION_RECORD_NOT_EXECUTION_AUTHORITY",
-    "promotionExecutionPlanAuthority": "PROMOTION_EXECUTION_PLAN_NOT_EXECUTION_AUTHORITY"
+    "promotionExecutionPlanAuthority": "PROMOTION_EXECUTION_PLAN_NOT_EXECUTION_AUTHORITY",
+    "technicalExecutionAuthorizationAuthority": "TECHNICAL_EXECUTION_AUTHORIZATION_RECORD_NOT_EXECUTOR"
   },
   "packages": {
     "workspace": "1.0.0-rc.1",
@@ -48,7 +51,8 @@
     "ritual32Mode": ["SCAN_V1", "LEGALITY_V0.8", "RITUAL_V0.9", "RAW_V0.4", "INTERPRETATION_V0.5", "MANIFEST_V0.10"],
     "deploymentVerification": ["RELEASE_ATTESTATION_V1", "BUILD_PROVENANCE_V1", "RUNTIME_SELFTEST_V1", "RAW_V0.4_GOLDEN", "MANIFEST_V0.10_VERIFY"],
     "promotionReadiness": ["EVIDENCE_LEDGER_V1", "MANDATORY_GATE_MATRIX", "HUMAN_PROMOTION_DECISION_V1"],
-    "promotionExecutionPlanning": ["HUMAN_PROMOTION_DECISION_V1_APPROVE", "STACK_LANDING_PARENT_FIRST", "DRY_RUN_ONLY", "SEPARATE_EXECUTION_AUTHORIZATION"]
+    "promotionExecutionPlanning": ["HUMAN_PROMOTION_DECISION_V1_APPROVE", "STACK_LANDING_PARENT_FIRST", "PROMOTION_PLAN_FINGERPRINT_V1", "DRY_RUN_ONLY"],
+    "technicalExecutionAuthorization": ["VALID_PROMOTION_PLAN_FINGERPRINT", "STEP_SCOPED_AUTHORIZATION", "EXPLICIT_STABLE_ACK", "EXPLICIT_PRODUCTION_ACK", "NO_AUTOMATIC_EXECUTION"]
   },
   "releaseGuarantees": [
     "RAW V0.4 seed construction is unchanged",
@@ -61,7 +65,8 @@
     "build commit/ref/deployment provenance is exposed separately and does not change the frozen release fingerprint",
     "promotion readiness separates mandatory gates, supplemental evidence and the final human decision without automatic promotion authority",
     "human APPROVE/DEFER/REJECT can be recorded without executing merge, deployment, version changes or HNK_CANON promotion",
-    "an approved human decision can produce a DRY_RUN_ONLY promotion plan whose steps are all non-executable until separately authorized"
+    "an approved human decision can produce a DRY_RUN_ONLY promotion plan whose exact operational content is bound by a separate plan fingerprint",
+    "technical execution authorization is restricted to explicitly listed plan step IDs and requires extra acknowledgement for stable or production phases"
   ],
   "nonGuarantees": [
     "No claim of supernatural certainty or infallible prediction",
@@ -72,6 +77,7 @@
     "Build provenance metadata alone does not prove deployment correctness or authorize promotion",
     "READY_FOR_HUMAN_REVIEW is not V1.0 stable and never authorizes merge or HNK_CANON promotion",
     "An APPROVE_V1_0 decision record documents approval but does not itself execute technical promotion",
-    "A Promotion Execution Plan is a non-executable runbook and does not authorize merge, version change, tag/release creation or deployment"
+    "A Promotion Execution Plan is a non-executable runbook and does not itself authorize any technical action",
+    "A Technical Execution Authorization record does not execute shell commands, GitHub mutations, Vercel deployment or HNK_CANON promotion; it only documents authority for listed plan steps"
   ]
 }
