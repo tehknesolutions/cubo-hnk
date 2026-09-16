@@ -34,68 +34,43 @@ The genesis state is bound to the exact Promotion Execution Plan fingerprint and
 
 ## State fingerprint
 
-Each state carries:
-
-`HOC-RC1-COMPLETED-PREFIX-STATE-FINGERPRINT/V1`
-
-The state fingerprint binds:
-
-- release ID;
-- exact plan fingerprint;
-- source Stack Landing version;
-- ordered completed step IDs;
-- ordered lineage entries;
-- completed count;
-- next step ID;
-- non-execution governance.
+Each state carries `HOC-RC1-COMPLETED-PREFIX-STATE-FINGERPRINT/V1`, binding release ID, plan fingerprint, Stack Landing version, ordered completed steps, lineage, count, next step and non-execution governance.
 
 The fingerprint makes accidental or silent edits detectable. It is **not** a digital signature or external trust anchor.
 
 ## Lineage
 
-Each completed step adds exactly one lineage entry containing:
-
-- zero-based prefix index;
-- step ID;
-- receipt ID;
-- evidence-verification ID;
-- evidence-verification fingerprint;
-- transition timestamp.
-
-This preserves which verified evidence justified each `N -> N+1` transition.
+Each completed step adds one lineage entry containing its index, step ID, receipt ID, evidence-verification ID/fingerprint and transition timestamp.
 
 ## Transition rules
 
 A transition is accepted only when:
 
-1. the current Completed Prefix State is valid for the exact plan;
-2. its `completedStepIds` form the exact prefix of the runbook;
-3. the plan is not already complete;
-4. the Mutation Evidence Verification record is valid and `eligibleForCompletedPrefix=true`;
-5. the verified receipt step equals the state's exact `nextStepId`;
+1. current Completed Prefix State is valid for the exact plan;
+2. `completedStepIds` form the exact runbook prefix;
+3. plan is not already complete;
+4. Mutation Evidence Verification is valid and `eligibleForCompletedPrefix=true`;
+5. verified receipt step equals the state's exact `nextStepId`;
 6. `transitionedAt >= verification.verifiedAt`;
-7. the next state appends exactly one step and preserves the full previous prefix;
-8. the next state's lineage appends the exact verification fingerprint;
-9. state and transition fingerprints both validate.
+7. next state appends exactly one step and preserves the previous prefix;
+8. lineage appends the exact verification fingerprint;
+9. state and transition fingerprints validate.
 
 A verified step cannot be replayed to advance a later prefix, and no step can be skipped.
 
+## Guard V2 handoff
+
+The generated `nextState` is the required state artifact for the next:
+
+`HOC-RC1-PRE-MUTATION-GUARD/V2`
+
+Guard V2 validates this state and derives the only allowed candidate from `nextState.nextStepId`; callers no longer provide a free-form `completedStepIds` list.
+
+The subsequent Technical Mutation Receipt preserves the exact Guard V2 `completedPrefixStateFingerprint` and `guardFingerprint` under which the next action was authorized.
+
 ## Result boundary
 
-A valid transition records:
-
-```json
-{
-  "status": "COMPLETED_PREFIX_ADVANCED",
-  "fromCount": 0,
-  "toCount": 1,
-  "appendedStepId": "...",
-  "nextStepId": "...",
-  "nextStateFingerprint": "..."
-}
-```
-
-Governance freezes:
+A valid transition records `COMPLETED_PREFIX_ADVANCED` and freezes:
 
 ```json
 {
@@ -108,11 +83,11 @@ Governance freezes:
 }
 ```
 
-`advancesLogicalCompletedPrefix=true` means the generated `nextState` is the new logical state artifact. It does not mean the tool merged a PR, deployed code, changed a Git ref or mutated an external database.
+`advancesLogicalCompletedPrefix=true` means the generated `nextState` is the new local logical state artifact. It does not mean the tool merged a PR, deployed code, changed a Git ref or mutated an external database.
 
 ## CLI
 
-First transition (genesis is created automatically when `--state` is omitted):
+First transition, with genesis generated automatically when `--state` is omitted:
 
 ```bash
 pnpm advance:rc1:completed-prefix -- \
@@ -122,35 +97,30 @@ pnpm advance:rc1:completed-prefix -- \
   --verification ./dist/HOC-RC1-MUTATION-EVIDENCE-VERIFICATION.json
 ```
 
-Subsequent transitions:
+Subsequent transitions additionally pass:
 
-```bash
-pnpm advance:rc1:completed-prefix -- \
-  --plan ./dist/HOC-RC1-PROMOTION-EXECUTION-PLAN.json \
-  --authorization ./dist/HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION.json \
-  --receipt ./dist/HOC-RC1-TECHNICAL-MUTATION-RECEIPT.json \
-  --verification ./dist/HOC-RC1-MUTATION-EVIDENCE-VERIFICATION.json \
-  --state ./dist/HOC-RC1-COMPLETED-PREFIX-STATE.json
-```
+`--state ./dist/HOC-RC1-COMPLETED-PREFIX-STATE.json`
 
 Default outputs:
 
 - `dist/HOC-RC1-COMPLETED-PREFIX-TRANSITION.json`
 - `dist/HOC-RC1-COMPLETED-PREFIX-STATE.json`
 
-The CLI reads local JSON and writes local JSON only. It has no process executor, GitHub/Vercel API mutation or network fetch.
+The CLI reads/writes local JSON only and has no process executor or GitHub/Vercel mutation surface.
 
 ## Pipeline
 
 ```text
 Promotion Plan
   -> Technical Authorization
-  -> Pre-Mutation Guard ALLOW
+  -> fingerprinted Completed Prefix State
+  -> Pre-Mutation Guard V2 ALLOW
   -> external/manual technical action
-  -> Technical Mutation Receipt (reported result)
-  -> Mutation Evidence Verification (verified evidence)
-  -> Completed-Prefix Transition (logical state N -> N+1)
-  -> next Pre-Mutation Guard evaluation
+  -> Technical Mutation Receipt (state-bound reported result)
+  -> Mutation Evidence Verification
+  -> Completed-Prefix Transition (logical N -> N+1)
+  -> next fingerprinted Completed Prefix State
+  -> next Pre-Mutation Guard V2
 ```
 
 `HNK_CANON` remains outside this operational pipeline.
