@@ -1,6 +1,6 @@
 # HOC V1.0 RC1 — Stack Landing Plan
 
-Plan: `HOC-V1.0-RC1-STACK-LANDING/V2`
+Plan: `HOC-V1.0-RC1-STACK-LANDING/V3`
 
 Estado atual:
 
@@ -12,7 +12,7 @@ Este documento organiza a sequência dos PRs empilhados. Ele **não autoriza mer
 
 A cadeia é linear:
 
-`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20`
+`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21`
 
 Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que rastreia o bloqueio GitHub Actions.
 
@@ -39,6 +39,7 @@ Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que ra
 | 17 | #18 | `feat/v1-rc1-deployment-verification` | `feat/v1-rc1-deployment-ledger` | deployment evidence no ledger |
 | 18 | #19 | `feat/v1-rc1-deployment-ledger` | `infra/actions-runner-diagnostic` | diagnóstico pre-runner + pacote Support |
 | 19 | #20 | `infra/actions-runner-diagnostic` | `docs/v1-rc1-stack-landing-v2` | reconciliação da topologia V2 |
+| 20 | #21 | `docs/v1-rc1-stack-landing-v2` | `infra/actions-recovery-controls` | controles manuais de recuperação do Actions |
 
 ## Diagnóstico do blocker
 
@@ -56,6 +57,19 @@ Ambos criaram job objects e terminaram em `failure` com:
 Isso localiza a condição atual antes dos steps de workflow e retira checkout, pnpm, Node, Next.js, HOC tests/build e um problema exclusivo de Ubuntu da lista de causas necessárias.
 
 O gate oficial de CI continua `BLOCKED`; diagnóstico não equivale a PASS.
+
+## Controles de recuperação
+
+O PR #21 fecha a fase de diagnóstico automático:
+
+- `Actions Runner Diagnostic` passa a `workflow_dispatch` only;
+- o CI principal ganha `workflow_dispatch` sem perder PR/push triggers;
+- permissões ficam em `contents: read`;
+- CI ganha `concurrency` com cancelamento de runs obsoletos;
+- `validate` recebe timeout de 20 minutos;
+- o runbook de recuperação fica em `docs/GITHUB_ACTIONS_RECOVERY_RUNBOOK.md`.
+
+No próprio PR #21, apenas o CI principal disparou automaticamente. O probe manual não rodou, confirmando que o ruído diagnóstico foi removido. O CI principal continuou com `steps=null`, portanto a causa externa permanece.
 
 ## Regra parent-first
 
@@ -137,7 +151,8 @@ Machine-readable:
 
 `release/v1.0-rc1/STACK_LANDING_PLAN.json`
 
-Diagnóstico de Actions:
+Diagnóstico e recuperação de Actions:
 
 - `release/v1.0-rc1/ACTIONS_RUNNER_DIAGNOSTIC_EVIDENCE.json`
 - `docs/GITHUB_ACTIONS_SUPPORT_PACKET.md`
+- `docs/GITHUB_ACTIONS_RECOVERY_RUNBOOK.md`

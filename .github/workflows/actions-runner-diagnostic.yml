@@ -1,7 +1,10 @@
 name: Actions Runner Diagnostic
 
 on:
-  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   ubuntu-probe:
