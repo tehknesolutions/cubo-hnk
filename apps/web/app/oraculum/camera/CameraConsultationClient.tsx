@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect,useMemo,useRef,useState } from 'react';
 import { classifyRgb,rgbToHex,sampleNinePatches,type Rgb } from '../camera-color-utils.mjs';
+import { ManifestActions } from '../ManifestActions';
 import styles from '../oraculum.module.css';
 
 const FACES=['U','R','F','D','L','B'] as const;
@@ -156,7 +157,7 @@ export function CameraConsultationClient(){
 
   return <main className={styles.shell}>
     <header className={styles.hero}>
-      <div><p className={styles.kicker}>V0.7 CÂMERA · V0.9 RITUAL</p><h1>Capture, corrija, confirme</h1><p>A câmera gera apenas um candidato. O hash só existe depois da revisão humana e dos gates físicos.</p><p><Link href="/oraculum">← voltar ao modo manual</Link></p></div>
+      <div><p className={styles.kicker}>V0.7 CÂMERA · V0.9 RITUAL · V0.10 MANIFEST</p><h1>Capture, corrija, confirme</h1><p>A câmera gera apenas um candidato. O hash só existe depois da revisão humana e dos gates físicos.</p><p><Link href="/oraculum">← voltar ao modo manual</Link> · <Link href="/oraculum/verify">verificar manifesto →</Link></p></div>
       <div className={styles.badge}>HUMAN-REVIEW-REQUIRED</div>
     </header>
 
@@ -208,12 +209,13 @@ export function CameraConsultationClient(){
 
     {result&&!result.ok&&(result.legality||result.ritualIntegrity)&&<section className={styles.card}>
       <h2>Gate físico bloqueou a consulta</h2>
-      <p>Nenhum SHA oracular foi produzido para este envio.</p>
+      <p>Nenhum SHA oracular ou manifesto V0.10 foi produzido para este envio.</p>
       <pre className={styles.audit}>{JSON.stringify({legality:result.legality,ritualIntegrity:result.ritualIntegrity},null,2)}</pre>
     </section>}
 
     {result?.raw&&<section className={styles.results}>
       <div className={styles.resultHero}><div><p className={styles.kicker}>RAW V0.4</p><h2>{result.raw.hnk.glyphId} · Path {result.raw.path32.index}</h2><p className={styles.hash}>{result.raw.raw.seed256}</p></div><div className={styles.colorTriad}><span style={{background:result.raw.colors.essence}}/><span style={{background:result.raw.colors.shadow}}/><span style={{background:result.raw.colors.manifestation}}/></div></div>
+      {result.manifest&&<ManifestActions manifest={result.manifest}/>}
       {result.ritualIntegrity?.valid&&<div className={styles.validState}>✓ RITUAL_32 V0.9 confirmado fisicamente.</div>}
       <article className={styles.malkuth}><div><small>MALKUTH</small><h3>{result.interpretation?.malkuth?.dominantKey||'Sem dominante'}</h3></div><p>{result.interpretation?.malkuth?.actionTemplate}</p></article>
     </section>}

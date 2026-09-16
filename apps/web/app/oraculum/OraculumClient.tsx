@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { FormEvent, useMemo, useState } from 'react';
+import { ManifestActions } from './ManifestActions';
 import styles from './oraculum.module.css';
 
 const FACE_ORDER=['U','R','F','D','L','B'] as const;
@@ -15,6 +16,7 @@ type ResponseData={
   ritualIntegrity?:any;
   raw?:any;
   interpretation?:any;
+  manifest?:any;
 };
 
 const NAMES=['Branco','Vermelho','Verde','Amarelo','Laranja','Azul'];
@@ -121,9 +123,9 @@ export function OraculumClient(){
         <p className={styles.kicker}>HOC-256 · CUBO FÍSICO</p>
         <h1>HNK Oraculum Cube</h1>
         <p>Transcreva um cubo 3×3 real, valide a mecânica V0.8, preserve o RAW V0.4 e aplique a interpretação governada V0.5.</p>
-        <p><Link href="/oraculum/camera">Abrir captura assistida por câmera →</Link></p>
+        <p><Link href="/oraculum/camera">Abrir captura assistida por câmera →</Link> · <Link href="/oraculum/verify">Verificar manifesto →</Link></p>
       </div>
-      <div className={styles.badge}>SCAN V1 · LEGALITY V0.8 · RITUAL V0.9</div>
+      <div className={styles.badge}>SCAN V1 · V0.8 · V0.9 · MANIFEST V0.10</div>
     </header>
 
     <form onSubmit={submit} className={styles.flow}>
@@ -181,12 +183,13 @@ export function OraculumClient(){
 
     {response&&!response.ok&&(response.legality||response.ritualIntegrity)&&<section className={styles.card}>
       <h2>Gate físico bloqueou a consulta</h2>
-      <p>Nenhum SHA oracular foi produzido para este envio.</p>
+      <p>Nenhum SHA oracular ou manifesto V0.10 foi produzido para este envio.</p>
       <pre className={styles.audit}>{JSON.stringify({legality:response.legality,ritualIntegrity:response.ritualIntegrity},null,2)}</pre>
     </section>}
 
     {raw&&interpreted&&<section className={styles.results}>
       <div className={styles.resultHero}><div><p className={styles.kicker}>RAW V0.4 · IMUTÁVEL</p><h2>{raw.hnk.glyphId} · Path {raw.path32.index}</h2><p className={styles.hash}>{raw.raw.seed256}</p></div><div className={styles.colorTriad}><span style={{background:raw.colors.essence}}/><span style={{background:raw.colors.shadow}}/><span style={{background:raw.colors.manifestation}}/></div></div>
+      {response?.manifest&&<ManifestActions manifest={response.manifest}/>}
       {response?.ritualIntegrity?.valid&&<div className={styles.validState}>✓ RITUAL_32 V0.9 confirmado: estado inicial + 32 movimentos = estado final.</div>}
       <div className={styles.resultGrid}>
         <article className={styles.resultCard}><small>Path-32</small><strong>{descriptor(interpreted.path)}</strong></article>
@@ -201,7 +204,7 @@ export function OraculumClient(){
         <article className={styles.analysisCard}><h3>Tensões</h3>{interpreted.tensions.length?interpreted.tensions.map((item:any)=><div className={styles.signal} key={item.axis}><strong>{item.axis}</strong><span>{item.left.score}:{item.right.score}</span><small>{item.authority}</small></div>):<p>Nenhuma ativa.</p>}</article>
       </div>
       <article className={styles.malkuth}><div><small>MALKUTH</small><h3>{interpreted.malkuth.dominantKey||'Sem dominante'}</h3></div><p>{interpreted.malkuth.actionTemplate}</p><strong>Verificação: {interpreted.malkuth.verificationRequired?'SIM':'NÃO'}</strong></article>
-      <details className={styles.details}><summary>Auditoria técnica</summary><pre className={styles.audit}>{JSON.stringify({commit:raw.commit,scanProfile:response.scanProfile,legality:response.legality,ritualIntegrity:response.ritualIntegrity,provenance:raw.provenance,signals:interpreted.signals},null,2)}</pre></details>
+      <details className={styles.details}><summary>Auditoria técnica</summary><pre className={styles.audit}>{JSON.stringify({commit:raw.commit,scanProfile:response.scanProfile,legality:response.legality,ritualIntegrity:response.ritualIntegrity,manifestAudit:response.manifest?.audit,provenance:raw.provenance,signals:interpreted.signals},null,2)}</pre></details>
       <p className={styles.disclaimer}>Leitura simbólica/contemplativa; não afirma certeza sobrenatural ou previsão infalível.</p>
     </section>}
   </main>;
