@@ -20,6 +20,7 @@
     "releaseAttestation": "HOC-RC1-RELEASE-ATTESTATION/V1",
     "buildProvenance": "HOC-RC1-BUILD-PROVENANCE/V1",
     "evidenceLedger": "HOC-RC1-EVIDENCE-LEDGER/V1",
+    "promotionReadiness": "HOC-RC1-PROMOTION-READINESS/V1",
     "independentValidationEvidence": "HOC-RC1-INDEPENDENT-VALIDATION-EVIDENCE/V1",
     "deploymentVerificationEvidence": "HOC-RC1-DEPLOYMENT-VERIFY-EVIDENCE/V1"
   },
@@ -28,6 +29,7 @@
     {"id":"protocolFreeze","status":"PASS","level":"IMPLEMENTED"},
     {"id":"releaseAttestation","status":"PASS","level":"IMPLEMENTED","artifact":"packages/oraculum-engine/src/release-attestation.mjs","reason":"deterministic RC1 runtime identity and frozen SHA-256 fingerprint implemented; deployment execution remains separate"},
     {"id":"buildProvenance","status":"PASS","level":"IMPLEMENTED","artifact":"apps/web/lib/release-provenance.ts","reason":"runtime commit/ref/deployment metadata is exposed separately from the deterministic release fingerprint; exact deployment evidence still requires execution"},
+    {"id":"promotionReadiness","status":"PASS","level":"IMPLEMENTED","artifact":"apps/web/app/oraculum/qa/evidence/promotion-readiness.mjs","reason":"final RC1-to-V1.0 readiness assessment is implemented with mandatory/supplemental gate separation and no automatic promotion authority"},
     {"id":"runtimeSelfTest","status":"PENDING","level":"INSTRUMENTED","reason":"execution evidence still required in accepted runtime"},
     {"id":"independentValidation","status":"PENDING","level":"INSTRUMENTED","reason":"runner exists but no real-executor evidence JSON has been produced yet"},
     {"id":"physicalState","status":"PENDING","level":"INSTRUMENTED","reason":"real physical-cube evidence not yet recorded"},
@@ -58,6 +60,7 @@
     "docs/RC1_DEPLOYMENT_VERIFICATION.md",
     "docs/RC1_RELEASE_ATTESTATION.md",
     "docs/RC1_BUILD_PROVENANCE.md",
+    "docs/RC1_PROMOTION_READINESS.md",
     "docs/VERCEL_PREVIEW_BOOTSTRAP.md",
     "release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json",
     "release/v1.0-rc1/RELEASE_AUDIT_REPORT.md",
