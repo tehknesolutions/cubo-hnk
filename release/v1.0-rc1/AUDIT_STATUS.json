@@ -25,6 +25,7 @@
     "promotionExecutionPlan": "HOC-RC1-PROMOTION-EXECUTION-PLAN/V1",
     "promotionPlanFingerprint": "HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1",
     "technicalExecutionAuthorization": "HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1",
+    "preMutationGuard": "HOC-RC1-PRE-MUTATION-GUARD/V1",
     "independentValidationEvidence": "HOC-RC1-INDEPENDENT-VALIDATION-EVIDENCE/V1",
     "deploymentVerificationEvidence": "HOC-RC1-DEPLOYMENT-VERIFY-EVIDENCE/V1"
   },
@@ -37,6 +38,7 @@
     {"id":"humanDecisionRecorder","status":"PASS","level":"IMPLEMENTED","artifact":"apps/web/app/oraculum/qa/readiness/human-decision.mjs","reason":"human APPROVE/DEFER/REJECT decision can be recorded locally; APPROVE requires READY_FOR_HUMAN_REVIEW and the record has no execution authority"},
     {"id":"promotionExecutionPlan","status":"PASS","level":"IMPLEMENTED","artifact":"scripts/lib/rc1-promotion-execution-plan.mjs","reason":"approved human decision plus parent-first stack can produce a DRY_RUN_ONLY technical promotion runbook with an exact operational plan fingerprint; every generated step remains non-executable"},
     {"id":"technicalExecutionAuthorization","status":"PASS","level":"IMPLEMENTED","artifact":"scripts/lib/rc1-technical-execution-authorization.mjs","reason":"step-scoped authorization records can bind to an exact verified promotion plan fingerprint; stable/production scopes require extra acknowledgements and the record itself executes no action or HNK_CANON promotion"},
+    {"id":"preMutationGuard","status":"PASS","level":"IMPLEMENTED","artifact":"scripts/lib/rc1-pre-mutation-guard.mjs","reason":"pure ALLOW/DENY guard verifies plan fingerprint, exact authorization, completed-prefix order and next-step scope immediately before a future mutation; it has no action executor"},
     {"id":"runtimeSelfTest","status":"PENDING","level":"INSTRUMENTED","reason":"execution evidence still required in accepted runtime"},
     {"id":"independentValidation","status":"PENDING","level":"INSTRUMENTED","reason":"runner exists but no real-executor evidence JSON has been produced yet"},
     {"id":"physicalState","status":"PENDING","level":"INSTRUMENTED","reason":"real physical-cube evidence not yet recorded"},
@@ -50,7 +52,7 @@
     {"id":"ciTypecheckBuild","status":"BLOCKED","level":"CONFIGURED","reason":"GitHub Issue #6: validate jobs terminate with steps=null before command execution"},
     {"id":"markdownManual","status":"PASS","level":"IMPLEMENTED","artifact":"docs/MANUAL_V1_RC1.md"},
     {"id":"docxPdfManual","status":"PASS","level":"VISUALLY_QA_D","artifact":"release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json","reason":"36-page DOCX/PDF RC1 artifacts regenerated and visually verified; exact artifact hashes recorded"},
-    {"id":"humanPromotion","status":"PENDING","level":"NOT_APPROVED","reason":"no real HOC-RC1-HUMAN-PROMOTION-DECISION/V1 approval or HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1 record has been produced; instrumentation alone is not approval or execution"}
+    {"id":"humanPromotion","status":"PENDING","level":"NOT_APPROVED","reason":"no real approval/technical-authorization/executor evidence exists; guard instrumentation alone is not permission or execution"}
   ],
   "blockers": [
     "CI/typecheck/build execution unavailable because GitHub Actions jobs terminate before steps",
@@ -59,7 +61,8 @@
     "deployment verification has not yet been executed against an approved URL carrying the frozen release fingerprint and runtime build provenance",
     "deployed production headers/log-retention behavior not yet runtime-verified",
     "human V1.0 promotion approval record pending",
-    "no real step-scoped technical execution authorization has been issued for any promotion action"
+    "no real step-scoped technical execution authorization has been issued for any promotion action",
+    "no technical mutation executor has been implemented or run; Pre-Mutation Guard is policy-only"
   ],
   "sourceDocuments": [
     "docs/MANUAL_V1_RC1.md",
@@ -72,6 +75,7 @@
     "docs/RC1_HUMAN_PROMOTION_DECISION.md",
     "docs/RC1_PROMOTION_EXECUTION_PLAN.md",
     "docs/RC1_TECHNICAL_EXECUTION_AUTHORIZATION.md",
+    "docs/RC1_PRE_MUTATION_GUARD.md",
     "docs/VERCEL_PREVIEW_BOOTSTRAP.md",
     "release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json",
     "release/v1.0-rc1/RELEASE_AUDIT_REPORT.md",
