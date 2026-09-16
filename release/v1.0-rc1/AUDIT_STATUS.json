@@ -26,6 +26,8 @@
     {"id":"physicalRitual32","status":"PENDING","level":"INSTRUMENTED","reason":"real physical-cube evidence not yet recorded"},
     {"id":"cameraDevice","status":"PENDING","level":"INSTRUMENTED","reason":"real target-device evidence not yet recorded"},
     {"id":"manifestCrossDevice","status":"PENDING","level":"INSTRUMENTED","reason":"two distinct labeled environment evidences not yet recorded"},
+    {"id":"productionHardeningSource","status":"PASS","level":"IMPLEMENTED","artifact":"docs/RC1_PRODUCTION_HARDENING.md"},
+    {"id":"productionHardeningRuntime","status":"PENDING","level":"NOT_BUILD_VERIFIED","reason":"deployed headers/log-retention/build behavior still requires a real deployment/runtime"},
     {"id":"ciTypecheckBuild","status":"BLOCKED","level":"CONFIGURED","reason":"GitHub Issue #6: validate jobs terminate with steps=null before command execution"},
     {"id":"markdownManual","status":"PASS","level":"IMPLEMENTED","artifact":"docs/MANUAL_V1_RC1.md"},
     {"id":"docxPdfManual","status":"PENDING","level":"NOT_RECONCILED","reason":"visual artifacts have not yet been regenerated against RC1"},
@@ -34,11 +36,13 @@
   "blockers": [
     "CI/typecheck/build execution unavailable because GitHub Actions jobs terminate before steps",
     "required real physical/device/cross-device evidence not yet recorded",
+    "deployed production headers/log-retention behavior not yet runtime-verified",
     "DOCX/PDF final manual not yet reconciled",
     "human V1.0 promotion approval pending"
   ],
   "sourceDocuments": [
     "docs/MANUAL_V1_RC1.md",
+    "docs/RC1_PRODUCTION_HARDENING.md",
     "release/v1.0-rc1/RELEASE_AUDIT_REPORT.md",
     "release/v1.0-rc1/RELEASE_CHECKLIST.md",
     "release/v1.0-rc1/RELEASE_MANIFEST.json",

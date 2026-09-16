@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 const audit=JSON.parse(readFileSync(new URL('../../../release/v1.0-rc1/AUDIT_STATUS.json',import.meta.url),'utf8'));
 const manual=readFileSync(new URL('../../../docs/MANUAL_V1_RC1.md',import.meta.url),'utf8');
 const report=readFileSync(new URL('../../../release/v1.0-rc1/RELEASE_AUDIT_REPORT.md',import.meta.url),'utf8');
+const hardening=readFileSync(new URL('../../../docs/RC1_PRODUCTION_HARDENING.md',import.meta.url),'utf8');
 
 function gate(id){
   const found=audit.gates.find(item=>item.id===id);
@@ -38,6 +39,14 @@ test('execution-sensitive gates remain pending or blocked',()=>{
   assert.equal(gate('manifestCrossDevice').status,'PENDING');
   assert.equal(gate('ciTypecheckBuild').status,'BLOCKED');
   assert.equal(gate('humanPromotion').status,'PENDING');
+});
+
+test('source hardening pass does not imply deployed runtime verification',()=>{
+  assert.equal(gate('productionHardeningSource').status,'PASS');
+  assert.equal(gate('productionHardeningRuntime').status,'PENDING');
+  assert.match(hardening,/IMPLEMENTED \/ NOT YET BUILD-VERIFIED/);
+  assert.match(report,/PRODUCTION_HARDENING_SOURCE = PASS/);
+  assert.match(report,/PRODUCTION_HARDENING_RUNTIME = PENDING/);
 });
 
 test('markdown reconciliation does not imply visual artifact reconciliation',()=>{

@@ -106,9 +106,17 @@ Estado conhecido na RC1: GitHub Actions continua encerrando jobs com `steps=null
 - [x] Camera image não recebe autoridade protocolar.
 - [x] Camera QA evidence exclui imagem, `deviceId` e localização.
 - [x] Manifest verify evidence exclui o corpo do manifesto, `deviceId` e geolocalização.
-- [ ] Revisar limites de tamanho do JSON na API de verificação.
-- [ ] Revisar headers/cache antes de produção pública.
-- [ ] Revisar logging para não persistir imagens ou dados não necessários.
+- [x] Limites de payload implementados: Oraculum 32 KiB, Physical QA 16 KiB, Manifest Verify 512 KiB.
+- [x] Cache source policy implementada: HOC APIs `no-store` + `Pragma: no-cache`.
+- [x] Headers defensivos source-level implementados em `next.config.ts`.
+- [x] Logging source review fechado: rotas HOC protegidas sem `console.*` de payload/manifesto.
+- [x] Contract test `production-hardening-contract.test.mjs` adicionado.
+- [ ] Confirmar headers reais no deployment/build final.
+- [ ] Revisar access logs/retention do host de produção.
+- [ ] Definir rate-limit/abuse strategy se a API ficar pública em escala.
+- [ ] Avaliar CSP após existir build/deploy verificável.
+
+Documentação: `docs/RC1_PRODUCTION_HARDENING.md`.
 
 ## I. Documentation
 
@@ -121,6 +129,7 @@ Estado conhecido na RC1: GitHub Actions continua encerrando jobs com `steps=null
 - [x] Physical QA documentado.
 - [x] Camera QA documentado.
 - [x] Evidence Ledger documentado.
+- [x] Production Hardening documentado.
 - [x] Manual Markdown consolidado: `docs/MANUAL_V1_RC1.md`.
 - [x] Release Audit Report: `release/v1.0-rc1/RELEASE_AUDIT_REPORT.md`.
 - [x] Audit status machine-readable: `release/v1.0-rc1/AUDIT_STATUS.json`.
@@ -138,7 +147,7 @@ V1.0 final só pode ser marcada quando:
 4. QA câmera mínimo estiver fechado ou câmera for explicitamente marcada experimental;
 5. cross-device Manifest V0.10 estiver fechado;
 6. DOCX/PDF final estiver reconciliado com o manual Markdown RC1;
-7. security/cache/logging production review estiver fechado;
+7. deployed headers/log-retention e abuso/rate-limit estiverem revisados para o ambiente de produção escolhido;
 8. diff RC1 → V1.0 não alterar contratos congelados sem nova revisão;
 9. revisão humana autorizar promoção.
 
