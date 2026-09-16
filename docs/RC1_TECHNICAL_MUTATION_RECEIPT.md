@@ -1,81 +1,43 @@
 # HOC V1.0 RC1 — Technical Mutation Receipt V1
 
-Contract:
+Contract: `HOC-RC1-TECHNICAL-MUTATION-RECEIPT/V1`
 
-`HOC-RC1-TECHNICAL-MUTATION-RECEIPT/V1`
-
-Authority:
-
-`MUTATION_RECEIPT_RECORD_NOT_EXECUTION_PROOF`
+Authority: `MUTATION_RECEIPT_RECORD_NOT_EXECUTION_PROOF`
 
 ## Purpose
 
-This contract records the outcome reported by an external/manual executor after a valid Pre-Mutation Guard `ALLOW` decision.
+This contract records the outcome reported by an external/manual executor after a valid Pre-Mutation Guard `ALLOW`. It does not execute the action and does not independently verify that the action occurred.
 
-It does **not** execute the action and does **not** independently verify that the action really occurred.
-
-A receipt binds the reported outcome to:
-
-- the exact Promotion Execution Plan fingerprint;
-- the exact Technical Execution Authorization ID;
-- the exact Pre-Mutation Guard `ALLOW / AUTHORIZED_NEXT_STEP` decision;
-- the exact runbook step ID.
+A receipt binds the reported outcome to the exact Promotion Execution Plan fingerprint, Technical Execution Authorization ID, Pre-Mutation Guard `ALLOW / AUTHORIZED_NEXT_STEP` decision and runbook step ID.
 
 ## Results
 
-Supported reported outcomes:
-
-- `SUCCESS`
-- `FAILED`
-- `CANCELLED`
-
-These are externally reported results, not automatically verified facts.
+Supported reported outcomes are `SUCCESS`, `FAILED` and `CANCELLED`. They are externally reported results, not automatically verified facts.
 
 Every receipt freezes:
 
 ```json
 {
-  "verification": {
-    "status": "UNVERIFIED_EXTERNAL_RESULT",
-    "externalEvidenceVerified": false
-  },
+  "verification": {"status":"UNVERIFIED_EXTERNAL_RESULT","externalEvidenceVerified":false},
   "governance": {
-    "executesAction": false,
-    "advancesCompletedPrefix": false,
-    "automaticPromotion": false,
-    "promotesHnkCanon": false,
-    "authority": "MUTATION_RECEIPT_RECORD_NOT_EXECUTION_PROOF"
+    "executesAction":false,
+    "advancesCompletedPrefix":false,
+    "automaticPromotion":false,
+    "promotesHnkCanon":false,
+    "authority":"MUTATION_RECEIPT_RECORD_NOT_EXECUTION_PROOF"
   }
 }
 ```
 
 ## SUCCESS evidence rule
 
-A reported `SUCCESS` requires at least one external evidence reference.
-
-Example:
-
-```json
-{
-  "kind": "github-commit",
-  "value": "<external commit/ref/url or other identifier>",
-  "sha256": null
-}
-```
-
-Evidence references are normalized and structurally validated, but this recorder does not fetch or independently verify them.
-
-Therefore an evidence reference is a pointer to future verification, not proof by itself.
+A reported `SUCCESS` requires at least one external evidence reference. Evidence references require a non-empty `kind` and `value`; optional `sha256` must be 64 lowercase hex characters. The recorder validates shape only — it does not fetch or independently verify the reference.
 
 `FAILED` and `CANCELLED` may be recorded without success evidence.
 
 ## Chronology
 
-`startedAt` and `completedAt` must parse as timestamps and:
-
-`completedAt >= startedAt`
-
-A chronologically impossible receipt is rejected.
+`startedAt` and `completedAt` must parse as timestamps and satisfy `completedAt >= startedAt`.
 
 ## CLI
 
@@ -91,38 +53,21 @@ pnpm record:rc1:mutation -- \
   --evidence github-commit=<external-reference>
 ```
 
-`--evidence kind=value` may be repeated.
-
-Default output:
-
-`dist/HOC-RC1-TECHNICAL-MUTATION-RECEIPT.json`
+Default output: `dist/HOC-RC1-TECHNICAL-MUTATION-RECEIPT.json`.
 
 ## Fail-closed rules
 
-Receipt generation fails when:
-
-- plan fingerprint is invalid;
-- technical authorization is invalid for the plan;
-- guard result is not `ALLOW / AUTHORIZED_NEXT_STEP`;
-- guard references another plan fingerprint or authorization ID;
-- guard step is not authorized;
-- result is unsupported;
-- executor or summary is missing;
-- timestamps are invalid or reversed;
-- SUCCESS has no evidence reference;
-- evidence reference shape/hash is invalid.
+Receipt generation rejects invalid plan fingerprint, invalid authorization, non-ALLOW guard, another plan/authorization, unauthorized step, unsupported result, missing operator/summary, invalid or reversed timestamps, SUCCESS without evidence, and malformed evidence/hash values.
 
 ## Why receipt does not advance the prefix
 
-The completed-step prefix is security-sensitive because it determines the only step that may be considered next by Pre-Mutation Guard.
+The completed-step prefix controls what Pre-Mutation Guard can consider next. A locally generated JSON cannot safely advance it merely because somebody typed `SUCCESS`.
 
-A locally generated receipt cannot safely advance that prefix merely because somebody typed `SUCCESS`.
+Therefore every receipt freezes `advancesCompletedPrefix=false`. A separate independent evidence-verification layer must validate the external result before a successful receipt can become trusted completed-step evidence.
 
-For that reason:
+## Current Stack V12
 
-`advancesCompletedPrefix=false`
-
-A later independent evidence-verification layer must validate the external result before a successful receipt can be accepted as completed-step evidence.
+`HOC-V1.0-RC1-STACK-LANDING/V12` includes PR #30 as order 29. The Promotion Execution Plan derived from V12 contains 29 PR landing steps and 37 total dry-run steps.
 
 ## Pipeline
 
