@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {buildRc1PromotionExecutionPlan} from '../../../scripts/lib/rc1-promotion-execution-plan.mjs';
 import {buildRc1TechnicalExecutionAuthorization} from '../../../scripts/lib/rc1-technical-execution-authorization.mjs';
-import {evaluateRc1PreMutationGuard} from '../../../scripts/lib/rc1-pre-mutation-guard.mjs';
+import {evaluateRc1PreMutationGuard,computeRc1PreMutationGuardFingerprint} from '../../../scripts/lib/rc1-pre-mutation-guard.mjs';
 import {buildRc1TechnicalMutationReceipt} from '../../../scripts/lib/rc1-technical-mutation-receipt.mjs';
 import {buildRc1MutationEvidenceVerification} from '../../../scripts/lib/rc1-mutation-evidence-verification.mjs';
-import {buildRc1CompletedPrefixGenesis,buildRc1CompletedPrefixTransition,inspectRc1CompletedPrefixState,inspectRc1CompletedPrefixTransition,computeRc1CompletedPrefixStateFingerprint,computeRc1CompletedPrefixTransitionFingerprint,RC1_COMPLETED_PREFIX_STATE_VERSION,RC1_COMPLETED_PREFIX_TRANSITION_VERSION} from '../../../scripts/lib/rc1-completed-prefix-transition.mjs';
+import {buildRc1CompletedPrefixGenesis,buildRc1CompletedPrefixTransition,inspectRc1CompletedPrefixState,inspectRc1CompletedPrefixTransition,computeRc1CompletedPrefixStateFingerprint,computeRc1CompletedPrefixTransitionFingerprint,RC1_COMPLETED_PREFIX_STATE_VERSION,RC1_COMPLETED_PREFIX_TRANSITION_VERSION,RC1_COMPLETED_PREFIX_TRANSITION_FINGERPRINT_VERSION} from '../../../scripts/lib/rc1-completed-prefix-transition.mjs';
 
 const pkg=JSON.parse(readFileSync(new URL('../../../package.json',import.meta.url),'utf8'));
 const cli=readFileSync(new URL('../../../scripts/build-rc1-completed-prefix-transition.mjs',import.meta.url),'utf8');
@@ -24,7 +24,7 @@ function fixture(){
   return {plan,authorization,currentState,receipt,verification,stepId};
 }
 
-test('genesis state is empty, fingerprinted and points to exact first step',()=>{
+test('genesis state remains V1, fingerprinted and points to exact first step',()=>{
   const {plan,currentState}=fixture();
   assert.equal(currentState.version,RC1_COMPLETED_PREFIX_STATE_VERSION);
   assert.deepEqual(currentState.completedStepIds,[]);
@@ -33,39 +33,51 @@ test('genesis state is empty, fingerprinted and points to exact first step',()=>
   assert.equal(inspectRc1CompletedPrefixState(currentState,plan).valid,true);
 });
 
-test('Guard V2 receipt is bound to the same state used for N to N+1 transition',()=>{
+test('Transition V2 binds current state, Guard V2 and verified evidence into one fingerprinted record',()=>{
   const {plan,authorization,currentState,receipt,verification,stepId}=fixture();
-  assert.equal(receipt.preMutationGuard.completedPrefixStateFingerprint,currentState.stateFingerprint);
   const transition=buildRc1CompletedPrefixTransition({plan,authorization,receipt,verification,currentState,transitionedAt:'2026-09-16T15:07:00.000Z',transitionId:'TEST-TRANSITION'});
+  assert.equal(RC1_COMPLETED_PREFIX_TRANSITION_VERSION,'HOC-RC1-COMPLETED-PREFIX-TRANSITION/V2');
+  assert.equal(RC1_COMPLETED_PREFIX_TRANSITION_FINGERPRINT_VERSION,'HOC-RC1-COMPLETED-PREFIX-TRANSITION-FINGERPRINT/V2');
   assert.equal(transition.version,RC1_COMPLETED_PREFIX_TRANSITION_VERSION);
+  assert.equal(transition.sourceState.stateFingerprint,currentState.stateFingerprint);
+  assert.equal(transition.sourceGuard.completedPrefixStateFingerprint,currentState.stateFingerprint);
+  assert.equal(transition.sourceGuard.guardFingerprint,receipt.preMutationGuard.guardFingerprint);
+  assert.equal(transition.sourceVerification.verificationFingerprint,verification.verificationFingerprint);
   assert.equal(transition.result.status,'COMPLETED_PREFIX_ADVANCED');
   assert.equal(transition.result.fromCount,0);
   assert.equal(transition.result.toCount,1);
   assert.equal(transition.result.appendedStepId,stepId);
   assert.deepEqual(transition.nextState.completedStepIds,[stepId]);
-  assert.equal(transition.nextState.lineage[0].verificationFingerprint,verification.verificationFingerprint);
   assert.equal(transition.nextState.stateFingerprint,computeRc1CompletedPrefixStateFingerprint(transition.nextState));
   assert.equal(transition.transitionFingerprint,computeRc1CompletedPrefixTransitionFingerprint(transition));
-  assert.equal(inspectRc1CompletedPrefixTransition(transition,{plan,authorization,receipt,verification,currentState}).valid,true);
+  const inspection=inspectRc1CompletedPrefixTransition(transition,{plan,authorization,receipt,verification,currentState});
+  assert.equal(inspection.valid,true);
+  assert.equal(inspection.guardStateBindingValid,true);
 });
 
-test('state tampering and transition tampering fail closed',()=>{
+test('state swap between Guard V2 ALLOW and Transition V2 is rejected',()=>{
+  const {plan,authorization,currentState,receipt,verification}=fixture();
+  const forgedReceipt=structuredClone(receipt);
+  forgedReceipt.preMutationGuard.completedPrefixStateFingerprint='b'.repeat(64);
+  forgedReceipt.preMutationGuard.guardFingerprint=computeRc1PreMutationGuardFingerprint(forgedReceipt.preMutationGuard);
+  assert.throws(()=>buildRc1CompletedPrefixTransition({plan,authorization,receipt:forgedReceipt,verification,currentState,transitionedAt:'2026-09-16T15:07:00.000Z'}),/not authorized against this exact Completed Prefix State fingerprint/);
+});
+
+test('sourceGuard or transition tampering invalidates Transition V2 fingerprint',()=>{
+  const {plan,authorization,currentState,receipt,verification}=fixture();
+  const transition=buildRc1CompletedPrefixTransition({plan,authorization,receipt,verification,currentState,transitionedAt:'2026-09-16T15:07:00.000Z'});
+  const forgedGuard={...transition,sourceGuard:{...transition.sourceGuard,guardFingerprint:'0'.repeat(64)}};
+  assert.equal(inspectRc1CompletedPrefixTransition(forgedGuard,{plan,authorization,receipt,verification,currentState}).valid,false);
+  const forgedResult={...transition,result:{...transition.result,toCount:99}};
+  assert.equal(inspectRc1CompletedPrefixTransition(forgedResult,{plan,authorization,receipt,verification,currentState}).valid,false);
+});
+
+test('state tampering, replay and chronology fail closed',()=>{
   const {plan,authorization,currentState,receipt,verification}=fixture();
   const transition=buildRc1CompletedPrefixTransition({plan,authorization,receipt,verification,currentState,transitionedAt:'2026-09-16T15:07:00.000Z'});
   const forgedState={...transition.nextState,completedCount:99};
   assert.equal(inspectRc1CompletedPrefixState(forgedState,plan).valid,false);
-  const forgedTransition={...transition,result:{...transition.result,toCount:99}};
-  assert.equal(inspectRc1CompletedPrefixTransition(forgedTransition,{plan,authorization,receipt,verification,currentState}).valid,false);
-});
-
-test('same verified step cannot advance the prefix twice or skip order',()=>{
-  const {plan,authorization,currentState,receipt,verification}=fixture();
-  const first=buildRc1CompletedPrefixTransition({plan,authorization,receipt,verification,currentState,transitionedAt:'2026-09-16T15:07:00.000Z'});
-  assert.throws(()=>buildRc1CompletedPrefixTransition({plan,authorization,receipt,verification,currentState:first.nextState,transitionedAt:'2026-09-16T15:08:00.000Z'}),/exact next runbook step/);
-});
-
-test('transition timestamp cannot predate evidence verification',()=>{
-  const {plan,authorization,currentState,receipt,verification}=fixture();
+  assert.throws(()=>buildRc1CompletedPrefixTransition({plan,authorization,receipt,verification,currentState:transition.nextState,transitionedAt:'2026-09-16T15:08:00.000Z'}),/exact Completed Prefix State fingerprint|exact next runbook step/);
   assert.throws(()=>buildRc1CompletedPrefixTransition({plan,authorization,receipt,verification,currentState,transitionedAt:'2026-09-16T15:05:30.000Z'}),/cannot predate evidence verification/);
 });
 

@@ -1,11 +1,24 @@
 import {createHash} from 'node:crypto';
-import {verifyRc1PromotionExecutionPlan} from './rc1-promotion-execution-plan.mjs';
 import {inspectRc1MutationEvidenceVerification} from './rc1-mutation-evidence-verification.mjs';
+import {inspectRc1PreMutationGuardDecision,RC1_PRE_MUTATION_GUARD_VERSION} from './rc1-pre-mutation-guard.mjs';
+import {
+  RC1_COMPLETED_PREFIX_STATE_VERSION,
+  RC1_COMPLETED_PREFIX_STATE_FINGERPRINT_VERSION,
+  computeRc1CompletedPrefixStateFingerprint,
+  inspectRc1CompletedPrefixState,
+  buildRc1CompletedPrefixGenesis,
+} from './rc1-completed-prefix-state.mjs';
 
-export const RC1_COMPLETED_PREFIX_STATE_VERSION='HOC-RC1-COMPLETED-PREFIX-STATE/V1';
-export const RC1_COMPLETED_PREFIX_STATE_FINGERPRINT_VERSION='HOC-RC1-COMPLETED-PREFIX-STATE-FINGERPRINT/V1';
-export const RC1_COMPLETED_PREFIX_TRANSITION_VERSION='HOC-RC1-COMPLETED-PREFIX-TRANSITION/V1';
-export const RC1_COMPLETED_PREFIX_TRANSITION_FINGERPRINT_VERSION='HOC-RC1-COMPLETED-PREFIX-TRANSITION-FINGERPRINT/V1';
+export {
+  RC1_COMPLETED_PREFIX_STATE_VERSION,
+  RC1_COMPLETED_PREFIX_STATE_FINGERPRINT_VERSION,
+  computeRc1CompletedPrefixStateFingerprint,
+  inspectRc1CompletedPrefixState,
+  buildRc1CompletedPrefixGenesis,
+};
+
+export const RC1_COMPLETED_PREFIX_TRANSITION_VERSION='HOC-RC1-COMPLETED-PREFIX-TRANSITION/V2';
+export const RC1_COMPLETED_PREFIX_TRANSITION_FINGERPRINT_VERSION='HOC-RC1-COMPLETED-PREFIX-TRANSITION-FINGERPRINT/V2';
 export const RC1_RELEASE_ID='HOC-V1.0-RC1';
 
 function assert(condition,message){if(!condition)throw new Error(message);}
@@ -18,20 +31,6 @@ function stable(value){
 function sha256(text){return createHash('sha256').update(text).digest('hex');}
 function validTimestamp(value){return typeof value==='string'&&Number.isFinite(Date.parse(value));}
 
-function stateCore(state){
-  return {
-    version:state.version,
-    releaseId:state.releaseId,
-    planFingerprint:state.planFingerprint,
-    sourceStackPlanVersion:state.sourceStackPlanVersion,
-    completedStepIds:state.completedStepIds,
-    lineage:state.lineage,
-    completedCount:state.completedCount,
-    nextStepId:state.nextStepId,
-    governance:state.governance,
-  };
-}
-
 function transitionCore(transition){
   return {
     version:transition.version,
@@ -39,75 +38,15 @@ function transitionCore(transition){
     transitionId:transition.transitionId,
     transitionedAt:transition.transitionedAt,
     sourceState:transition.sourceState,
+    sourceGuard:transition.sourceGuard,
     sourceVerification:transition.sourceVerification,
     result:transition.result,
     governance:transition.governance,
   };
 }
 
-export function computeRc1CompletedPrefixStateFingerprint(state){
-  return sha256(`${RC1_COMPLETED_PREFIX_STATE_FINGERPRINT_VERSION}|${stable(stateCore(state))}`);
-}
-
 export function computeRc1CompletedPrefixTransitionFingerprint(transition){
   return sha256(`${RC1_COMPLETED_PREFIX_TRANSITION_FINGERPRINT_VERSION}|${stable(transitionCore(transition))}`);
-}
-
-export function inspectRc1CompletedPrefixState(state,plan){
-  const planInspection=verifyRc1PromotionExecutionPlan(plan);
-  const planIds=planInspection.valid?plan.steps.map(step=>step.id):[];
-  const completed=Array.isArray(state?.completedStepIds)?state.completedStepIds:[];
-  const lineage=Array.isArray(state?.lineage)?state.lineage:[];
-  const prefixValid=completed.length<=planIds.length&&completed.every((id,index)=>id===planIds[index]);
-  const lineageValid=lineage.length===completed.length&&lineage.every((entry,index)=>
-    entry?.index===index
-    &&entry?.stepId===completed[index]
-    &&typeof entry?.receiptId==='string'&&entry.receiptId.length>0
-    &&typeof entry?.verificationId==='string'&&entry.verificationId.length>0
-    &&/^[0-9a-f]{64}$/u.test(entry?.verificationFingerprint??'')
-    &&validTimestamp(entry?.transitionedAt)
-  );
-  const expectedNextStepId=prefixValid?(planIds[completed.length]??null):null;
-  const expectedFingerprint=state?computeRc1CompletedPrefixStateFingerprint(state):null;
-  const fingerprintMatches=Boolean(state&&state.stateFingerprint===expectedFingerprint);
-  const valid=Boolean(
-    planInspection.valid
-    &&state
-    &&state.version===RC1_COMPLETED_PREFIX_STATE_VERSION
-    &&state.releaseId===RC1_RELEASE_ID
-    &&state.planFingerprint===plan.planFingerprint
-    &&state.sourceStackPlanVersion===plan.sourceStack?.planVersion
-    &&prefixValid
-    &&lineageValid
-    &&state.completedCount===completed.length
-    &&state.nextStepId===expectedNextStepId
-    &&state.governance?.representsLogicalReleaseState===true
-    &&state.governance?.executesTechnicalAction===false
-    &&state.governance?.automaticPromotion===false
-    &&state.governance?.promotesHnkCanon===false
-    &&state.governance?.authority==='COMPLETED_PREFIX_STATE_RECORD_NOT_TECHNICAL_EXECUTOR'
-    &&fingerprintMatches
-  );
-  return Object.freeze({valid,planValid:planInspection.valid,prefixValid,lineageValid,fingerprintMatches,expectedFingerprint,completedCount:valid?completed.length:null,nextStepId:valid?expectedNextStepId:null,isComplete:valid&&completed.length===planIds.length});
-}
-
-export function buildRc1CompletedPrefixGenesis({plan}){
-  const planInspection=verifyRc1PromotionExecutionPlan(plan);
-  assert(planInspection.valid,'Promotion Execution Plan is invalid or fingerprint-mismatched.');
-  const draft={
-    version:RC1_COMPLETED_PREFIX_STATE_VERSION,
-    releaseId:RC1_RELEASE_ID,
-    planFingerprint:plan.planFingerprint,
-    sourceStackPlanVersion:plan.sourceStack.planVersion,
-    completedStepIds:Object.freeze([]),
-    lineage:Object.freeze([]),
-    completedCount:0,
-    nextStepId:plan.steps[0]?.id??null,
-    governance:Object.freeze({representsLogicalReleaseState:true,executesTechnicalAction:false,automaticPromotion:false,promotesHnkCanon:false,authority:'COMPLETED_PREFIX_STATE_RECORD_NOT_TECHNICAL_EXECUTOR'}),
-  };
-  const state=Object.freeze({...draft,stateFingerprint:computeRc1CompletedPrefixStateFingerprint(draft)});
-  assert(inspectRc1CompletedPrefixState(state,plan).valid,'Generated completed-prefix genesis state failed self-validation.');
-  return state;
 }
 
 function buildNextState({plan,currentState,verification,receipt,transitionedAt}){
@@ -134,16 +73,37 @@ function buildNextState({plan,currentState,verification,receipt,transitionedAt})
   return Object.freeze({...draft,stateFingerprint:computeRc1CompletedPrefixStateFingerprint(draft)});
 }
 
+function guardMatchesCurrentState(receipt,{plan,authorization,currentState}){
+  const guard=receipt?.preMutationGuard;
+  const inspection=inspectRc1PreMutationGuardDecision(guard,{plan,authorization,completedPrefixState:currentState});
+  return Object.freeze({
+    valid:Boolean(
+      inspection.valid
+      &&guard?.version===RC1_PRE_MUTATION_GUARD_VERSION
+      &&guard?.decision==='ALLOW'
+      &&guard?.code==='AUTHORIZED_NEXT_STEP'
+      &&guard?.completedPrefixStateFingerprint===currentState?.stateFingerprint
+      &&guard?.completedCount===currentState?.completedCount
+      &&guard?.expectedNextStepId===currentState?.nextStepId
+      &&guard?.stepId===currentState?.nextStepId
+    ),
+    inspection,
+  });
+}
+
 export function inspectRc1CompletedPrefixTransition(transition,{plan,authorization,receipt,verification,currentState}={}){
   const stateInspection=inspectRc1CompletedPrefixState(currentState,plan);
+  const guardBinding=guardMatchesCurrentState(receipt,{plan,authorization,currentState});
   const verificationInspection=inspectRc1MutationEvidenceVerification(verification,{plan,authorization,receipt});
   const nextState=transition?.nextState;
   const nextStateInspection=inspectRc1CompletedPrefixState(nextState,plan);
   const expectedStepId=stateInspection.valid?currentState.nextStepId:null;
   const expectedFingerprint=transition?computeRc1CompletedPrefixTransitionFingerprint(transition):null;
   const fingerprintMatches=Boolean(transition&&transition.transitionFingerprint===expectedFingerprint);
+  const guard=receipt?.preMutationGuard;
   const valid=Boolean(
     stateInspection.valid
+    &&guardBinding.valid
     &&verificationInspection.valid
     &&verificationInspection.eligibleForCompletedPrefix===true
     &&expectedStepId!==null
@@ -157,6 +117,13 @@ export function inspectRc1CompletedPrefixTransition(transition,{plan,authorizati
     &&Date.parse(transition.transitionedAt)>=Date.parse(verification.verifiedAt)
     &&transition.sourceState?.stateFingerprint===currentState.stateFingerprint
     &&transition.sourceState?.completedCount===currentState.completedCount
+    &&transition.sourceState?.nextStepId===currentState.nextStepId
+    &&transition.sourceGuard?.version===guard.version
+    &&transition.sourceGuard?.guardFingerprint===guard.guardFingerprint
+    &&transition.sourceGuard?.completedPrefixStateFingerprint===currentState.stateFingerprint
+    &&transition.sourceGuard?.completedCount===currentState.completedCount
+    &&transition.sourceGuard?.stepId===expectedStepId
+    &&transition.sourceGuard?.authorizationId===authorization.authorizationId
     &&transition.sourceVerification?.verificationId===verification.verificationId
     &&transition.sourceVerification?.verificationFingerprint===verification.verificationFingerprint
     &&transition.sourceVerification?.receiptId===receipt.receiptId
@@ -181,7 +148,7 @@ export function inspectRc1CompletedPrefixTransition(transition,{plan,authorizati
     &&transition.governance?.authority==='COMPLETED_PREFIX_TRANSITION_RECORD_NOT_TECHNICAL_EXECUTOR'
     &&fingerprintMatches
   );
-  return Object.freeze({valid,stateValid:stateInspection.valid,verificationValid:verificationInspection.valid,nextStateValid:nextStateInspection.valid,fingerprintMatches,expectedFingerprint,expectedStepId,fromCount:valid?currentState.completedCount:null,toCount:valid?nextState.completedCount:null,nextStepId:valid?nextState.nextStepId:null});
+  return Object.freeze({valid,stateValid:stateInspection.valid,guardStateBindingValid:guardBinding.valid,verificationValid:verificationInspection.valid,nextStateValid:nextStateInspection.valid,fingerprintMatches,expectedFingerprint,expectedStepId,fromCount:valid?currentState.completedCount:null,toCount:valid?nextState.completedCount:null,nextStepId:valid?nextState.nextStepId:null});
 }
 
 export function buildRc1CompletedPrefixTransition({
@@ -196,6 +163,8 @@ export function buildRc1CompletedPrefixTransition({
   const stateInspection=inspectRc1CompletedPrefixState(currentState,plan);
   assert(stateInspection.valid,'Current Completed Prefix State is invalid or fingerprint-mismatched.');
   assert(currentState.nextStepId!==null,'Completed Prefix State already represents a complete promotion plan.');
+  const guardBinding=guardMatchesCurrentState(receipt,{plan,authorization,currentState});
+  assert(guardBinding.valid,'Receipt Guard V2 was not authorized against this exact Completed Prefix State fingerprint.');
   const verificationInspection=inspectRc1MutationEvidenceVerification(verification,{plan,authorization,receipt});
   assert(verificationInspection.valid&&verificationInspection.eligibleForCompletedPrefix===true,'Mutation evidence verification is invalid or not eligible for completed-prefix advancement.');
   assert(receipt.stepId===currentState.nextStepId,'Verified receipt does not correspond to the exact next runbook step.');
@@ -204,6 +173,7 @@ export function buildRc1CompletedPrefixTransition({
   assert(Date.parse(transitionedAt)>=Date.parse(verification.verifiedAt),'transitionedAt cannot predate evidence verification.');
 
   const nextState=buildNextState({plan,currentState,verification,receipt,transitionedAt:String(transitionedAt)});
+  const guard=receipt.preMutationGuard;
   const id=clean(transitionId,128)||`HOC-PREFIX-TRANSITION-${String(transitionedAt).replace(/[^0-9A-Za-z]/g,'').slice(0,24)}`;
   const draft={
     version:RC1_COMPLETED_PREFIX_TRANSITION_VERSION,
@@ -211,6 +181,7 @@ export function buildRc1CompletedPrefixTransition({
     transitionId:id,
     transitionedAt:String(transitionedAt),
     sourceState:Object.freeze({stateFingerprint:currentState.stateFingerprint,completedCount:currentState.completedCount,nextStepId:currentState.nextStepId}),
+    sourceGuard:Object.freeze({version:guard.version,guardFingerprint:guard.guardFingerprint,completedPrefixStateFingerprint:guard.completedPrefixStateFingerprint,completedCount:guard.completedCount,stepId:guard.stepId,authorizationId:guard.authorizationId}),
     sourceVerification:Object.freeze({verificationId:verification.verificationId,verificationFingerprint:verification.verificationFingerprint,receiptId:receipt.receiptId,stepId:receipt.stepId}),
     result:Object.freeze({status:'COMPLETED_PREFIX_ADVANCED',fromCount:currentState.completedCount,toCount:nextState.completedCount,appendedStepId:receipt.stepId,nextStepId:nextState.nextStepId,nextStateFingerprint:nextState.stateFingerprint}),
     governance:Object.freeze({executesTechnicalAction:false,advancesLogicalCompletedPrefix:true,persistsExternalState:false,automaticPromotion:false,promotesHnkCanon:false,authority:'COMPLETED_PREFIX_TRANSITION_RECORD_NOT_TECHNICAL_EXECUTOR'}),
