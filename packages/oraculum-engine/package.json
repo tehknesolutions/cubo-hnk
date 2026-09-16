@@ -1,6 +1,6 @@
 {
   "name": "@hnk/oraculum-engine",
-  "version": "0.10.0-candidate",
+  "version": "1.0.0-rc.1",
   "private": true,
   "type": "module",
   "exports": {
