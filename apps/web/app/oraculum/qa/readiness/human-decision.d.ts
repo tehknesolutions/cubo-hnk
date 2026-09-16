@@ -12,6 +12,14 @@ export interface Rc1ReadinessInspection{
   readonly readinessVersion:string|null;
 }
 
+export interface Rc1HumanDecisionInspection{
+  readonly valid:boolean;
+  readonly decision:'APPROVE_V1_0'|'DEFER'|'REJECT'|null;
+  readonly approvalReady:boolean;
+  readonly recordId:string|null;
+  readonly releaseId:string|null;
+}
+
 export interface Rc1HumanPromotionDecisionRecord{
   readonly version:typeof RC1_HUMAN_DECISION_VERSION;
   readonly releaseId:typeof RC1_RELEASE_ID;
@@ -26,4 +34,5 @@ export interface Rc1HumanPromotionDecisionRecord{
 }
 
 export declare function inspectRc1ReadinessArtifact(artifact:unknown):Rc1ReadinessInspection;
+export declare function inspectRc1HumanPromotionDecisionRecord(record:unknown):Rc1HumanDecisionInspection;
 export declare function buildRc1HumanPromotionDecision(input:{artifact:unknown;decision:'APPROVE_V1_0'|'DEFER'|'REJECT';reviewerLabel:string;reason:string;acknowledged:boolean;recordedAt?:string;recordId?:string|null}):Rc1HumanPromotionDecisionRecord;
