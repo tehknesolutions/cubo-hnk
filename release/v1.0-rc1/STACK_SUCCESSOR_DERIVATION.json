@@ -1,0 +1,61 @@
+{
+  "kind": "HOC-V1.0-RC1-STACK-SUCCESSOR-DERIVATION/V1",
+  "releaseId": "HOC-V1.0-RC1",
+  "repository": "tehknesolutions/cubo-hnk",
+  "sourcePlan": "HOC-V1.0-RC1-STACK-LANDING/V17",
+  "sourcePlanAssessment": "HISTORICALLY_VALID__CURRENT_TOPOLOGY_STALE",
+  "observedLandedHead": "e64c931b853fd04446b2033f38c1ea5b974a7e37",
+  "observedLandedTree": "5c852ab3bfdd6f8e3a9564e775a6a3c2a0fefa83",
+  "landedAfterV17": [
+    {"pr":36,"mergeCommit":"883a6e9d5a48b451c1222b1b27b34c3da232c95d","role":"minimal V0.10 RITUAL_32 manifest adapter fix"},
+    {"pr":35,"mergeCommit":"193ef83ec62f5fa174977d06461ae3b27953dc55","role":"independent tail evidence plus absorbed fix lineage"},
+    {"pr":37,"mergeCommit":"e64c931b853fd04446b2033f38c1ea5b974a7e37","role":"post-merge blocker and independent full-suite evidence"}
+  ],
+  "gateReconciliation": {
+    "independentExecutorEvidence": {
+      "v17": "PENDING",
+      "derived": "PASS",
+      "evidence": "release/v1.0-rc1/ORACULUM_V010_FULL_SUITE_EVIDENCE.json",
+      "scope": "@hnk/oraculum-engine exact landed target",
+      "tests": {"files":20,"total":108,"pass":108,"fail":0},
+      "typecheck": {"exitCode":0,"diagnostics":0},
+      "limitation": "does not establish Next.js production build, physical QA, deployment runtime, or GitHub Actions PASS"
+    },
+    "realAutomatedExecution": {
+      "v17": "BLOCKED",
+      "derived": "BLOCKED",
+      "reason": "GitHub Actions Run #121 reproduced pre-step runner provisioning failure twice; zero repository steps executed"
+    },
+    "deploymentVerificationEvidence": {"derived":"PENDING"},
+    "physicalState": {"derived":"PENDING"},
+    "physicalRitual32": {"derived":"PENDING"},
+    "cameraDevice": {"derived":"PENDING"},
+    "manifestCrossDevice": {"derived":"PENDING"},
+    "productionHardeningRuntime": {"derived":"PENDING"},
+    "humanPromotion": {"derived":"PENDING"}
+  },
+  "successorRequirements": {
+    "versionNumberAssigned": false,
+    "mustRetainFalseAuthorities": ["mergeAuthorized","stablePromotionAuthorized","hnkCanonPromotionAuthorized"],
+    "mustNotCollapse": ["independent validation into GitHub CI","source implementation into runtime verification","merge history into promotion authorization"],
+    "remainingCriticalPath": [
+      "resolve or independently supersede GitHub CI/typecheck/build gate with policy-approved evidence",
+      "execute required build verification",
+      "record physical STATE evidence",
+      "record physical RITUAL_32 evidence",
+      "record camera/device evidence",
+      "record cross-device Manifest V0.10 evidence",
+      "runtime-verify approved preview/deployment",
+      "runtime-verify production hardening",
+      "reach Promotion Readiness READY_FOR_HUMAN_REVIEW",
+      "obtain explicit Human Promotion Decision before any V1.0 promotion action"
+    ]
+  },
+  "governance": {
+    "mergePerformedByThisDerivationWorkflow": false,
+    "deploymentPerformed": false,
+    "stablePromotionAuthorized": false,
+    "hnkCanonPromotionAuthorized": false,
+    "overall": "SUCCESSOR_STATE_DERIVED__CRITICAL_PATH_DEFINED__NOT_READY_FOR_STABLE"
+  }
+}
