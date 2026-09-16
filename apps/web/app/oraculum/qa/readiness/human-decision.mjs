@@ -5,7 +5,15 @@ export const HUMAN_DECISIONS=Object.freeze(['APPROVE_V1_0','DEFER','REJECT']);
 
 function assert(condition,message){if(!condition)throw new Error(message);}
 function clean(value,max){return typeof value==='string'?value.trim().replace(/[\u0000-\u001f]/gu,' ').slice(0,max):'';}
-function completeRequiredMatrix(required){return Boolean(required&&required.total===9&&required.pass===9&&required.pending===0&&required.blocked===0&&required.missing===0&&required.invalid===0);}
+function completeRequiredMatrix(required){return Boolean(
+  required
+  &&required.total===9
+  &&required.pass===9
+  &&required.pending===0
+  &&required.blocked===0
+  &&required.missing===0
+  &&required.invalid===0
+);}
 
 export function inspectRc1ReadinessArtifact(artifact){
   const valid=Boolean(
@@ -66,7 +74,13 @@ export function inspectRc1HumanPromotionDecisionRecord(record){
     &&record.sourceReadiness?.readyForHumanReview===true
     &&completeRequiredMatrix(required),
   );
-  return Object.freeze({valid,decision:valid?record.decision:null,approvalReady,recordId:valid?record.recordId:null,releaseId:valid?record.releaseId:null});
+  return Object.freeze({
+    valid,
+    decision:valid?record.decision:null,
+    approvalReady,
+    recordId:valid?record.recordId:null,
+    releaseId:valid?record.releaseId:null,
+  });
 }
 
 export function buildRc1HumanPromotionDecision({artifact,decision,reviewerLabel,reason,acknowledged,recordedAt=new Date().toISOString(),recordId=null}){
@@ -91,8 +105,26 @@ export function buildRc1HumanPromotionDecision({artifact,decision,reviewerLabel,
     decision,
     reviewerLabel:reviewer,
     rationale,
-    sourceReadiness:Object.freeze({evidenceKind:artifact.evidenceKind,generatedAt:artifact.generatedAt??null,status:artifact.assessment.status,readyForHumanReview:artifact.assessment.readyForHumanReview===true,required:artifact.assessment.required??null}),
-    acknowledgement:Object.freeze({reviewedPromotionReadiness:true,understandsNoAutomaticMerge:true,understandsNoAutomaticDeployment:true,understandsHnkCanonRemainsSeparate:true}),
-    governance:Object.freeze({executesMerge:false,executesDeployment:false,changesPackageVersion:false,promotesHnkCanon:false,automaticPromotion:false,authority:'HUMAN_DECISION_RECORD_NOT_EXECUTION_AUTHORITY'}),
+    sourceReadiness:Object.freeze({
+      evidenceKind:artifact.evidenceKind,
+      generatedAt:artifact.generatedAt??null,
+      status:artifact.assessment.status,
+      readyForHumanReview:artifact.assessment.readyForHumanReview===true,
+      required:artifact.assessment.required??null,
+    }),
+    acknowledgement:Object.freeze({
+      reviewedPromotionReadiness:true,
+      understandsNoAutomaticMerge:true,
+      understandsNoAutomaticDeployment:true,
+      understandsHnkCanonRemainsSeparate:true,
+    }),
+    governance:Object.freeze({
+      executesMerge:false,
+      executesDeployment:false,
+      changesPackageVersion:false,
+      promotesHnkCanon:false,
+      automaticPromotion:false,
+      authority:'HUMAN_DECISION_RECORD_NOT_EXECUTION_AUTHORITY',
+    }),
   });
 }
