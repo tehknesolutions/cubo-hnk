@@ -63,7 +63,7 @@ export function Rc1QaClient(){
         <p className={styles.kicker}>HOC V1.0 RC1 · QA HUB</p>
         <h1>Validação da Release Candidate</h1>
         <p>Execute o self-test do runtime e navegue pelos gates que exigem evidência física e de dispositivo. Nenhum painel substitui CI, build ou promoção humana.</p>
-        <p><Link href="/oraculum">← voltar ao Oraculum</Link> · <Link href="/oraculum/qa/evidence">Evidence Ledger</Link> · <Link href="/oraculum/verify">verificar manifesto →</Link></p>
+        <p><Link href="/oraculum">← voltar ao Oraculum</Link> · <Link href="/oraculum/qa/evidence">Evidence Ledger</Link> · <Link href="/oraculum/qa/readiness">Promotion Readiness</Link> · <Link href="/oraculum/verify">verificar manifesto →</Link></p>
       </div>
       <div className={styles.badge}>{report?.passed?'RC1 SELF-TEST PASS':'RC1 QA'}</div>
     </header>
@@ -75,6 +75,7 @@ export function Rc1QaClient(){
         <article className={styles.resultCard}><small>Physical</small><strong><Link href="/oraculum/qa/physical">Cubo real</Link></strong><p>STATE resolvido + RITUAL_32 oficial.</p></article>
         <article className={styles.resultCard}><small>Camera / Device</small><strong><Link href="/oraculum/qa/camera">Dispositivo real</Link></strong><p>Câmera, seis faces, confiança e checklist end-to-end.</p></article>
         <article className={styles.resultCard}><small>Evidence</small><strong><Link href="/oraculum/qa/evidence">Release Evidence Ledger</Link></strong><p>Agrega os JSONs e mostra PASS / PENDING / BLOCKED.</p></article>
+        <article className={styles.resultCard}><small>Readiness</small><strong><Link href="/oraculum/qa/readiness">RC1 → V1.0</Link></strong><p>Transforma o ledger em blockers, pendências e prontidão para revisão humana.</p></article>
         <article className={styles.resultCard}><small>Manifest</small><strong><Link href="/oraculum/verify">Verificador V0.10</Link></strong><p>Recalcula a integridade de um manifesto exportado.</p></article>
       </div>
     </section>
