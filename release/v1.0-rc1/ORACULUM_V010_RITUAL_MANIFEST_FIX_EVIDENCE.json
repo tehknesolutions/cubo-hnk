@@ -1,0 +1,41 @@
+{
+  "kind": "HOC-V0.10-RITUAL-MANIFEST-INITIAL-STATE-FIX-EVIDENCE/V1",
+  "scope": "@hnk/oraculum-engine V0.9 -> V0.10 ritual manifest adapter",
+  "baseHead": "9f1186da7484318bb545bdfcf6607e7c46c45e79",
+  "fixCommit": "6b1223dc489f34dff0d9a51e0993a55b18bf0fd2",
+  "changedPath": "packages/oraculum-engine/src/manifest.mjs",
+  "correctedBlobSha": "7b5b742339e2ca66d127dc8da665304e6e544543",
+  "defect": {
+    "producerField": "ritualIntegrity.initialState",
+    "incorrectConsumerField": "ritualIntegrity.initialCubeState",
+    "observableEffect": "manifest.physical.ritualIntegrity.initialCubeState was undefined for RITUAL_32 sessions"
+  },
+  "fix": "initialCubeState: ritualIntegrity.initialState",
+  "independentExecution": {
+    "before": { "tests": 45, "pass": 44, "fail": 1 },
+    "after": { "tests": 45, "pass": 45, "fail": 0 },
+    "classification": "PASS_AFTER_MINIMAL_FIX"
+  },
+  "preservedInvariants": [
+    "RAW V0.4 vectors",
+    "V0.8 legality",
+    "V0.9 ritual integrity",
+    "frozen STATE seed",
+    "RITUAL_32 golden final state",
+    "V0.10 checksum/session",
+    "Release Attestation fingerprint",
+    "Runtime Self-Test",
+    "HNK40"
+  ],
+  "repositorySuite": {
+    "testCommand": "node --test test/*.test.mjs",
+    "testFileCountAtFixHead": 20,
+    "fullSuiteExecution": "PENDING_INDEPENDENT_EXECUTION"
+  },
+  "governance": {
+    "mergePerformed": false,
+    "deploymentPerformed": false,
+    "stablePromotionAuthorized": false,
+    "overall": "NOT_READY_FOR_STABLE"
+  }
+}
