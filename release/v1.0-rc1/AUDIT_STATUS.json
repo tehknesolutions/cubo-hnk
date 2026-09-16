@@ -17,11 +17,13 @@
     "manifest": "HOC-SESSION-MANIFEST/V0.10",
     "canonicalJson": "HOC-CANONICAL-JSON/V1",
     "runtimeSelfTest": "HOC-RC1-RUNTIME-SELFTEST/V1",
-    "evidenceLedger": "HOC-RC1-EVIDENCE-LEDGER/V1"
+    "evidenceLedger": "HOC-RC1-EVIDENCE-LEDGER/V1",
+    "independentValidationEvidence": "HOC-RC1-INDEPENDENT-VALIDATION-EVIDENCE/V1"
   },
   "gates": [
     {"id":"protocolFreeze","status":"PASS","level":"IMPLEMENTED"},
     {"id":"runtimeSelfTest","status":"PENDING","level":"INSTRUMENTED","reason":"execution evidence still required in accepted runtime"},
+    {"id":"independentValidation","status":"PENDING","level":"INSTRUMENTED","reason":"runner exists but no real-executor evidence JSON has been produced yet"},
     {"id":"physicalState","status":"PENDING","level":"INSTRUMENTED","reason":"real physical-cube evidence not yet recorded"},
     {"id":"physicalRitual32","status":"PENDING","level":"INSTRUMENTED","reason":"real physical-cube evidence not yet recorded"},
     {"id":"cameraDevice","status":"PENDING","level":"INSTRUMENTED","reason":"real target-device evidence not yet recorded"},
@@ -42,6 +44,7 @@
   "sourceDocuments": [
     "docs/MANUAL_V1_RC1.md",
     "docs/RC1_PRODUCTION_HARDENING.md",
+    "docs/RC1_INDEPENDENT_VALIDATION.md",
     "release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json",
     "release/v1.0-rc1/RELEASE_AUDIT_REPORT.md",
     "release/v1.0-rc1/RELEASE_CHECKLIST.md",
