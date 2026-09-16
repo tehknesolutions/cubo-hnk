@@ -74,3 +74,21 @@ test('missing required gate invalidates the ledger for promotion purposes',()=>{
   assert.deepEqual(report.missingRequirements,['physicalRitual']);
   assert.equal(report.readyForHumanReview,false);
 });
+
+test('unknown mandatory status fails closed instead of being ignored',()=>{
+  const source=ledger();
+  source.gates=source.gates.map(item=>item.id==='ciBuild'?{...item,status:'UNKNOWN'}:item);
+  const report=evaluateRc1PromotionReadiness(source);
+  assert.equal(report.status,'INVALID_LEDGER');
+  assert.deepEqual(report.invalidRequirements,['ciBuild']);
+  assert.equal(report.readyForHumanReview,false);
+});
+
+test('human decision gate is structurally required even though it is not a pre-human PASS gate',()=>{
+  const source=ledger();
+  source.gates=source.gates.filter(item=>item.id!=='humanPromotion');
+  const report=evaluateRc1PromotionReadiness(source);
+  assert.equal(report.status,'INVALID_LEDGER');
+  assert.deepEqual(report.invalidRequirements,['humanPromotion']);
+  assert.equal(report.humanDecision,null);
+});
