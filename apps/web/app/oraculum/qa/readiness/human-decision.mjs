@@ -13,15 +13,32 @@ export function inspectRc1ReadinessArtifact(artifact){
     &&artifact.releaseId===RC1_RELEASE_ID
     &&artifact.assessment?.version===RC1_READINESS_VERSION
     &&artifact.assessment?.releaseId===RC1_RELEASE_ID
+    &&artifact.assessment?.sourceLedgerValid===true
     &&artifact.assessment?.governance?.automaticPromotion===false
+    &&artifact.assessment?.governance?.mergeAuthorized===false
     &&artifact.assessment?.governance?.stablePromotionAuthorized===false
-    &&artifact.assessment?.governance?.hnkCanonPromotionAuthorized===false,
+    &&artifact.assessment?.governance?.hnkCanonPromotionAuthorized===false
+    &&artifact.governance?.automaticPromotion===false
+    &&artifact.governance?.mergeAuthorized===false
+    &&artifact.governance?.stablePromotionAuthorized===false
+    &&artifact.governance?.hnkCanonPromotionAuthorized===false,
   );
   const status=valid?artifact.assessment.status:null;
+  const required=valid?artifact.assessment.required:null;
+  const requiredMatrixReady=Boolean(
+    required
+    &&required.total===9
+    &&required.pass===9
+    &&required.pending===0
+    &&required.blocked===0
+    &&required.missing===0
+    &&required.invalid===0,
+  );
   return Object.freeze({
     valid,
     status,
-    approveAllowed:valid&&status==='READY_FOR_HUMAN_REVIEW'&&artifact.assessment.readyForHumanReview===true,
+    requiredMatrixReady,
+    approveAllowed:valid&&status==='READY_FOR_HUMAN_REVIEW'&&artifact.assessment.readyForHumanReview===true&&requiredMatrixReady,
     releaseId:valid?artifact.releaseId:null,
     readinessVersion:valid?artifact.assessment.version:null,
   });
@@ -32,7 +49,7 @@ export function buildRc1HumanPromotionDecision({artifact,decision,reviewerLabel,
   assert(inspection.valid,'Promotion Readiness artifact is invalid or belongs to another release.');
   assert(HUMAN_DECISIONS.includes(decision),'Unsupported human decision.');
   assert(acknowledged===true,'Human acknowledgement is required.');
-  if(decision==='APPROVE_V1_0')assert(inspection.approveAllowed,'APPROVE_V1_0 requires READY_FOR_HUMAN_REVIEW.');
+  if(decision==='APPROVE_V1_0')assert(inspection.approveAllowed,'APPROVE_V1_0 requires READY_FOR_HUMAN_REVIEW with a complete 9/9 mandatory gate matrix.');
 
   const reviewer=clean(reviewerLabel,128);
   const rationale=clean(reason,4000);
