@@ -97,7 +97,7 @@ The runbook is ordered as:
 8. verify production Release Attestation, Build Provenance, golden RAW seed, Manifest V0.10 and hardening behavior;
 9. archive final V1.0 evidence.
 
-For Stack Landing V8, the current runbook contains 25 PR landing steps and 33 total steps.
+For Stack Landing V9, the current runbook contains 26 PR landing steps and 34 total steps.
 
 ## Governance boundary
 
