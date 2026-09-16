@@ -32,11 +32,7 @@ It does **not** execute those actions.
 
 ## Operational plan fingerprint
 
-Each generated plan now carries:
-
-`planFingerprint`
-
-using:
+Each generated plan carries `planFingerprint` using:
 
 `HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1`
 
@@ -67,13 +63,9 @@ The default output is:
 
 ## No execution surface
 
-The CLI only:
+The CLI only reads local JSON files, validates the approval record and stack topology, and writes a local JSON plan.
 
-- reads local JSON files;
-- validates the approval record and stack topology;
-- writes a local JSON plan.
-
-It does not import `child_process`, does not call GitHub/Vercel APIs and does not use `fetch`.
+It does not import `child_process`, call GitHub/Vercel APIs or use `fetch`.
 
 Every generated step freezes:
 
@@ -115,7 +107,7 @@ The runbook is ordered as:
 8. verify production Release Attestation, Build Provenance, golden RAW seed, Manifest V0.10 and hardening behavior;
 9. archive final V1.0 evidence.
 
-For Stack Landing V10, the current runbook contains 27 PR landing steps and 35 total steps.
+For Stack Landing V11, the current runbook contains 28 PR landing steps and 36 total steps.
 
 ## Governance boundary
 
@@ -123,15 +115,7 @@ An approved human decision is still not execution authorization.
 
 A generated Promotion Execution Plan is also not execution authorization.
 
-Technical mutations remain separate actions requiring explicit authorization at execution time. In particular, this layer cannot:
-
-- merge PRs;
-- mark CI PASS;
-- edit package versions;
-- create tags or GitHub releases;
-- deploy Vercel production;
-- change the frozen Release Attestation fingerprint;
-- promote HNK40 or any HNK language/spiritual semantics to `HNK_CANON`.
+Technical mutations remain separate actions requiring explicit authorization and a fresh pre-mutation guard decision. This layer cannot merge PRs, mark CI PASS, edit package versions, create tags/releases, deploy Vercel production, change the Release Attestation fingerprint or promote `HNK_CANON`.
 
 ## Relationship to the release pipeline
 
@@ -142,7 +126,8 @@ QA evidence
   -> Human Promotion Decision V1
   -> Promotion Execution Plan V1 (DRY_RUN_ONLY + planFingerprint)
   -> Technical Execution Authorization V1 (STEP_SCOPED)
+  -> Pre-Mutation Guard V1 (ALLOW / DENY)
   -> separately implemented/executed technical action
 ```
 
-No arrow in this chain performs a technical promotion automatically.
+No arrow above the final executor performs a technical promotion automatically.
