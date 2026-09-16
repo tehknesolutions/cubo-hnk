@@ -12,10 +12,11 @@ export interface Rc1PromotionReadiness{
   readonly status:'INVALID_LEDGER'|'BLOCKED'|'EVIDENCE_INCOMPLETE'|'READY_FOR_HUMAN_REVIEW';
   readonly readyForHumanReview:boolean;
   readonly sourceLedgerValid:boolean;
-  readonly required:Readonly<{total:number;pass:number;pending:number;blocked:number;missing:number}>;
+  readonly required:Readonly<{total:number;pass:number;pending:number;blocked:number;missing:number;invalid:number}>;
   readonly blockers:readonly Rc1ReadinessGate[];
   readonly pendingRequirements:readonly Rc1ReadinessGate[];
   readonly missingRequirements:readonly string[];
+  readonly invalidRequirements:readonly string[];
   readonly supplemental:readonly Rc1ReadinessGate[];
   readonly humanDecision:Rc1ReadinessGate|null;
   readonly nextActions:readonly string[];
