@@ -9,6 +9,7 @@
     "check": "pnpm test && pnpm typecheck",
     "bundle:rc1": "node scripts/build-rc1-qa-bundle.mjs",
     "validate:rc1:independent": "node scripts/run-rc1-independent-validation.mjs",
-    "verify:rc1:deployment": "node scripts/verify-rc1-deployment.mjs"
+    "verify:rc1:deployment": "node scripts/verify-rc1-deployment.mjs",
+    "preview:preflight": "node scripts/check-vercel-preview-bootstrap.mjs"
   }
 }

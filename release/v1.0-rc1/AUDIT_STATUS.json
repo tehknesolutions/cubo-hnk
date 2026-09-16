@@ -30,6 +30,7 @@
     {"id":"cameraDevice","status":"PENDING","level":"INSTRUMENTED","reason":"real target-device evidence not yet recorded"},
     {"id":"manifestCrossDevice","status":"PENDING","level":"INSTRUMENTED","reason":"two distinct labeled environment evidences not yet recorded"},
     {"id":"productionHardeningSource","status":"PASS","level":"IMPLEMENTED","artifact":"docs/RC1_PRODUCTION_HARDENING.md"},
+    {"id":"previewBootstrap","status":"PASS","level":"IMPLEMENTED","artifact":"docs/VERCEL_PREVIEW_BOOTSTRAP.md","reason":"preview-only Vercel monorepo config and preflight are implemented; no deployment PASS is claimed"},
     {"id":"deploymentVerification","status":"PENDING","level":"INSTRUMENTED","reason":"deployment verifier exists but no approved preview/deployment URL has been verified yet"},
     {"id":"productionHardeningRuntime","status":"PENDING","level":"NOT_BUILD_VERIFIED","reason":"deployed headers/log-retention/build behavior still requires a real deployment/runtime"},
     {"id":"ciTypecheckBuild","status":"BLOCKED","level":"CONFIGURED","reason":"GitHub Issue #6: validate jobs terminate with steps=null before command execution"},
@@ -40,6 +41,7 @@
   "blockers": [
     "CI/typecheck/build execution unavailable because GitHub Actions jobs terminate before steps",
     "required real physical/device/cross-device evidence not yet recorded",
+    "Vercel preview project/link has not yet been created from a real checkout",
     "deployment verification has not yet been executed against an approved URL",
     "deployed production headers/log-retention behavior not yet runtime-verified",
     "human V1.0 promotion approval pending"
@@ -49,6 +51,7 @@
     "docs/RC1_PRODUCTION_HARDENING.md",
     "docs/RC1_INDEPENDENT_VALIDATION.md",
     "docs/RC1_DEPLOYMENT_VERIFICATION.md",
+    "docs/VERCEL_PREVIEW_BOOTSTRAP.md",
     "release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json",
     "release/v1.0-rc1/RELEASE_AUDIT_REPORT.md",
     "release/v1.0-rc1/RELEASE_CHECKLIST.md",

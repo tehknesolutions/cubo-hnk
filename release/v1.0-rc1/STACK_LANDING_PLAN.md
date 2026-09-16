@@ -1,6 +1,6 @@
 # HOC V1.0 RC1 — Stack Landing Plan
 
-Plan: `HOC-V1.0-RC1-STACK-LANDING/V3`
+Plan: `HOC-V1.0-RC1-STACK-LANDING/V4`
 
 Estado atual:
 
@@ -12,7 +12,7 @@ Este documento organiza a sequência dos PRs empilhados. Ele **não autoriza mer
 
 A cadeia é linear:
 
-`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21`
+`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21 → #22`
 
 Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que rastreia o bloqueio GitHub Actions.
 
@@ -40,6 +40,7 @@ Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que ra
 | 18 | #19 | `feat/v1-rc1-deployment-ledger` | `infra/actions-runner-diagnostic` | diagnóstico pre-runner + pacote Support |
 | 19 | #20 | `infra/actions-runner-diagnostic` | `docs/v1-rc1-stack-landing-v2` | reconciliação da topologia V2 |
 | 20 | #21 | `docs/v1-rc1-stack-landing-v2` | `infra/actions-recovery-controls` | controles manuais de recuperação do Actions |
+| 21 | #22 | `infra/actions-recovery-controls` | `feat/v1-rc1-vercel-preview-bootstrap` | bootstrap preview-only da Vercel |
 
 ## Diagnóstico do blocker
 
@@ -48,34 +49,38 @@ O PR #19 executou um workflow deliberadamente sem dependências do projeto em do
 - `ubuntu-latest`;
 - `windows-latest`.
 
-Ambos criaram job objects e terminaram em `failure` com:
-
-- `steps = null`;
-- `logs_url = null`;
-- nenhum `echo`/`Write-Output` executado.
-
-Isso localiza a condição atual antes dos steps de workflow e retira checkout, pnpm, Node, Next.js, HOC tests/build e um problema exclusivo de Ubuntu da lista de causas necessárias.
+Ambos criaram job objects e terminaram em `failure` com `steps = null` e `logs_url = null`, sem atingir o primeiro shell step. Isso localiza a condição atual antes da execução do workflow e retira checkout, pnpm, Node, Next.js, HOC tests/build e um problema exclusivo de Ubuntu da lista de causas necessárias.
 
 O gate oficial de CI continua `BLOCKED`; diagnóstico não equivale a PASS.
 
 ## Controles de recuperação
 
-O PR #21 fecha a fase de diagnóstico automático:
+O PR #21 encerra os probes automáticos redundantes:
 
-- `Actions Runner Diagnostic` passa a `workflow_dispatch` only;
+- `Actions Runner Diagnostic` fica `workflow_dispatch` only;
 - o CI principal ganha `workflow_dispatch` sem perder PR/push triggers;
 - permissões ficam em `contents: read`;
-- CI ganha `concurrency` com cancelamento de runs obsoletos;
+- CI ganha `concurrency` + `cancel-in-progress`;
 - `validate` recebe timeout de 20 minutos;
-- o runbook de recuperação fica em `docs/GITHUB_ACTIONS_RECOVERY_RUNBOOK.md`.
+- o runbook fica em `docs/GITHUB_ACTIONS_RECOVERY_RUNBOOK.md`.
 
-No próprio PR #21, apenas o CI principal disparou automaticamente. O probe manual não rodou, confirmando que o ruído diagnóstico foi removido. O CI principal continuou com `steps=null`, portanto a causa externa permanece.
+No próprio PR #21, apenas o CI principal disparou automaticamente e continuou com `steps=null`. O probe manual não rodou, como planejado.
+
+## Preview Vercel
+
+O PR #22 prepara o caminho de preview sem publicar produção:
+
+- `apps/web/vercel.json` define Next.js;
+- install/build sobem para a raiz do workspace para resolver `workspace:*`;
+- `pnpm preview:preflight` valida estrutura/configuração;
+- Root Directory esperado: `apps/web`;
+- `vercel --prod`, `vercel deploy --prod` e `vercel promote` ficam fora do bootstrap RC1.
+
+A conta Vercel conectada ainda não possui projeto `cubo-hnk`, portanto o estado é `PREVIEW_PROJECT_BOOTSTRAP_PENDING`, não build FAIL. O deployment verifier continua PENDING até existir uma URL real aprovada.
 
 ## Regra parent-first
 
-Nenhum child PR deve aterrissar antes do parent correspondente.
-
-Depois que um parent for mergeado:
+Nenhum child PR deve aterrissar antes do parent correspondente. Depois que um parent for mergeado:
 
 1. atualizar/retargetar a base do próximo PR;
 2. conferir merge-base;
@@ -85,17 +90,7 @@ Depois que um parent for mergeado:
 
 ## `mergeable=true` não é autorização
 
-O GitHub dizer que um PR é mergeável significa apenas ausência de conflito textual impeditivo naquele instante.
-
-Não significa:
-
-- CI PASS;
-- build PASS;
-- QA físico PASS;
-- aprovação humana;
-- autorização de merge;
-- V1.0 estável;
-- `HNK_CANON`.
+O GitHub dizer que um PR é mergeável significa apenas ausência de conflito textual impeditivo naquele instante. Não significa CI PASS, build PASS, QA físico PASS, aprovação humana, autorização de merge, V1.0 estável ou `HNK_CANON`.
 
 O plano machine-readable continua com:
 
@@ -133,15 +128,7 @@ Continuam independentes:
 
 ## Estratégia futura de merge
 
-Quando houver autorização humana e gates suficientes, usar **parent-first, um PR por vez**.
-
-Após cada merge:
-
-- confirmar SHA resultante;
-- verificar próxima base;
-- retargetar/rebasear se necessário;
-- recalcular diff incremental;
-- interromper se qualquer vetor, protocolo ou contrato sair do escopo esperado.
+Quando houver autorização humana e gates suficientes, usar **parent-first, um PR por vez**. Após cada merge, confirmar SHA, verificar a próxima base, retargetar/rebasear se necessário, recalcular o diff incremental e interromper se qualquer vetor, protocolo ou contrato sair do escopo esperado.
 
 Não usar merge em massa ou auto-merge da stack enquanto a RC1 estiver sob auditoria.
 
@@ -151,8 +138,13 @@ Machine-readable:
 
 `release/v1.0-rc1/STACK_LANDING_PLAN.json`
 
-Diagnóstico e recuperação de Actions:
+Diagnóstico/recuperação de Actions:
 
 - `release/v1.0-rc1/ACTIONS_RUNNER_DIAGNOSTIC_EVIDENCE.json`
 - `docs/GITHUB_ACTIONS_SUPPORT_PACKET.md`
 - `docs/GITHUB_ACTIONS_RECOVERY_RUNBOOK.md`
+
+Preview Vercel:
+
+- `apps/web/vercel.json`
+- `docs/VERCEL_PREVIEW_BOOTSTRAP.md`
