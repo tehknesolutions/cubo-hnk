@@ -1,0 +1,61 @@
+{
+  "kind": "HOC-V1.0-RC1-STACK-V17-TOPOLOGY-RECONCILIATION/V1",
+  "repository": "tehknesolutions/cubo-hnk",
+  "reconciles": "HOC-V1.0-RC1-STACK-LANDING/V17",
+  "observedTopology": {
+    "pr35": {
+      "state": "MERGED",
+      "mergeCommit": "193ef83ec62f5fa174977d06461ae3b27953dc55",
+      "baseAtMerge": "41b62913a4f82ac1b3b61f087740840d7c1cee91",
+      "headAtMerge": "883a6e9d5a48b451c1222b1b27b34c3da232c95d"
+    },
+    "pr36": {
+      "state": "MERGED",
+      "mergeCommit": "883a6e9d5a48b451c1222b1b27b34c3da232c95d",
+      "baseAtMerge": "9f1186da7484318bb545bdfcf6607e7c46c45e79",
+      "headAtMerge": "6b1223dc489f34dff0d9a51e0993a55b18bf0fd2"
+    },
+    "pr37": {
+      "state": "MERGED",
+      "mergeCommit": "e64c931b853fd04446b2033f38c1ea5b974a7e37",
+      "parents": [
+        "193ef83ec62f5fa174977d06461ae3b27953dc55",
+        "5a1ad9cce424679816af2f11585d17c68591b083"
+      ],
+      "tree": "5c852ab3bfdd6f8e3a9564e775a6a3c2a0fefa83",
+      "signatureVerified": true
+    }
+  },
+  "independentValidation": {
+    "targetCommit": "193ef83ec62f5fa174977d06461ae3b27953dc55",
+    "testFiles": 20,
+    "tests": 108,
+    "pass": 108,
+    "fail": 0,
+    "typecheckExitCode": 0,
+    "typecheckDiagnostics": 0,
+    "classification": "PASS"
+  },
+  "githubActions": {
+    "runNumber": 121,
+    "attempts": 2,
+    "repositoryStepsExecuted": 0,
+    "classification": "RUNNER_PROVISIONING_FAILURE_REPRODUCED",
+    "ciPassClaimed": false
+  },
+  "v17Assessment": {
+    "internalGovernanceModel": "PRESERVED_AS_HISTORICAL_RECORD",
+    "topologyAsCurrentTruth": "STALE",
+    "reason": "PRs #35, #36 and #37 are now observed merged while V17 records the stack as awaiting authorized landing.",
+    "nextStackVersionAssigned": false,
+    "requiredNextAction": "derive successor Stack Landing plan from observed topology and remaining gates; do not infer authorization from merge history"
+  },
+  "governance": {
+    "mergePerformedByThisReconciliationWorkflow": false,
+    "externalMergesObserved": [35, 36, 37],
+    "deploymentPerformed": false,
+    "stablePromotionAuthorized": false,
+    "hnkCanonPromotionAuthorized": false,
+    "overall": "TOPOLOGY_RECONCILED__SUCCESSOR_PLAN_PENDING__NOT_READY_FOR_STABLE"
+  }
+}
