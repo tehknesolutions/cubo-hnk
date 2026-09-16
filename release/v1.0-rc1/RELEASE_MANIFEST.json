@@ -1,83 +1,14 @@
 {
-  "releaseId": "HOC-V1.0-RC1",
-  "semver": "1.0.0-rc.1",
-  "status": "RELEASE_CANDIDATE",
-  "canonPromotion": "NOT_HNK_CANON",
-  "protocols": {
-    "scan": "HOC-FACELET-SCAN-V1",
-    "raw": "HNK-ORACULUM-CUBE/V0.4",
-    "interpretation": "0.5.0-candidate",
-    "cubeLegality": "HOC-CUBE-LEGALITY/V0.8",
-    "ritualIntegrity": "HOC-RITUAL-INTEGRITY/V0.9",
-    "sessionManifest": "HOC-SESSION-MANIFEST/V0.10",
-    "canonicalJson": "HOC-CANONICAL-JSON/V1",
-    "runtimeSelfTest": "HOC-RC1-RUNTIME-SELFTEST/V1",
-    "releaseAttestation": "HOC-RC1-RELEASE-ATTESTATION/V1"
-  },
-  "operationalMetadata": {
-    "buildProvenance": "HOC-RC1-BUILD-PROVENANCE/V1",
-    "promotionReadiness": "HOC-RC1-PROMOTION-READINESS/V1",
-    "humanPromotionDecision": "HOC-RC1-HUMAN-PROMOTION-DECISION/V1",
-    "promotionExecutionPlan": "HOC-RC1-PROMOTION-EXECUTION-PLAN/V1",
-    "promotionPlanFingerprint": "HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1",
-    "technicalExecutionAuthorization": "HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1",
-    "entersReleaseFingerprint": false,
-    "buildProvenanceAuthority": "BUILD_PROVENANCE_METADATA_NOT_RELEASE_IDENTITY",
-    "promotionReadinessAuthority": "READINESS_ASSESSMENT_NOT_PROMOTION_AUTHORITY",
-    "humanDecisionAuthority": "HUMAN_DECISION_RECORD_NOT_EXECUTION_AUTHORITY",
-    "promotionExecutionPlanAuthority": "PROMOTION_EXECUTION_PLAN_NOT_EXECUTION_AUTHORITY",
-    "technicalExecutionAuthorizationAuthority": "TECHNICAL_EXECUTION_AUTHORIZATION_RECORD_NOT_EXECUTOR"
-  },
-  "packages": {
-    "workspace": "1.0.0-rc.1",
-    "@hnk/oraculum-engine": "1.0.0-rc.1",
-    "@hnk/cubo-web": "1.0.0-rc.1"
-  },
-  "hnk40": {
-    "status": "PREPRODUCTION_NOT_OFFICIAL",
-    "glyphCount": 40,
-    "glyphSetSha256": "78668df0f707952b7c280de52526abaa2b7900597fb8ff362a3a08641fd1bce5",
-    "candidateOracleSemanticsRemainNonCanonical": true
-  },
-  "frozenVectors": {
-    "stateRawSeed256": "df6bcd1bfd58288fb8f7d7e0f22b69d7e305a24429ba4445c242efc000e3b6fc",
-    "ritualV09FinalState": "513004512451013254000425014533433235324540121221251340",
-    "manifestSyntheticChecksum": "e8510e6f8eb299ef57ecc2481d7ac5e3e4b0dd754284c2c5728d48febbb60041",
-    "manifestSyntheticSessionId": "HOC-E8510E6F8EB299EF57ECC248",
-    "releaseAttestationFingerprint": "08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90"
-  },
-  "compatibility": {
-    "stateMode": ["SCAN_V1", "LEGALITY_V0.8", "RAW_V0.4", "INTERPRETATION_V0.5", "MANIFEST_V0.10"],
-    "ritual32Mode": ["SCAN_V1", "LEGALITY_V0.8", "RITUAL_V0.9", "RAW_V0.4", "INTERPRETATION_V0.5", "MANIFEST_V0.10"],
-    "deploymentVerification": ["RELEASE_ATTESTATION_V1", "BUILD_PROVENANCE_V1", "RUNTIME_SELFTEST_V1", "RAW_V0.4_GOLDEN", "MANIFEST_V0.10_VERIFY"],
-    "promotionReadiness": ["EVIDENCE_LEDGER_V1", "MANDATORY_GATE_MATRIX", "HUMAN_PROMOTION_DECISION_V1"],
-    "promotionExecutionPlanning": ["HUMAN_PROMOTION_DECISION_V1_APPROVE", "STACK_LANDING_PARENT_FIRST", "PROMOTION_PLAN_FINGERPRINT_V1", "DRY_RUN_ONLY"],
-    "technicalExecutionAuthorization": ["VALID_PROMOTION_PLAN_FINGERPRINT", "STEP_SCOPED_AUTHORIZATION", "EXPLICIT_STABLE_ACK", "EXPLICIT_PRODUCTION_ACK", "NO_AUTOMATIC_EXECUTION"]
-  },
-  "releaseGuarantees": [
-    "RAW V0.4 seed construction is unchanged",
-    "profiles do not enter RAW SHA-256",
-    "V0.8 and V0.9 are pre-RAW physical gates",
-    "V0.10 is downstream and cannot alter the oracle seed",
-    "camera classification remains assistive and requires human review",
-    "identical canonical session data yields identical V0.10 session checksum",
-    "RC1 runtime identity can be checked against the frozen Release Attestation V1 fingerprint",
-    "build commit/ref/deployment provenance is exposed separately and does not change the frozen release fingerprint",
-    "promotion readiness separates mandatory gates, supplemental evidence and the final human decision without automatic promotion authority",
-    "human APPROVE/DEFER/REJECT can be recorded without executing merge, deployment, version changes or HNK_CANON promotion",
-    "an approved human decision can produce a DRY_RUN_ONLY promotion plan whose exact operational content is bound by a separate plan fingerprint",
-    "technical execution authorization is restricted to explicitly listed plan step IDs and requires extra acknowledgement for stable or production phases"
-  ],
-  "nonGuarantees": [
-    "No claim of supernatural certainty or infallible prediction",
-    "No automatic promotion of HNK40 oracle semantics to linguistic or spiritual canon",
-    "No claim that historical traditions are interchangeable",
-    "No production-readiness claim until RC1 QA gates are executed",
-    "A matching Release Attestation fingerprint does not replace CI, physical QA or human stable-promotion approval",
-    "Build provenance metadata alone does not prove deployment correctness or authorize promotion",
-    "READY_FOR_HUMAN_REVIEW is not V1.0 stable and never authorizes merge or HNK_CANON promotion",
-    "An APPROVE_V1_0 decision record documents approval but does not itself execute technical promotion",
-    "A Promotion Execution Plan is a non-executable runbook and does not itself authorize any technical action",
-    "A Technical Execution Authorization record does not execute shell commands, GitHub mutations, Vercel deployment or HNK_CANON promotion; it only documents authority for listed plan steps"
-  ]
+  "releaseId":"HOC-V1.0-RC1",
+  "semver":"1.0.0-rc.1",
+  "status":"RELEASE_CANDIDATE",
+  "canonPromotion":"NOT_HNK_CANON",
+  "protocols":{"scan":"HOC-FACELET-SCAN-V1","raw":"HNK-ORACULUM-CUBE/V0.4","interpretation":"0.5.0-candidate","cubeLegality":"HOC-CUBE-LEGALITY/V0.8","ritualIntegrity":"HOC-RITUAL-INTEGRITY/V0.9","sessionManifest":"HOC-SESSION-MANIFEST/V0.10","canonicalJson":"HOC-CANONICAL-JSON/V1","runtimeSelfTest":"HOC-RC1-RUNTIME-SELFTEST/V1","releaseAttestation":"HOC-RC1-RELEASE-ATTESTATION/V1"},
+  "operationalMetadata":{"buildProvenance":"HOC-RC1-BUILD-PROVENANCE/V1","promotionReadiness":"HOC-RC1-PROMOTION-READINESS/V1","humanPromotionDecision":"HOC-RC1-HUMAN-PROMOTION-DECISION/V1","promotionExecutionPlan":"HOC-RC1-PROMOTION-EXECUTION-PLAN/V1","promotionPlanFingerprint":"HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1","technicalExecutionAuthorization":"HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1","preMutationGuard":"HOC-RC1-PRE-MUTATION-GUARD/V1","technicalMutationReceipt":"HOC-RC1-TECHNICAL-MUTATION-RECEIPT/V1","mutationEvidenceVerification":"HOC-RC1-TECHNICAL-MUTATION-EVIDENCE-VERIFICATION/V1","mutationEvidenceVerificationFingerprint":"HOC-RC1-MUTATION-EVIDENCE-VERIFICATION-FINGERPRINT/V1","completedPrefixState":"HOC-RC1-COMPLETED-PREFIX-STATE/V1","completedPrefixStateFingerprint":"HOC-RC1-COMPLETED-PREFIX-STATE-FINGERPRINT/V1","completedPrefixTransition":"HOC-RC1-COMPLETED-PREFIX-TRANSITION/V1","completedPrefixTransitionFingerprint":"HOC-RC1-COMPLETED-PREFIX-TRANSITION-FINGERPRINT/V1","entersReleaseFingerprint":false},
+  "packages":{"workspace":"1.0.0-rc.1","@hnk/oraculum-engine":"1.0.0-rc.1","@hnk/cubo-web":"1.0.0-rc.1"},
+  "hnk40":{"status":"PREPRODUCTION_NOT_OFFICIAL","glyphCount":40,"glyphSetSha256":"78668df0f707952b7c280de52526abaa2b7900597fb8ff362a3a08641fd1bce5","candidateOracleSemanticsRemainNonCanonical":true},
+  "frozenVectors":{"stateRawSeed256":"df6bcd1bfd58288fb8f7d7e0f22b69d7e305a24429ba4445c242efc000e3b6fc","ritualV09FinalState":"513004512451013254000425014533433235324540121221251340","manifestSyntheticChecksum":"e8510e6f8eb299ef57ecc2481d7ac5e3e4b0dd754284c2c5728d48febbb60041","manifestSyntheticSessionId":"HOC-E8510E6F8EB299EF57ECC248","releaseAttestationFingerprint":"08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90"},
+  "compatibility":{"stateMode":["SCAN_V1","LEGALITY_V0.8","RAW_V0.4","INTERPRETATION_V0.5","MANIFEST_V0.10"],"ritual32Mode":["SCAN_V1","LEGALITY_V0.8","RITUAL_V0.9","RAW_V0.4","INTERPRETATION_V0.5","MANIFEST_V0.10"],"promotionExecutionPlanning":["HUMAN_PROMOTION_DECISION_V1_APPROVE","STACK_LANDING_PARENT_FIRST","PROMOTION_PLAN_FINGERPRINT_V1","DRY_RUN_ONLY"],"technicalExecutionAuthorization":["VALID_PROMOTION_PLAN_FINGERPRINT","STEP_SCOPED_AUTHORIZATION","NO_AUTOMATIC_EXECUTION"],"preMutationGuard":["VALID_PLAN_FINGERPRINT","VALID_STEP_SCOPED_AUTHORIZATION","STRICT_COMPLETED_PREFIX","EXACT_NEXT_STEP","ALLOW_OR_DENY_ONLY"],"technicalMutationReceipt":["ALLOW_BOUND_RECEIPT","SUCCESS_REQUIRES_EXTERNAL_REFERENCE","UNVERIFIED_EXTERNAL_RESULT","NO_PREFIX_ADVANCE"],"mutationEvidenceVerification":["SUCCESS_RECEIPT_ONLY","ONE_OBSERVATION_PER_EVIDENCE_REF","HASH_AND_TIMESTAMP_CHECKS","TAMPER_EVIDENT_RECORD","ELIGIBLE_NOT_STATE_MUTATION"],"completedPrefixTransition":["FINGERPRINTED_PREFIX_STATE","EXACT_RUNBOOK_PREFIX","VERIFIED_EVIDENCE_REQUIRED","EXACT_N_TO_N_PLUS_1","LINEAGE_BOUND","NO_TECHNICAL_ACTION_EXECUTION"]},
+  "releaseGuarantees":["RAW V0.4 seed construction is unchanged","profiles do not enter RAW SHA-256","V0.8 and V0.9 are pre-RAW physical gates","V0.10 cannot alter the oracle seed","Release Attestation fingerprint remains frozen","completed-prefix state transitions can append only the exact next runbook step after verified external evidence and preserve the verification fingerprint in lineage","completed-prefix state and transition records remain operational metadata outside the frozen RC1 release fingerprint"],
+  "nonGuarantees":["No claim of supernatural certainty or infallible prediction","No automatic promotion of HNK40 or HNK_CANON","No production-readiness claim until RC1 QA gates are executed","Completed-prefix state transition records do not execute merges, deployments, version changes or any other technical target mutation","State and transition fingerprints are tamper-evidence mechanisms, not digital signatures or external trust anchors"]
 }
