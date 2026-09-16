@@ -16,14 +16,29 @@ test('root package exposes deployment verification runner',()=>{
   assert.equal(pkg.scripts['verify:rc1:deployment'],'node scripts/verify-rc1-deployment.mjs');
 });
 
-test('deployment verifier freezes evidence and golden RC1 seed identity',()=>{
+test('deployment verifier freezes evidence, release fingerprint and golden seed identity',()=>{
   assert.match(runner,/HOC-RC1-DEPLOYMENT-VERIFY-EVIDENCE\/V1/);
+  assert.match(runner,/HOC-RC1-RELEASE-ATTESTATION\/V1/);
+  assert.match(runner,/08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90/);
   assert.match(runner,/df6bcd1bfd58288fb8f7d7e0f22b69d7e305a24429ba4445c242efc000e3b6fc/);
   assert.match(runner,/Qual padrão precisa se manifestar\?/);
 });
 
+test('deployment verifier checks release attestation before runtime/oracle checks',()=>{
+  const releaseIndex=runner.indexOf("'/api/oraculum/release'");
+  const selftestIndex=runner.indexOf("'/api/oraculum/rc1-selftest'");
+  const oracleIndex=runner.indexOf("'/api/oraculum'",selftestIndex+1);
+  assert.ok(releaseIndex>=0);
+  assert.ok(selftestIndex>releaseIndex);
+  assert.ok(oracleIndex>selftestIndex);
+  assert.match(runner,/x-hoc-release-id/);
+  assert.match(runner,/x-hoc-release-fingerprint/);
+  assert.match(runner,/releaseAttestation/);
+});
+
 test('deployment verifier checks actual host headers and runtime APIs',()=>{
   for(const marker of [
+    '/api/oraculum/release',
     '/api/oraculum/rc1-selftest',
     '/oraculum',
     'x-content-type-options',
