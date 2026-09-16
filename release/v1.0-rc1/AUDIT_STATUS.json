@@ -21,6 +21,7 @@
     "buildProvenance": "HOC-RC1-BUILD-PROVENANCE/V1",
     "evidenceLedger": "HOC-RC1-EVIDENCE-LEDGER/V1",
     "promotionReadiness": "HOC-RC1-PROMOTION-READINESS/V1",
+    "humanPromotionDecision": "HOC-RC1-HUMAN-PROMOTION-DECISION/V1",
     "independentValidationEvidence": "HOC-RC1-INDEPENDENT-VALIDATION-EVIDENCE/V1",
     "deploymentVerificationEvidence": "HOC-RC1-DEPLOYMENT-VERIFY-EVIDENCE/V1"
   },
@@ -30,6 +31,7 @@
     {"id":"releaseAttestation","status":"PASS","level":"IMPLEMENTED","artifact":"packages/oraculum-engine/src/release-attestation.mjs","reason":"deterministic RC1 runtime identity and frozen SHA-256 fingerprint implemented; deployment execution remains separate"},
     {"id":"buildProvenance","status":"PASS","level":"IMPLEMENTED","artifact":"apps/web/lib/release-provenance.ts","reason":"runtime commit/ref/deployment metadata is exposed separately from the deterministic release fingerprint; exact deployment evidence still requires execution"},
     {"id":"promotionReadiness","status":"PASS","level":"IMPLEMENTED","artifact":"apps/web/app/oraculum/qa/evidence/promotion-readiness.mjs","reason":"final RC1-to-V1.0 readiness assessment is implemented with mandatory/supplemental gate separation and no automatic promotion authority"},
+    {"id":"humanDecisionRecorder","status":"PASS","level":"IMPLEMENTED","artifact":"apps/web/app/oraculum/qa/readiness/human-decision.mjs","reason":"human APPROVE/DEFER/REJECT decision can be recorded locally; APPROVE requires READY_FOR_HUMAN_REVIEW and the record has no execution authority"},
     {"id":"runtimeSelfTest","status":"PENDING","level":"INSTRUMENTED","reason":"execution evidence still required in accepted runtime"},
     {"id":"independentValidation","status":"PENDING","level":"INSTRUMENTED","reason":"runner exists but no real-executor evidence JSON has been produced yet"},
     {"id":"physicalState","status":"PENDING","level":"INSTRUMENTED","reason":"real physical-cube evidence not yet recorded"},
@@ -43,7 +45,7 @@
     {"id":"ciTypecheckBuild","status":"BLOCKED","level":"CONFIGURED","reason":"GitHub Issue #6: validate jobs terminate with steps=null before command execution"},
     {"id":"markdownManual","status":"PASS","level":"IMPLEMENTED","artifact":"docs/MANUAL_V1_RC1.md"},
     {"id":"docxPdfManual","status":"PASS","level":"VISUALLY_QA_D","artifact":"release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json","reason":"36-page DOCX/PDF RC1 artifacts regenerated and visually verified; exact artifact hashes recorded"},
-    {"id":"humanPromotion","status":"PENDING","level":"NOT_APPROVED","reason":"explicit V1.0 promotion approval not given"}
+    {"id":"humanPromotion","status":"PENDING","level":"NOT_APPROVED","reason":"no real HOC-RC1-HUMAN-PROMOTION-DECISION/V1 approval record has been produced; recorder implementation alone is not approval"}
   ],
   "blockers": [
     "CI/typecheck/build execution unavailable because GitHub Actions jobs terminate before steps",
@@ -51,7 +53,7 @@
     "Vercel preview project/link has not yet been created from a real checkout",
     "deployment verification has not yet been executed against an approved URL carrying the frozen release fingerprint and runtime build provenance",
     "deployed production headers/log-retention behavior not yet runtime-verified",
-    "human V1.0 promotion approval pending"
+    "human V1.0 promotion approval record pending"
   ],
   "sourceDocuments": [
     "docs/MANUAL_V1_RC1.md",
@@ -61,6 +63,7 @@
     "docs/RC1_RELEASE_ATTESTATION.md",
     "docs/RC1_BUILD_PROVENANCE.md",
     "docs/RC1_PROMOTION_READINESS.md",
+    "docs/RC1_HUMAN_PROMOTION_DECISION.md",
     "docs/VERCEL_PREVIEW_BOOTSTRAP.md",
     "release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json",
     "release/v1.0-rc1/RELEASE_AUDIT_REPORT.md",

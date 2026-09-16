@@ -75,7 +75,7 @@ export function PromotionReadinessClient(){
         <p className={styles.kicker}>HOC V1.0 RC1 · PROMOTION READINESS</p>
         <h1>RC1 → V1.0</h1>
         <p>Importe o Release Evidence Ledger e obtenha a lista final de blockers, evidências obrigatórias pendentes e o ponto exato em que a release pode ser submetida à decisão humana.</p>
-        <p><Link href="/oraculum/qa">← QA Hub</Link> · <Link href="/oraculum/qa/evidence">Evidence Ledger</Link></p>
+        <p><Link href="/oraculum/qa">← QA Hub</Link> · <Link href="/oraculum/qa/evidence">Evidence Ledger</Link> · <Link href="/oraculum/qa/decision">Human Decision</Link></p>
       </div>
       <div className={styles.badge}>{artifact?report.status:'READINESS'}</div>
     </header>
@@ -98,7 +98,7 @@ export function PromotionReadinessClient(){
         <article className={styles.resultCard}><small>BLOCKED</small><strong>{report.required.blocked}</strong></article>
         <article className={styles.resultCard}><small>Missing</small><strong>{report.required.missing}</strong></article>
       </div>
-      <p>{report.readyForHumanReview?'Todos os gates obrigatórios pré-humanos estão PASS. A release pode ser submetida à decisão humana explícita.':'A release ainda não está pronta para decisão humana de promoção.'}</p>
+      <p>{report.readyForHumanReview?'Todos os gates obrigatórios pré-humanos estão PASS. Exporte o readiness e registre a decisão humana explícita em Human Decision.':'A release ainda não está pronta para decisão humana de aprovação; DEFER/REJECT continuam registráveis em Human Decision.'}</p>
     </section>
 
     {report.blockers.length>0&&<section className={styles.card}>
@@ -124,7 +124,7 @@ export function PromotionReadinessClient(){
 
     <section className={styles.card}>
       <h2>7. Limite de autoridade</h2>
-      <p>Este avaliador não faz merge, não promove stable e não altera `HNK_CANON`. Mesmo `READY_FOR_HUMAN_REVIEW` significa apenas que os gates pré-humanos estão completos. A promoção V1.0 continua exigindo uma decisão humana explícita.</p>
+      <p>Este avaliador não faz merge, não promove stable e não altera `HNK_CANON`. Mesmo `READY_FOR_HUMAN_REVIEW` significa apenas que os gates pré-humanos estão completos. A decisão humana é registrada separadamente em <Link href="/oraculum/qa/decision">Human Decision</Link>.</p>
       <pre className={styles.audit}>{JSON.stringify(report.governance,null,2)}</pre>
     </section>
   </main>;

@@ -1,5 +1,5 @@
 {
-  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V7",
+  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V8",
   "releaseId": "HOC-V1.0-RC1",
   "repository": "tehknesolutions/cubo-hnk",
   "mergeAuthorized": false,
@@ -31,12 +31,10 @@
     {"order":21,"pr":22,"base":"infra/actions-recovery-controls","head":"feat/v1-rc1-vercel-preview-bootstrap","role":"preview-only Vercel monorepo bootstrap and preflight"},
     {"order":22,"pr":23,"base":"feat/v1-rc1-vercel-preview-bootstrap","head":"feat/v1-rc1-release-attestation","role":"deterministic RC1 release attestation and deployment identity gate"},
     {"order":23,"pr":24,"base":"feat/v1-rc1-release-attestation","head":"feat/v1-rc1-build-provenance","role":"runtime build provenance and optional deployment commit pinning"},
-    {"order":24,"pr":25,"base":"feat/v1-rc1-build-provenance","head":"feat/v1-rc1-promotion-readiness","role":"final RC1 to V1.0 promotion readiness assessment without promotion authority"}
+    {"order":24,"pr":25,"base":"feat/v1-rc1-build-provenance","head":"feat/v1-rc1-promotion-readiness","role":"final RC1 to V1.0 promotion readiness assessment without promotion authority"},
+    {"order":25,"pr":26,"base":"feat/v1-rc1-promotion-readiness","head":"feat/v1-rc1-human-promotion-decision","role":"human APPROVE DEFER REJECT decision record without technical execution authority"}
   ],
-  "knownMissingPrNumber": {
-    "number": 6,
-    "reason": "GitHub Issue #6 is the Actions runner blocker; there is intentionally no PR #6 in the landing chain"
-  },
+  "knownMissingPrNumber": {"number":6,"reason":"GitHub Issue #6 is the Actions runner blocker; there is intentionally no PR #6 in the landing chain"},
   "preLandingGates": [
     {"id":"humanMergeAuthorization","required":true,"status":"PENDING"},
     {"id":"realAutomatedExecution","required":true,"status":"BLOCKED","reason":"GitHub Issue #6: even zero-dependency ubuntu/windows probes end with steps=null before first shell step"},
@@ -46,6 +44,7 @@
     {"id":"releaseAttestationIdentity","required":false,"status":"PASS","reason":"PR #23 freezes HOC-RC1-RELEASE-ATTESTATION/V1 and fingerprint 08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90"},
     {"id":"buildProvenanceInstrumentation","required":false,"status":"PASS","reason":"PR #24 adds HOC-RC1-BUILD-PROVENANCE/V1 as unhashed runtime metadata and optional commit pinning; real deployment provenance remains pending"},
     {"id":"promotionReadinessInstrumentation","required":false,"status":"PASS","reason":"PR #25 adds HOC-RC1-PROMOTION-READINESS/V1 to classify mandatory blockers/evidence and readiness for explicit human review without promotion authority"},
+    {"id":"humanDecisionRecorderInstrumentation","required":false,"status":"PASS","reason":"PR #26 adds HOC-RC1-HUMAN-PROMOTION-DECISION/V1; APPROVE requires coherent READY_FOR_HUMAN_REVIEW but the record performs no merge/deploy/version/HNK_CANON action"},
     {"id":"visualManualArtifacts","required":true,"status":"PASS"},
     {"id":"actionsRootCauseLocatedToPreStepLayer","required":false,"status":"PASS","reason":"PR #19 zero-dependency ubuntu-latest and windows-latest jobs both failed with steps=null/logs_url=null"},
     {"id":"actionsRecoveryControls","required":false,"status":"PASS","reason":"PR #21 makes runner diagnostic manual-only and adds workflow_dispatch/concurrency/timeout recovery controls to main CI"},
@@ -61,7 +60,8 @@
     "production host logging/retention and abuse strategy review",
     "GitHub CI/typecheck/build gate",
     "Promotion Readiness status READY_FOR_HUMAN_REVIEW",
-    "explicit human V1.0 stable promotion approval"
+    "explicit HOC-RC1-HUMAN-PROMOTION-DECISION/V1 APPROVE_V1_0 record",
+    "separate technical V1.0 promotion execution authorization"
   ],
   "landingRules": [
     "Do not merge a child PR before its parent PR has landed or the child has been correctly rebased/retargeted.",
@@ -75,6 +75,7 @@
     "A matching Release Attestation V1 fingerprint proves frozen RC1 runtime identity only and cannot promote stable, CI, Physical QA or HNK_CANON.",
     "Build Provenance V1 is unhashed operational metadata; it can trace/pin a build but cannot change the frozen RC1 fingerprint or authorize promotion.",
     "Promotion Readiness V1 may return READY_FOR_HUMAN_REVIEW only after mandatory pre-human gates PASS; that status never authorizes merge, V1.0 stable or HNK_CANON.",
+    "Human Promotion Decision V1 records APPROVE/DEFER/REJECT only; even APPROVE_V1_0 does not execute merge, deployment, version changes or HNK_CANON promotion.",
     "Landing RC1 code does not by itself authorize V1.0 stable or HNK_CANON promotion."
   ]
 }
