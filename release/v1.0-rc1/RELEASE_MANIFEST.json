@@ -16,8 +16,10 @@
   },
   "operationalMetadata": {
     "buildProvenance": "HOC-RC1-BUILD-PROVENANCE/V1",
+    "promotionReadiness": "HOC-RC1-PROMOTION-READINESS/V1",
     "entersReleaseFingerprint": false,
-    "authority": "BUILD_PROVENANCE_METADATA_NOT_RELEASE_IDENTITY"
+    "buildProvenanceAuthority": "BUILD_PROVENANCE_METADATA_NOT_RELEASE_IDENTITY",
+    "promotionReadinessAuthority": "READINESS_ASSESSMENT_NOT_PROMOTION_AUTHORITY"
   },
   "packages": {
     "workspace": "1.0.0-rc.1",
@@ -40,7 +42,8 @@
   "compatibility": {
     "stateMode": ["SCAN_V1", "LEGALITY_V0.8", "RAW_V0.4", "INTERPRETATION_V0.5", "MANIFEST_V0.10"],
     "ritual32Mode": ["SCAN_V1", "LEGALITY_V0.8", "RITUAL_V0.9", "RAW_V0.4", "INTERPRETATION_V0.5", "MANIFEST_V0.10"],
-    "deploymentVerification": ["RELEASE_ATTESTATION_V1", "BUILD_PROVENANCE_V1", "RUNTIME_SELFTEST_V1", "RAW_V0.4_GOLDEN", "MANIFEST_V0.10_VERIFY"]
+    "deploymentVerification": ["RELEASE_ATTESTATION_V1", "BUILD_PROVENANCE_V1", "RUNTIME_SELFTEST_V1", "RAW_V0.4_GOLDEN", "MANIFEST_V0.10_VERIFY"],
+    "promotionReadiness": ["EVIDENCE_LEDGER_V1", "MANDATORY_GATE_MATRIX", "HUMAN_PROMOTION_DECISION"]
   },
   "releaseGuarantees": [
     "RAW V0.4 seed construction is unchanged",
@@ -50,7 +53,8 @@
     "camera classification remains assistive and requires human review",
     "identical canonical session data yields identical V0.10 session checksum",
     "RC1 runtime identity can be checked against the frozen Release Attestation V1 fingerprint",
-    "build commit/ref/deployment provenance is exposed separately and does not change the frozen release fingerprint"
+    "build commit/ref/deployment provenance is exposed separately and does not change the frozen release fingerprint",
+    "promotion readiness separates mandatory gates, supplemental evidence and the final human decision without automatic promotion authority"
   ],
   "nonGuarantees": [
     "No claim of supernatural certainty or infallible prediction",
@@ -58,6 +62,7 @@
     "No claim that historical traditions are interchangeable",
     "No production-readiness claim until RC1 QA gates are executed",
     "A matching Release Attestation fingerprint does not replace CI, physical QA or human stable-promotion approval",
-    "Build provenance metadata alone does not prove deployment correctness or authorize promotion"
+    "Build provenance metadata alone does not prove deployment correctness or authorize promotion",
+    "READY_FOR_HUMAN_REVIEW is not V1.0 stable and never authorizes merge or HNK_CANON promotion"
   ]
 }
