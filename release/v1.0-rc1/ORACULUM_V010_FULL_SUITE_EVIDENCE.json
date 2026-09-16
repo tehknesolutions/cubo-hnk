@@ -1,0 +1,50 @@
+{
+  "kind": "HOC-V0.10-INDEPENDENT-FULL-SUITE-EVIDENCE/V1",
+  "scope": "@hnk/oraculum-engine post-merge validation",
+  "target": {
+    "commit": "193ef83ec62f5fa174977d06461ae3b27953dc55",
+    "tree": "6432b727f7e7a89ac5041cda0e255e0cc12f71fc",
+    "manifestBlob": "7b5b742339e2ca66d127dc8da665304e6e544543",
+    "workingTreeCleanAfterExecution": true
+  },
+  "executor": {
+    "device": "TW-DA-VINCI-HNK-TEHKNE",
+    "platform": "Windows",
+    "node": "v24.18.0",
+    "git": "2.55.0.windows.3",
+    "packageManager": "pnpm@10.17.1"
+  },
+  "fullSuite": {
+    "testFileCount": 20,
+    "command": "node --test test/*.test.mjs",
+    "tests": 108,
+    "pass": 108,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "durationMs": 4859.1745,
+    "classification": "PASS"
+  },
+  "typecheck": {
+    "command": "tsc -p tsconfig.json --noEmit",
+    "typescriptConstraint": "^5.9.2",
+    "exitCode": 0,
+    "diagnostics": 0,
+    "classification": "PASS"
+  },
+  "ci": {
+    "githubActionsRun": 121,
+    "attempts": 2,
+    "repositoryStepsExecuted": 0,
+    "classification": "RUNNER_PROVISIONING_FAILURE_REPRODUCED",
+    "ciPassClaimed": false
+  },
+  "governance": {
+    "mergePerformedByThisEvidenceWorkflow": false,
+    "deploymentPerformed": false,
+    "stablePromotionAuthorized": false,
+    "hnkCanonPromotionAuthorized": false,
+    "overall": "INDEPENDENT_CODE_VALIDATION_PASS__CI_INFRA_BLOCKED__NOT_READY_FOR_STABLE"
+  }
+}
