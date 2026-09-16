@@ -46,7 +46,7 @@ export function EvidenceLedgerClient(){
       governance:{
         cryptographicSignature:false,
         automaticPromotion:false,
-        note:'Aggregated QA evidence. CI/build and human promotion remain independent gates.',
+        note:'Aggregated QA evidence. Independent executor, GitHub CI/build and human promotion remain distinct gates.',
       },
     };
     const blob=new Blob([JSON.stringify(artifact,null,2)],{type:'application/json'});
@@ -60,7 +60,7 @@ export function EvidenceLedgerClient(){
       <div>
         <p className={styles.kicker}>HOC V1.0 RC1 · RELEASE EVIDENCE</p>
         <h1>Evidence Ledger</h1>
-        <p>Agrega evidências de runtime, cubo físico, câmera e verificação cross-device sem misturar esses gates com o protocolo oracular.</p>
+        <p>Agrega evidências de runtime, executor independente, cubo físico, câmera e verificação cross-device sem misturar esses gates com o protocolo oracular ou com o GitHub CI.</p>
         <p><Link href="/oraculum/qa">← QA Hub</Link> · <Link href="/oraculum/verify">verificar manifesto</Link></p>
       </div>
       <div className={styles.badge}>{report.overall}</div>
@@ -117,7 +117,7 @@ export function EvidenceLedgerClient(){
 
     <section className={styles.card}>
       <h2>Limites de autoridade</h2>
-      <p>O ledger não assina, não autentica hardware e não promove a release. Ele organiza evidência de QA. O manifesto V0.10 continua sendo a peça criptograficamente verificável; CI/build e aprovação humana continuam gates independentes.</p>
+      <p>O ledger não assina, não autentica hardware e não promove a release. O manifesto V0.10 continua sendo a peça criptograficamente verificável. Independent Executor e GitHub CI permanecem gates separados, e somente aprovação humana explícita pode promover V1.0.</p>
     </section>
   </main>;
 }
