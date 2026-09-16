@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 const audit=JSON.parse(readFileSync(new URL('../../../release/v1.0-rc1/AUDIT_STATUS.json',import.meta.url),'utf8'));
+const tailEvidence=JSON.parse(readFileSync(new URL('../../../release/v1.0-rc1/INDEPENDENT_TAIL_TEST_EVIDENCE.json',import.meta.url),'utf8'));
 const manual=readFileSync(new URL('../../../docs/MANUAL_V1_RC1.md',import.meta.url),'utf8');
 const report=readFileSync(new URL('../../../release/v1.0-rc1/RELEASE_AUDIT_REPORT.md',import.meta.url),'utf8');
 const hardening=readFileSync(new URL('../../../docs/RC1_PRODUCTION_HARDENING.md',import.meta.url),'utf8');
@@ -31,6 +32,21 @@ test('frozen protocol identities and operational guard/transition identities rem
   assert.equal(gate('preMutationGuard').status,'PASS');
   assert.equal(gate('completedPrefixTransition').status,'PASS');
   assert.match(gate('completedPrefixTransition').reason,/state-swap/i);
+});
+
+test('independent V16 tail execution is real partial evidence without inflating full CI',()=>{
+  assert.equal(audit.protocols.independentTailValidationEvidence,'HOC-RC1-INDEPENDENT-TAIL-REPOSITORY-TEST-EVIDENCE/V1');
+  assert.equal(gate('independentTailValidation').status,'PASS');
+  assert.equal(gate('independentTailValidation').level,'EXECUTED_PARTIAL');
+  assert.equal(gate('independentTailValidation').evidenceSha256,'3764a102ed07cdba9691c662e2d0aa7909fee1f2e3d2847fea1c71a59e68ee77');
+  assert.equal(gate('independentTailValidation').tapSha256,'3cff2579e07fa55cad211f50ef83eb85defc1c51f954056fedb0ea89ffb218ac');
+  assert.equal(tailEvidence.evidenceKind,'HOC-RC1-INDEPENDENT-TAIL-REPOSITORY-TEST-EVIDENCE/V1');
+  assert.equal(tailEvidence.sourceHead,'41b62913a4f82ac1b3b61f087740840d7c1cee91');
+  assert.deepEqual(tailEvidence.repositoryTests,{total:21,pass:21,fail:0,cancelled:0,skipped:0});
+  assert.deepEqual(tailEvidence.supplementalHarness,{total:13,pass:13,fail:0});
+  assert.equal(tailEvidence.passed,true);
+  assert.equal(gate('independentValidation').status,'PENDING');
+  assert.equal(gate('ciTypecheckBuild').status,'BLOCKED');
 });
 
 test('execution-sensitive gates remain pending or blocked',()=>{
