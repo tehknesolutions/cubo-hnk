@@ -8,11 +8,7 @@ const report=readFileSync(new URL('../../../release/v1.0-rc1/RELEASE_AUDIT_REPOR
 const hardening=readFileSync(new URL('../../../docs/RC1_PRODUCTION_HARDENING.md',import.meta.url),'utf8');
 const visual=JSON.parse(readFileSync(new URL('../../../release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json',import.meta.url),'utf8'));
 
-function gate(id){
-  const found=audit.gates.find(item=>item.id===id);
-  assert.ok(found,`missing audit gate ${id}`);
-  return found;
-}
+function gate(id){const found=audit.gates.find(item=>item.id===id);assert.ok(found,`missing audit gate ${id}`);return found;}
 
 test('RC1 audit cannot silently claim stable or HNK canon',()=>{
   assert.equal(audit.releaseId,'HOC-V1.0-RC1');
@@ -23,13 +19,17 @@ test('RC1 audit cannot silently claim stable or HNK canon',()=>{
   assert.equal(audit.governance.hnkCanonPromoted,false);
 });
 
-test('frozen protocol identities remain explicit in audit',()=>{
+test('frozen protocol identities and operational guard v2 identity remain explicit',()=>{
   assert.equal(audit.protocols.raw,'HNK-ORACULUM-CUBE/V0.4');
   assert.equal(audit.protocols.interpretation,'0.5.0-candidate');
   assert.equal(audit.protocols.legality,'HOC-CUBE-LEGALITY/V0.8');
   assert.equal(audit.protocols.ritual,'HOC-RITUAL-INTEGRITY/V0.9');
   assert.equal(audit.protocols.manifest,'HOC-SESSION-MANIFEST/V0.10');
   assert.equal(audit.protocols.canonicalJson,'HOC-CANONICAL-JSON/V1');
+  assert.equal(audit.protocols.preMutationGuard,'HOC-RC1-PRE-MUTATION-GUARD/V2');
+  assert.equal(audit.protocols.preMutationGuardFingerprint,'HOC-RC1-PRE-MUTATION-GUARD-FINGERPRINT/V1');
+  assert.equal(gate('preMutationGuard').status,'PASS');
+  assert.match(gate('preMutationGuard').reason,/Completed Prefix State/);
 });
 
 test('execution-sensitive gates remain pending or blocked',()=>{
