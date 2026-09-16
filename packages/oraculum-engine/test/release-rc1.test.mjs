@@ -6,6 +6,8 @@ import { CUBE_LEGALITY_VERSION, analyzeCubeLegality } from '../src/legality.mjs'
 import { RITUAL_INTEGRITY_VERSION, RITUAL_REQUIRED_MOVE_COUNT, analyzeRitualIntegrity, simulateCubeMoves } from '../src/ritual.mjs';
 import { SESSION_MANIFEST_VERSION, SESSION_CANONICAL_JSON_VERSION } from '../src/manifest.mjs';
 import { HNK40_GLYPH_SET_SHA256, HNK40_STATUS } from '../src/hnk40-runtime.mjs';
+import {buildRc1ReleaseAttestation,RC1_RELEASE_ATTESTATION_VERSION,RC1_RELEASE_FINGERPRINT} from '../src/release-attestation.mjs';
+import {RC1_RUNTIME_SELFTEST_VERSION} from '../src/selftest.mjs';
 
 const packageJson=JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8'));
 const release=JSON.parse(readFileSync(new URL('../../../release/v1.0-rc1/RELEASE_MANIFEST.json',import.meta.url),'utf8'));
@@ -20,11 +22,23 @@ test('RC1 package and protocol identities are frozen',()=>{
   assert.equal(RITUAL_INTEGRITY_VERSION,'HOC-RITUAL-INTEGRITY/V0.9');
   assert.equal(SESSION_MANIFEST_VERSION,'HOC-SESSION-MANIFEST/V0.10');
   assert.equal(SESSION_CANONICAL_JSON_VERSION,'HOC-CANONICAL-JSON/V1');
+  assert.equal(RC1_RUNTIME_SELFTEST_VERSION,'HOC-RC1-RUNTIME-SELFTEST/V1');
+  assert.equal(RC1_RELEASE_ATTESTATION_VERSION,'HOC-RC1-RELEASE-ATTESTATION/V1');
   assert.equal(release.protocols.raw,ORACULUM_PROTOCOL);
   assert.equal(release.protocols.cubeLegality,CUBE_LEGALITY_VERSION);
   assert.equal(release.protocols.ritualIntegrity,RITUAL_INTEGRITY_VERSION);
   assert.equal(release.protocols.sessionManifest,SESSION_MANIFEST_VERSION);
   assert.equal(release.protocols.canonicalJson,SESSION_CANONICAL_JSON_VERSION);
+  assert.equal(release.protocols.runtimeSelfTest,RC1_RUNTIME_SELFTEST_VERSION);
+  assert.equal(release.protocols.releaseAttestation,RC1_RELEASE_ATTESTATION_VERSION);
+});
+
+test('RC1 release attestation fingerprint is frozen in the release manifest',()=>{
+  const attestation=buildRc1ReleaseAttestation();
+  assert.equal(RC1_RELEASE_FINGERPRINT,'08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90');
+  assert.equal(attestation.audit.fingerprint,RC1_RELEASE_FINGERPRINT);
+  assert.equal(attestation.audit.matchesExpected,true);
+  assert.equal(release.frozenVectors.releaseAttestationFingerprint,RC1_RELEASE_FINGERPRINT);
 });
 
 test('RC1 HNK40 structural identity is frozen without canon promotion',()=>{

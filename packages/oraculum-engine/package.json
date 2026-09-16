@@ -35,6 +35,10 @@
     "./selftest": {
       "types": "./src/selftest.d.ts",
       "import": "./src/selftest.mjs"
+    },
+    "./release-attestation": {
+      "types": "./src/release-attestation.d.ts",
+      "import": "./src/release-attestation.mjs"
     }
   },
   "scripts": {

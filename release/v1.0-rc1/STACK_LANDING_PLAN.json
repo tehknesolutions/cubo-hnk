@@ -1,5 +1,5 @@
 {
-  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V4",
+  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V5",
   "releaseId": "HOC-V1.0-RC1",
   "repository": "tehknesolutions/cubo-hnk",
   "mergeAuthorized": false,
@@ -28,7 +28,8 @@
     {"order":18,"pr":19,"base":"feat/v1-rc1-deployment-ledger","head":"infra/actions-runner-diagnostic","role":"zero-dependency Actions runner diagnostic and support packet"},
     {"order":19,"pr":20,"base":"infra/actions-runner-diagnostic","head":"docs/v1-rc1-stack-landing-v2","role":"landing topology V2 reconciliation"},
     {"order":20,"pr":21,"base":"docs/v1-rc1-stack-landing-v2","head":"infra/actions-recovery-controls","role":"manual Actions recovery controls and runbook"},
-    {"order":21,"pr":22,"base":"infra/actions-recovery-controls","head":"feat/v1-rc1-vercel-preview-bootstrap","role":"preview-only Vercel monorepo bootstrap and preflight"}
+    {"order":21,"pr":22,"base":"infra/actions-recovery-controls","head":"feat/v1-rc1-vercel-preview-bootstrap","role":"preview-only Vercel monorepo bootstrap and preflight"},
+    {"order":22,"pr":23,"base":"feat/v1-rc1-vercel-preview-bootstrap","head":"feat/v1-rc1-release-attestation","role":"deterministic RC1 release attestation and deployment identity gate"}
   ],
   "knownMissingPrNumber": {
     "number": 6,
@@ -38,8 +39,9 @@
     {"id":"humanMergeAuthorization","required":true,"status":"PENDING"},
     {"id":"realAutomatedExecution","required":true,"status":"BLOCKED","reason":"GitHub Issue #6: even zero-dependency ubuntu/windows probes end with steps=null before first shell step"},
     {"id":"independentExecutorEvidence","required":false,"status":"PENDING","reason":"supplementary real-executor runner is instrumented but not yet executed"},
-    {"id":"deploymentVerificationEvidence","required":false,"status":"PENDING","reason":"deployment verification runner is instrumented but no approved URL has been tested"},
+    {"id":"deploymentVerificationEvidence","required":false,"status":"PENDING","reason":"deployment verification runner now requires Release Attestation V1 but no approved URL has been tested"},
     {"id":"protocolFreezeIntegrity","required":true,"status":"PASS"},
+    {"id":"releaseAttestationIdentity","required":false,"status":"PASS","reason":"PR #23 freezes HOC-RC1-RELEASE-ATTESTATION/V1 and fingerprint 08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90"},
     {"id":"visualManualArtifacts","required":true,"status":"PASS"},
     {"id":"actionsRootCauseLocatedToPreStepLayer","required":false,"status":"PASS","reason":"PR #19 zero-dependency ubuntu-latest and windows-latest jobs both failed with steps=null/logs_url=null"},
     {"id":"actionsRecoveryControls","required":false,"status":"PASS","reason":"PR #21 makes runner diagnostic manual-only and adds workflow_dispatch/concurrency/timeout recovery controls to main CI"},
@@ -51,7 +53,7 @@
     "physical RITUAL_32 evidence",
     "camera/device evidence or explicit experimental downgrade",
     "cross-device Manifest V0.10 verification",
-    "deployment runtime verification",
+    "deployment runtime verification with matching Release Attestation V1 fingerprint",
     "production host logging/retention and abuse strategy review",
     "GitHub CI/typecheck/build gate",
     "explicit human V1.0 stable promotion approval"
@@ -65,6 +67,7 @@
     "The Actions diagnostic localizes the current blocker but does not itself satisfy the CI gate.",
     "The diagnostic workflow remains manual-only until account/platform state changes, to avoid redundant failing probes.",
     "Vercel bootstrap is preview-only and cannot be used to authorize production or stable promotion.",
+    "A matching Release Attestation V1 fingerprint proves frozen RC1 runtime identity only and cannot promote stable, CI, Physical QA or HNK_CANON.",
     "Landing RC1 code does not by itself authorize V1.0 stable or HNK_CANON promotion."
   ]
 }

@@ -1,6 +1,6 @@
 # HOC V1.0 RC1 — Stack Landing Plan
 
-Plan: `HOC-V1.0-RC1-STACK-LANDING/V4`
+Plan: `HOC-V1.0-RC1-STACK-LANDING/V5`
 
 Estado atual:
 
@@ -12,7 +12,7 @@ Este documento organiza a sequência dos PRs empilhados. Ele **não autoriza mer
 
 A cadeia é linear:
 
-`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21 → #22`
+`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21 → #22 → #23`
 
 Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que rastreia o bloqueio GitHub Actions.
 
@@ -41,30 +41,13 @@ Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que ra
 | 19 | #20 | `infra/actions-runner-diagnostic` | `docs/v1-rc1-stack-landing-v2` | reconciliação da topologia V2 |
 | 20 | #21 | `docs/v1-rc1-stack-landing-v2` | `infra/actions-recovery-controls` | controles manuais de recuperação do Actions |
 | 21 | #22 | `infra/actions-recovery-controls` | `feat/v1-rc1-vercel-preview-bootstrap` | bootstrap preview-only da Vercel |
+| 22 | #23 | `feat/v1-rc1-vercel-preview-bootstrap` | `feat/v1-rc1-release-attestation` | identidade determinística da RC1 e gate de deployment |
 
-## Diagnóstico do blocker
+## GitHub Actions
 
-O PR #19 executou um workflow deliberadamente sem dependências do projeto em dois labels GitHub-hosted:
+O PR #19 localizou o blocker antes do primeiro step em `ubuntu-latest` e `windows-latest`. O PR #21 encerrou probes automáticos redundantes e deixou diagnóstico/CI com gatilhos manuais de recuperação.
 
-- `ubuntu-latest`;
-- `windows-latest`.
-
-Ambos criaram job objects e terminaram em `failure` com `steps = null` e `logs_url = null`, sem atingir o primeiro shell step. Isso localiza a condição atual antes da execução do workflow e retira checkout, pnpm, Node, Next.js, HOC tests/build e um problema exclusivo de Ubuntu da lista de causas necessárias.
-
-O gate oficial de CI continua `BLOCKED`; diagnóstico não equivale a PASS.
-
-## Controles de recuperação
-
-O PR #21 encerra os probes automáticos redundantes:
-
-- `Actions Runner Diagnostic` fica `workflow_dispatch` only;
-- o CI principal ganha `workflow_dispatch` sem perder PR/push triggers;
-- permissões ficam em `contents: read`;
-- CI ganha `concurrency` + `cancel-in-progress`;
-- `validate` recebe timeout de 20 minutos;
-- o runbook fica em `docs/GITHUB_ACTIONS_RECOVERY_RUNBOOK.md`.
-
-No próprio PR #21, apenas o CI principal disparou automaticamente e continuou com `steps=null`. O probe manual não rodou, como planejado.
+O gate oficial de CI continua `BLOCKED`; diagnóstico ou configuração de recuperação não equivalem a PASS.
 
 ## Preview Vercel
 
@@ -74,9 +57,25 @@ O PR #22 prepara o caminho de preview sem publicar produção:
 - install/build sobem para a raiz do workspace para resolver `workspace:*`;
 - `pnpm preview:preflight` valida estrutura/configuração;
 - Root Directory esperado: `apps/web`;
-- `vercel --prod`, `vercel deploy --prod` e `vercel promote` ficam fora do bootstrap RC1.
+- comandos de produção permanecem fora do bootstrap RC1.
 
-A conta Vercel conectada ainda não possui projeto `cubo-hnk`, portanto o estado é `PREVIEW_PROJECT_BOOTSTRAP_PENDING`, não build FAIL. O deployment verifier continua PENDING até existir uma URL real aprovada.
+A conta Vercel conectada ainda não possui projeto `cubo-hnk`; o deployment verifier permanece PENDING até existir uma URL real aprovada.
+
+## Release Attestation V1
+
+O PR #23 acrescenta uma identidade determinística do runtime RC1:
+
+`HOC-RC1-RELEASE-ATTESTATION/V1`
+
+Fingerprint congelado:
+
+`08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90`
+
+A atestação liga release/package, protocolos congelados, vetores oficiais e hash estrutural HNK40. O endpoint `/api/oraculum/release` falha fechado se o fingerprint calculado divergir.
+
+O deployment verifier passa a exigir a atestação antes do self-test/oracle, e o Evidence Ledger rejeita deployment evidence com versão/fingerprint divergente.
+
+Esse fingerprint prova identidade do contrato RC1 servido, não stable, CI, Physical QA ou `HNK_CANON`.
 
 ## Regra parent-first
 
@@ -108,7 +107,7 @@ Pode produzir install/test/typecheck/build/self-test reais em outra máquina, ma
 
 `pnpm verify:rc1:deployment -- --url <URL>`
 
-Pode comprovar self-test, headers, seed dourado e manifesto em um host real, mas não substitui CI nem Physical QA.
+Agora exige Release Attestation V1 válida e depois comprova self-test, headers, seed dourado e manifesto no host. Continua sem substituir CI nem Physical QA.
 
 ## Gates de stable continuam separados
 
@@ -121,7 +120,7 @@ Continuam independentes:
 - Physical RITUAL_32;
 - Camera/Device QA ou downgrade experimental explícito;
 - Manifest V0.10 cross-device;
-- deployment runtime verification;
+- deployment runtime verification com fingerprint RC1 correto;
 - host logging/retention e estratégia de abuso/rate limit;
 - GitHub CI/typecheck/build;
 - aprovação humana V1.0.
@@ -138,13 +137,19 @@ Machine-readable:
 
 `release/v1.0-rc1/STACK_LANDING_PLAN.json`
 
+Release identity:
+
+- `release/v1.0-rc1/RELEASE_MANIFEST.json`
+- `docs/RC1_RELEASE_ATTESTATION.md`
+
 Diagnóstico/recuperação de Actions:
 
 - `release/v1.0-rc1/ACTIONS_RUNNER_DIAGNOSTIC_EVIDENCE.json`
 - `docs/GITHUB_ACTIONS_SUPPORT_PACKET.md`
 - `docs/GITHUB_ACTIONS_RECOVERY_RUNBOOK.md`
 
-Preview Vercel:
+Preview/deployment:
 
 - `apps/web/vercel.json`
 - `docs/VERCEL_PREVIEW_BOOTSTRAP.md`
+- `docs/RC1_DEPLOYMENT_VERIFICATION.md`
