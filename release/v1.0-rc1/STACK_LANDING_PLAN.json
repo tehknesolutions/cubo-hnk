@@ -1,5 +1,5 @@
 {
-  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V10",
+  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V11",
   "releaseId": "HOC-V1.0-RC1",
   "repository": "tehknesolutions/cubo-hnk",
   "mergeAuthorized": false,
@@ -34,7 +34,8 @@
     {"order":24,"pr":25,"base":"feat/v1-rc1-build-provenance","head":"feat/v1-rc1-promotion-readiness","role":"final RC1 to V1.0 promotion readiness assessment without promotion authority"},
     {"order":25,"pr":26,"base":"feat/v1-rc1-promotion-readiness","head":"feat/v1-rc1-human-promotion-decision","role":"human APPROVE DEFER REJECT decision record without technical execution authority"},
     {"order":26,"pr":27,"base":"feat/v1-rc1-human-promotion-decision","head":"feat/v1-rc1-promotion-execution-plan","role":"dry-run-only V1.0 technical promotion execution plan without execution authority"},
-    {"order":27,"pr":28,"base":"feat/v1-rc1-promotion-execution-plan","head":"feat/v1-rc1-technical-execution-authorization","role":"exact-plan-bound step-scoped technical execution authorization recorder without action executor"}
+    {"order":27,"pr":28,"base":"feat/v1-rc1-promotion-execution-plan","head":"feat/v1-rc1-technical-execution-authorization","role":"exact-plan-bound step-scoped technical execution authorization recorder without action executor"},
+    {"order":28,"pr":29,"base":"feat/v1-rc1-technical-execution-authorization","head":"feat/v1-rc1-pre-mutation-guard","role":"fail-closed ALLOW/DENY pre-mutation guard with strict runbook-prefix enforcement"}
   ],
   "knownMissingPrNumber": {"number":6,"reason":"GitHub Issue #6 is the Actions runner blocker; there is intentionally no PR #6 in the landing chain"},
   "preLandingGates": [
@@ -49,6 +50,7 @@
     {"id":"humanDecisionRecorderInstrumentation","required":false,"status":"PASS","reason":"PR #26 adds HOC-RC1-HUMAN-PROMOTION-DECISION/V1; APPROVE requires coherent READY_FOR_HUMAN_REVIEW but the record performs no merge/deploy/version/HNK_CANON action"},
     {"id":"promotionExecutionPlanInstrumentation","required":false,"status":"PASS","reason":"PR #27 adds HOC-RC1-PROMOTION-EXECUTION-PLAN/V1 as DRY_RUN_ONLY and binds the operational plan with HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1"},
     {"id":"technicalExecutionAuthorizationInstrumentation","required":false,"status":"PASS","reason":"PR #28 adds HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1 as exact-plan-bound STEP_SCOPED authorization; no real authorization record or action execution is created"},
+    {"id":"preMutationGuardInstrumentation","required":false,"status":"PASS","reason":"PR #29 adds HOC-RC1-PRE-MUTATION-GUARD/V1; it validates exact plan, exact authorization, completed-step prefix and next-step order but only returns ALLOW/DENY and executes nothing"},
     {"id":"visualManualArtifacts","required":true,"status":"PASS"},
     {"id":"actionsRootCauseLocatedToPreStepLayer","required":false,"status":"PASS","reason":"PR #19 zero-dependency ubuntu-latest and windows-latest jobs both failed with steps=null/logs_url=null"},
     {"id":"actionsRecoveryControls","required":false,"status":"PASS","reason":"PR #21 makes runner diagnostic manual-only and adds workflow_dispatch/concurrency/timeout recovery controls to main CI"},
@@ -67,7 +69,8 @@
     "explicit HOC-RC1-HUMAN-PROMOTION-DECISION/V1 APPROVE_V1_0 record",
     "HOC-RC1-PROMOTION-EXECUTION-PLAN/V1 generated and fingerprint-verified",
     "explicit HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1 record covering only the intended technical action step IDs",
-    "separately implemented technical executor or manual action that verifies authorization again immediately before mutation"
+    "HOC-RC1-PRE-MUTATION-GUARD/V1 ALLOW decision for the exact next authorized step immediately before mutation",
+    "separately implemented technical executor or manual action; guard ALLOW never executes the mutation itself"
   ],
   "landingRules": [
     "Do not merge a child PR before its parent PR has landed or the child has been correctly rebased/retargeted.",
@@ -84,7 +87,9 @@
     "Human Promotion Decision V1 records APPROVE/DEFER/REJECT only; even APPROVE_V1_0 does not execute merge, deployment, version changes or HNK_CANON promotion.",
     "Promotion Execution Plan V1 is DRY_RUN_ONLY and its planFingerprint must verify before any authorization record is accepted.",
     "Technical Execution Authorization V1 authorizes only listed step IDs on the exact fingerprinted plan; non-production scope never implies stable or production scope, and the record itself executes nothing.",
-    "HNK_CANON remains outside Technical Execution Authorization V1 and cannot be promoted through this release-operation pipeline.",
+    "Pre-Mutation Guard V1 requires completedStepIds to be an exact prefix and only ALLOWs the exact next authorized step; ALLOW is a policy decision, not an action.",
+    "Any future executor must rerun the Pre-Mutation Guard immediately before mutation and record the resulting evidence.",
+    "HNK_CANON remains outside Technical Execution Authorization and Pre-Mutation Guard contracts and cannot be promoted through this release-operation pipeline.",
     "Landing RC1 code does not by itself authorize V1.0 stable or HNK_CANON promotion."
   ]
 }
