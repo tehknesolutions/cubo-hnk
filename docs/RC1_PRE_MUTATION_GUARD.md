@@ -1,8 +1,12 @@
-# HOC V1.0 RC1 — Pre-Mutation Guard V1
+# HOC V1.0 RC1 — Pre-Mutation Guard V2
 
 Contract:
 
-`HOC-RC1-PRE-MUTATION-GUARD/V1`
+`HOC-RC1-PRE-MUTATION-GUARD/V2`
+
+Decision fingerprint:
+
+`HOC-RC1-PRE-MUTATION-GUARD-FINGERPRINT/V1`
 
 Authority:
 
@@ -10,81 +14,85 @@ Authority:
 
 ## Purpose
 
-The Pre-Mutation Guard is the last pure policy check before a future technical action.
+The Pre-Mutation Guard is the last pure policy check before a technical action.
 
-It receives:
+V2 removes the free-form `completedStepIds` input. It now consumes the exact fingerprint-bound:
 
-- the exact Promotion Execution Plan;
-- a Technical Execution Authorization record bound to that plan fingerprint;
-- the requested plan step ID;
-- the ordered list of plan steps already completed.
+`HOC-RC1-COMPLETED-PREFIX-STATE/V1`
 
-It returns only:
+Inputs:
 
-`ALLOW`
+- exact Promotion Execution Plan;
+- Technical Execution Authorization bound to that plan fingerprint;
+- fingerprint-valid Completed Prefix State;
+- requested step ID.
 
-or
+It returns only `ALLOW` or `DENY`. It never executes the requested action.
 
-`DENY`
+## Why V2 exists
 
-It never executes the requested action.
+V1 accepted a caller-supplied ordered list of completed step IDs. It validated that the list was a strict runbook prefix, but the list itself was not a persistent tamper-evident state artifact.
 
-## Strict prefix rule
+V2 replaces that manual input with the state created by Completed-Prefix State Transition V1. The guard therefore consumes:
 
-`completedStepIds` must be an exact prefix of `plan.steps`.
+- `completedCount`;
+- exact `nextStepId`;
+- state lineage;
+- `stateFingerprint`;
+- source Stack Landing version;
+- exact Promotion Plan fingerprint.
 
-Examples:
+A modified state fails closed as:
 
-Valid:
+`DENY / INVALID_COMPLETED_PREFIX_STATE`
 
-```text
-FREEZE_APPROVED_EVIDENCE
-RECONFIRM_CI_AND_RUNTIME
-```
+## Exact next-step rule
 
-Invalid:
+The requested step must equal:
 
-```text
-RECONFIRM_CI_AND_RUNTIME
-FREEZE_APPROVED_EVIDENCE
-```
+`completedPrefixState.nextStepId`
 
-Invalid:
+The state itself must validate as the exact ordered prefix of `plan.steps`.
 
-```text
-FREEZE_APPROVED_EVIDENCE
-LAND_PR_1
-```
-
-because the second runbook step was skipped.
-
-Only the exact next step after the valid prefix can receive `ALLOW`.
+Therefore a caller cannot skip, reorder or duplicate prior steps by constructing a new `completedStepIds` CLI argument; that argument no longer exists.
 
 ## Authorization rule
 
-Even when sequence is correct, the next step must be listed in the exact Technical Execution Authorization record.
+Even with a valid state and exact next step, that step must be present in the exact Technical Execution Authorization record.
 
-Therefore:
+Sequence and authorization remain independent gates.
 
-- authorization cannot skip sequence;
-- sequence cannot bypass authorization;
-- a valid authorization for a future step remains denied until all prior runbook steps have been completed in order.
+## Decision fingerprint
 
-## Plan / authorization integrity
+Every verdict carries `guardFingerprint` calculated with:
 
-The guard first verifies:
+`HOC-RC1-PRE-MUTATION-GUARD-FINGERPRINT/V1`
 
-1. `HOC-RC1-PROMOTION-EXECUTION-PLAN/V1` structure;
-2. `HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1`;
-3. `HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1` against that exact fingerprint.
+It binds:
 
-Tampering with a bound plan field returns:
+- decision and code;
+- requested and expected step IDs;
+- completed count;
+- Completed Prefix State fingerprint;
+- source Stack Landing version;
+- Promotion Plan fingerprint;
+- Technical Authorization ID;
+- detail and governance.
 
-`DENY / INVALID_PLAN`
+Changing any bound field invalidates the guard fingerprint.
 
-An authorization for another plan returns:
+## Receipt binding
 
-`DENY / INVALID_AUTHORIZATION`
+Technical Mutation Receipt V1 now requires Guard V2.
+
+The receipt stores the full Guard V2 snapshot, including:
+
+- `completedPrefixStateFingerprint`;
+- `guardFingerprint`;
+- `completedCount`;
+- `sourceStackPlanVersion`.
+
+This prevents a later receipt from silently dropping the state context under which `ALLOW` was granted.
 
 ## Decision codes
 
@@ -93,9 +101,8 @@ Current codes:
 - `AUTHORIZED_NEXT_STEP`
 - `INVALID_PLAN`
 - `INVALID_AUTHORIZATION`
-- `INVALID_COMPLETION_PREFIX`
+- `INVALID_COMPLETED_PREFIX_STATE`
 - `UNKNOWN_STEP`
-- `STEP_ALREADY_COMPLETED`
 - `PLAN_ALREADY_COMPLETE`
 - `OUT_OF_SEQUENCE`
 - `STEP_NOT_AUTHORIZED`
@@ -108,30 +115,21 @@ Only `AUTHORIZED_NEXT_STEP` produces `decision=ALLOW`.
 pnpm guard:rc1:mutation -- \
   --plan ./dist/HOC-RC1-PROMOTION-EXECUTION-PLAN.json \
   --authorization ./dist/HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION.json \
-  --step LAND_PR_1 \
-  --completed FREEZE_APPROVED_EVIDENCE,RECONFIRM_CI_AND_RUNTIME
+  --state ./dist/HOC-RC1-COMPLETED-PREFIX-STATE.json \
+  --step LAND_PR_1
 ```
+
+`--completed` was removed.
 
 Exit codes:
 
 - `0` = `ALLOW`;
 - `2` = structured `DENY`;
-- `1` = CLI/input failure before policy evaluation.
+- `1` = CLI/input failure.
 
 ## No execution surface
 
-The guard CLI reads local JSON and prints a policy decision.
-
-It does not:
-
-- import `child_process`;
-- run git commands;
-- call GitHub APIs;
-- call Vercel APIs;
-- modify package versions;
-- create tags/releases;
-- deploy production;
-- promote `HNK_CANON`.
+The guard reads local JSON and emits a policy decision. It cannot run shell/git, call GitHub/Vercel, merge, version, tag, release, deploy or promote `HNK_CANON`.
 
 Every verdict freezes:
 
@@ -141,31 +139,23 @@ Every verdict freezes:
     "executesAction": false,
     "automaticExecution": false,
     "requiresExecutorRevalidation": true,
+    "consumesFingerprintBoundCompletedState": true,
     "promotesHnkCanon": false,
     "authority": "PRE_MUTATION_GUARD_DECISION_NOT_ACTION_EXECUTOR"
   }
 }
 ```
 
-## Future executor boundary
-
-A future executor or manual operator must re-run this guard immediately before a technical mutation.
-
-An earlier `ALLOW` is not a timeless permission because repository/deployment state may have changed afterward.
-
-The executor remains outside this contract.
-
 ## Pipeline
 
 ```text
-QA evidence
-  -> Release Evidence Ledger
-  -> Promotion Readiness V1
-  -> Human Promotion Decision V1
-  -> Promotion Execution Plan V1
-  -> Technical Execution Authorization V1
-  -> Pre-Mutation Guard V1 (ALLOW / DENY only)
-  -> separately implemented technical executor/manual mutation
+Completed Prefix State V1
+  -> Pre-Mutation Guard V2 (fingerprinted ALLOW / DENY)
+  -> external/manual technical action
+  -> Technical Mutation Receipt V1 (Guard V2 state-bound snapshot)
+  -> Mutation Evidence Verification V1
+  -> Completed-Prefix State Transition V1
+  -> next fingerprint-bound Completed Prefix State
 ```
 
-No component above the last arrow performs the mutation itself.
+No guard decision performs the technical mutation itself.
