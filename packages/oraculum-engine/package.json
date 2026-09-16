@@ -31,6 +31,10 @@
     "./manifest": {
       "types": "./src/manifest.d.ts",
       "import": "./src/manifest.mjs"
+    },
+    "./selftest": {
+      "types": "./src/selftest.d.ts",
+      "import": "./src/selftest.mjs"
     }
   },
   "scripts": {

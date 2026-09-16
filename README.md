@@ -49,6 +49,26 @@ Arquivos de release:
 
 V0.8 e V0.9 são gates físicos anteriores ao protocolo bruto. V0.10 é um envelope de auditoria posterior. Nenhuma dessas camadas altera `HNK-ORACULUM-CUBE/V0.4`, a seed SHA-256 ou o mapa B000–B255.
 
+## Runtime QA da RC1
+
+Self-test protocol:
+
+`HOC-RC1-RUNTIME-SELFTEST/V1`
+
+Painel:
+
+`/oraculum/qa`
+
+API:
+
+`GET /api/oraculum/rc1-selftest`
+
+O self-test executa no runtime Node os vetores congelados de RAW, interpretação, V0.8, V0.9, V0.10 e HNK40. Um PASS é evidência suplementar de consistência do runtime; não substitui CI, typecheck, build de produção ou QA físico.
+
+Documentação:
+
+`docs/RC1_RUNTIME_SELFTEST.md`
+
 ## Verificação de manifesto
 
 Interface:
