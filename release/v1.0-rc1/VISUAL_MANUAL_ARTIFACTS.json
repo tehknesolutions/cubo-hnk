@@ -1,0 +1,32 @@
+{
+  "artifactRecordVersion": "HOC-V1.0-RC1-VISUAL-MANUAL/V1",
+  "releaseId": "HOC-V1.0-RC1",
+  "source": "docs/MANUAL_V1_RC1.md",
+  "generatedDate": "2026-09-15",
+  "pageCount": 36,
+  "qaStatus": "PASS",
+  "qaMethod": {
+    "docxRenderer": "/home/oai/skills/docx/render_docx.py",
+    "pdfRenderer": "/home/oai/skills/pdfs/scripts/render_pdf.py",
+    "inheritedPages": "Pages 2-32 verified pixel-identical to the previously visually QA'd manual in both DOCX and PDF render pipelines.",
+    "changedPages": "Cover page 1 and appended RC1 pages 33-36 individually inspected after final render.",
+    "knownRendererWarnings": "PDF renderer emitted legacy Yijing ligature-name parse warnings also present in inherited content; rendered pages remained visually intact."
+  },
+  "artifacts": [
+    {
+      "fileName": "HNK_ORACULUM_CUBE_Manual_V1.0_RC1.docx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "bytes": 172959,
+      "sha256": "b3e0d7720318ccd79cc8199d0a9737bd1b1fb3eeef22d3d4c002c6094e1e3f03",
+      "repositoryBinaryCommitted": false
+    },
+    {
+      "fileName": "HNK_ORACULUM_CUBE_Manual_V1.0_RC1.pdf",
+      "mediaType": "application/pdf",
+      "bytes": 1059435,
+      "sha256": "c437e9f19be0611029d6a85d8d15489e0513d96095935073f7cf6644d4cbf2fe",
+      "repositoryBinaryCommitted": false
+    }
+  ],
+  "note": "Binary artifacts were generated and visually QA'd as release artifacts but are not committed to the source repository by this metadata record. Hashes identify the exact reviewed files."
+}

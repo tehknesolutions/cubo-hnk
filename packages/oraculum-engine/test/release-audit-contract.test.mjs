@@ -6,6 +6,7 @@ const audit=JSON.parse(readFileSync(new URL('../../../release/v1.0-rc1/AUDIT_STA
 const manual=readFileSync(new URL('../../../docs/MANUAL_V1_RC1.md',import.meta.url),'utf8');
 const report=readFileSync(new URL('../../../release/v1.0-rc1/RELEASE_AUDIT_REPORT.md',import.meta.url),'utf8');
 const hardening=readFileSync(new URL('../../../docs/RC1_PRODUCTION_HARDENING.md',import.meta.url),'utf8');
+const visual=JSON.parse(readFileSync(new URL('../../../release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json',import.meta.url),'utf8'));
 
 function gate(id){
   const found=audit.gates.find(item=>item.id===id);
@@ -49,10 +50,16 @@ test('source hardening pass does not imply deployed runtime verification',()=>{
   assert.match(report,/PRODUCTION_HARDENING_RUNTIME = PENDING/);
 });
 
-test('markdown reconciliation does not imply visual artifact reconciliation',()=>{
+test('visual manual gate is backed by exact QA artifact hashes',()=>{
   assert.equal(gate('markdownManual').status,'PASS');
-  assert.equal(gate('docxPdfManual').status,'PENDING');
+  assert.equal(gate('docxPdfManual').status,'PASS');
+  assert.equal(visual.releaseId,'HOC-V1.0-RC1');
+  assert.equal(visual.qaStatus,'PASS');
+  assert.equal(visual.pageCount,36);
+  assert.equal(visual.artifacts.length,2);
+  assert.equal(visual.artifacts[0].sha256,'b3e0d7720318ccd79cc8199d0a9737bd1b1fb3eeef22d3d4c002c6094e1e3f03');
+  assert.equal(visual.artifacts[1].sha256,'c437e9f19be0611029d6a85d8d15489e0513d96095935073f7cf6644d4cbf2fe');
   assert.match(manual,/IMPLEMENTADO ≠ INSTRUMENTADO ≠ EXECUTADO ≠ APROVADO/);
-  assert.match(manual,/DOCX\/PDF visual original ainda precisa ser regenerado/);
+  assert.match(report,/DOCX_PDF_FINAL = PASS/);
   assert.match(report,/HOC V1\.0 RC1 = NOT READY FOR STABLE PROMOTION/);
 });

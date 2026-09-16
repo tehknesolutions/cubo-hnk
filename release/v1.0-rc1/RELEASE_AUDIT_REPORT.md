@@ -69,7 +69,7 @@ HNK40 remains `PREPRODUCTION_NOT_OFFICIAL`.
 | Production hardening source contract | IMPLEMENTED | CONTRACT TEST ADDED | build/deploy verification still required | PASS (SOURCE) |
 | CI / typecheck / build | workflow IMPLEMENTED | runner configured | GitHub jobs terminate with `steps=null`; no command executed | BLOCKED |
 | Markdown manual reconciliation | IMPLEMENTED | N/A | V0.8–V0.10 + RC1 QA/hardening reconciled | PASS |
-| DOCX/PDF manual reconciliation | historical artifacts exist | N/A | not regenerated against RC1 | PENDING |
+| DOCX/PDF manual reconciliation | REGENERATED | VISUAL QA | 36-page DOCX and PDF reviewed; exact hashes recorded | PASS |
 | Human V1.0 promotion | N/A | N/A | no explicit promotion decision | PENDING |
 
 Overall: `NOT_READY_FOR_STABLE`.
@@ -225,33 +225,38 @@ Do not classify these runs as application failures or as PASS. No application co
 
 ## 12. Documentation reconciliation
 
-New consolidated source of truth:
+Markdown source of truth:
 
 `docs/MANUAL_V1_RC1.md`
 
-It reconciles:
+It reconciles the base manual, V0.8/V0.9/V0.10, Runtime QA, Physical QA, Camera QA, Evidence Ledger and protocol matrix. Production hardening is separately documented and referenced by release governance.
 
-- base physical manual;
-- V0.8 addendum;
-- V0.9 addendum;
-- V0.10 addendum;
-- Runtime QA;
-- Physical QA;
-- Camera QA;
-- Evidence Ledger;
-- protocol matrix.
-
-Production hardening is separately documented and referenced by the release checklist/audit status.
-
-Audit conclusion:
+Markdown audit conclusion:
 
 `MARKDOWN_DOCUMENTATION = PASS`
 
-However:
+Visual release artifacts were regenerated from the previously QA'd manual layout and reconciled with RC1 content:
 
-`DOCX_PDF_FINAL = PENDING`
+- `HNK_ORACULUM_CUBE_Manual_V1.0_RC1.docx`
+- `HNK_ORACULUM_CUBE_Manual_V1.0_RC1.pdf`
+- 36 pages each.
 
-The previously generated visual DOCX/PDF must be regenerated or reconciled against the RC1 content before stable V1.0.
+QA method:
+
+- pages 2–32 verified pixel-identical to the previously visually QA'd manual in both DOCX and PDF render pipelines;
+- updated cover page 1 individually inspected;
+- appended RC1 pages 33–36 individually inspected after final render;
+- PDF re-rendered independently after conversion.
+
+Exact artifact hashes and sizes are recorded in:
+
+`release/v1.0-rc1/VISUAL_MANUAL_ARTIFACTS.json`
+
+Visual audit conclusion:
+
+`DOCX_PDF_FINAL = PASS`
+
+The binary files are release artifacts and are not implied to be committed to the source repository by the metadata record.
 
 ## 13. Required evidence before stable V1.0
 
@@ -268,16 +273,15 @@ The release may not be promoted merely because all mechanisms exist. Required re
 9. same Manifest V0.10 validated on at least two distinct labeled environments;
 10. deployed hardening headers verified;
 11. host logging/retention and public abuse strategy reviewed for the selected production environment;
-12. final DOCX/PDF manual reconciliation;
-13. explicit human approval for V1.0 promotion.
+12. explicit human approval for V1.0 promotion.
 
 ## 14. Current release conclusion
 
-The HOC V1.0 RC1 architecture is substantially consolidated and has dedicated instrumentation for the major release gates plus source-level production hardening.
+The HOC V1.0 RC1 architecture is substantially consolidated and has dedicated instrumentation for the major release gates, source-level production hardening, and reconciled visual/manual artifacts.
 
 The correct current statement is:
 
-`PROTOCOLS FROZEN + QA INSTRUMENTED + SOURCE HARDENING PASS + DOCUMENTATION RECONCILED (MARKDOWN) + EXECUTION EVIDENCE INCOMPLETE + CI BLOCKED`
+`PROTOCOLS FROZEN + QA INSTRUMENTED + SOURCE HARDENING PASS + MARKDOWN/DOCX/PDF DOCUMENTATION PASS + EXECUTION EVIDENCE INCOMPLETE + CI BLOCKED`
 
 Therefore:
 
