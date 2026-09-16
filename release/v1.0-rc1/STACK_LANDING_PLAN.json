@@ -1,5 +1,5 @@
 {
-  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V2",
+  "planVersion": "HOC-V1.0-RC1-STACK-LANDING/V3",
   "releaseId": "HOC-V1.0-RC1",
   "repository": "tehknesolutions/cubo-hnk",
   "mergeAuthorized": false,
@@ -26,7 +26,8 @@
     {"order":16,"pr":17,"base":"docs/v1-rc1-stack-landing","head":"feat/v1-rc1-deployment-verification","role":"deployment runtime verification runner"},
     {"order":17,"pr":18,"base":"feat/v1-rc1-deployment-verification","head":"feat/v1-rc1-deployment-ledger","role":"deployment runtime evidence integration"},
     {"order":18,"pr":19,"base":"feat/v1-rc1-deployment-ledger","head":"infra/actions-runner-diagnostic","role":"zero-dependency Actions runner diagnostic and support packet"},
-    {"order":19,"pr":20,"base":"infra/actions-runner-diagnostic","head":"docs/v1-rc1-stack-landing-v2","role":"landing topology V2 reconciliation"}
+    {"order":19,"pr":20,"base":"infra/actions-runner-diagnostic","head":"docs/v1-rc1-stack-landing-v2","role":"landing topology V2 reconciliation"},
+    {"order":20,"pr":21,"base":"docs/v1-rc1-stack-landing-v2","head":"infra/actions-recovery-controls","role":"manual Actions recovery controls and runbook"}
   ],
   "knownMissingPrNumber": {
     "number": 6,
@@ -39,7 +40,8 @@
     {"id":"deploymentVerificationEvidence","required":false,"status":"PENDING","reason":"deployment verification runner is instrumented but no approved URL has been tested"},
     {"id":"protocolFreezeIntegrity","required":true,"status":"PASS"},
     {"id":"visualManualArtifacts","required":true,"status":"PASS"},
-    {"id":"actionsRootCauseLocatedToPreStepLayer","required":false,"status":"PASS","reason":"PR #19 zero-dependency ubuntu-latest and windows-latest jobs both failed with steps=null/logs_url=null"}
+    {"id":"actionsRootCauseLocatedToPreStepLayer","required":false,"status":"PASS","reason":"PR #19 zero-dependency ubuntu-latest and windows-latest jobs both failed with steps=null/logs_url=null"},
+    {"id":"actionsRecoveryControls","required":false,"status":"PASS","reason":"PR #21 makes runner diagnostic manual-only and adds workflow_dispatch/concurrency/timeout recovery controls to main CI"}
   ],
   "stablePromotionGatesRemainSeparate": [
     "runtime self-test execution evidence",
@@ -59,6 +61,7 @@
     "A mergeable=true GitHub state is not equivalent to merge authorization.",
     "Independent executor or deployment evidence cannot be used to silently mark GitHub CI as PASS.",
     "The Actions diagnostic localizes the current blocker but does not itself satisfy the CI gate.",
+    "The diagnostic workflow remains manual-only until account/platform state changes, to avoid redundant failing probes.",
     "Landing RC1 code does not by itself authorize V1.0 stable or HNK_CANON promotion."
   ]
 }
