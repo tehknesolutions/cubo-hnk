@@ -90,6 +90,22 @@ Documentação:
 
 `docs/RC1_PHYSICAL_QA.md`
 
+## Camera / Device QA da RC1
+
+Painel:
+
+`/oraculum/qa/camera`
+
+O painel registra evidência do dispositivo real sem persistir imagens. Ele verifica secure context, `getUserMedia`, permissão, resolução do vídeo, captura de U/R/F/D/L/B, protótipos de centro, contagens candidatas, confiança e células de baixa confiança.
+
+O PASS completo exige também uma checklist humana observada no fluxo `/oraculum/camera`: correção manual, gate de revisão antes do hash, STATE passando V0.8, RITUAL_32 com revisão inicial/final e manifesto revalidável.
+
+A evidência exportada exclui imagem, `deviceId` e localização. Camera QA continua não-autoritativo: classificação automática é apenas candidata.
+
+Documentação:
+
+`docs/RC1_CAMERA_QA.md`
+
 ## Verificação de manifesto
 
 Interface:
