@@ -42,7 +42,7 @@ function summarizeRitual(ritualIntegrity) {
     valid: ritualIntegrity.valid,
     integrityConfirmed: ritualIntegrity.integrityConfirmed,
     moveCount: ritualIntegrity.moveCount,
-    initialCubeState: ritualIntegrity.initialCubeState,
+    initialCubeState: ritualIntegrity.initialState,
     expectedFinalState: ritualIntegrity.expectedFinalState,
     reportedFinalState: ritualIntegrity.reportedFinalState,
     mismatches: ritualIntegrity.mismatches,
