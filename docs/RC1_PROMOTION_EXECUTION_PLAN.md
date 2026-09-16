@@ -1,48 +1,32 @@
 # HOC V1.0 RC1 — Promotion Execution Plan V1
 
-Protocol:
+Protocol: `HOC-RC1-PROMOTION-EXECUTION-PLAN/V1`
 
-`HOC-RC1-PROMOTION-EXECUTION-PLAN/V1`
+Authority: `PROMOTION_EXECUTION_PLAN_NOT_EXECUTION_AUTHORITY`
 
-Authority:
-
-`PROMOTION_EXECUTION_PLAN_NOT_EXECUTION_AUTHORITY`
-
-Mode:
-
-`DRY_RUN_ONLY`
+Mode: `DRY_RUN_ONLY`
 
 ## Purpose
 
-This layer converts a valid future `APPROVE_V1_0` human decision record plus the current parent-first Stack Landing Plan into a structured operational runbook. The ordered steps are derived deterministically from the inputs; the exported artifact also carries a `generatedAt` timestamp and therefore is not itself a timeless content hash.
+This layer converts a valid future `APPROVE_V1_0` human decision plus the current parent-first Stack Landing Plan into a structured operational runbook. The ordered steps are derived from the inputs; the exported artifact also carries `generatedAt` and is therefore not itself a timeless content hash.
 
-It answers:
-
-> If V1.0 promotion is later separately authorized, in what order should the technical actions be reviewed and executed?
-
-It does **not** execute those actions.
+It never executes those steps.
 
 ## Required inputs
 
 1. `HOC-RC1-HUMAN-PROMOTION-DECISION/V1` with `decision=APPROVE_V1_0`;
-2. the approval must still carry a coherent readiness matrix of 9/9 mandatory PASS gates;
-3. `release/v1.0-rc1/STACK_LANDING_PLAN.json` must be valid, parent-first and keep all merge/stable/HNK_CANON authorities false.
+2. coherent 9/9 mandatory readiness PASS matrix;
+3. valid parent-first `release/v1.0-rc1/STACK_LANDING_PLAN.json` with merge/stable/HNK_CANON authorities false.
 
-`DEFER`, `REJECT`, malformed approval records or reordered/unsafe stack plans fail closed.
+Malformed approval, DEFER/REJECT or unsafe stack fail closed.
 
-## Operational plan fingerprint
+## Operational fingerprint
 
-Each generated plan carries `planFingerprint` using:
+Each plan carries `HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1` as `planFingerprint`.
 
-`HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1`
+The fingerprint excludes only `generatedAt` and binds release ID, human decision, Stack Landing identity, target stable version/tag, ordered step IDs/instructions, summary and non-execution governance. Equivalent plan generations at different timestamps match; any bound plan mutation invalidates the fingerprint.
 
-The fingerprint deliberately excludes `generatedAt`, but binds the release ID, source human decision, Stack Landing identity, target stable version/tag, ordered steps, step instructions, summary and non-execution governance.
-
-Therefore two equivalent plan generations at different timestamps have the same fingerprint, while any bound plan mutation invalidates the fingerprint.
-
-`verifyRc1PromotionExecutionPlan()` recalculates this fingerprint and fails closed on mismatch.
-
-This fingerprint is operational metadata. It does not enter or alter the frozen HOC RC1 Release Attestation fingerprint.
+This operational fingerprint does not enter the frozen HOC RC1 Release Attestation fingerprint.
 
 ## CLI
 
@@ -50,72 +34,37 @@ This fingerprint is operational metadata. It does not enter or alter the frozen 
 pnpm plan:rc1:promotion -- --decision ./path/to/HOC-V1.0-RC1-HUMAN-DECISION-APPROVE_V1_0.json
 ```
 
-Optional parameters:
+Optional: `--stack <path>` and `--out <path>`.
 
-```bash
---stack ./release/v1.0-rc1/STACK_LANDING_PLAN.json
---out ./dist/HOC-RC1-PROMOTION-EXECUTION-PLAN.json
-```
+The CLI reads local JSON and writes local JSON only. It has no GitHub/Vercel/network/process mutation surface.
 
-The default output is:
-
-`dist/HOC-RC1-PROMOTION-EXECUTION-PLAN.json`
-
-## No execution surface
-
-The CLI only reads local JSON files, validates the approval record and stack topology, and writes a local JSON plan.
-
-It does not import `child_process`, call GitHub/Vercel APIs or use `fetch`.
-
-Every generated step freezes:
+Every step freezes:
 
 ```json
-{
-  "executable": false,
-  "requiresSeparateExecutionAuthorization": true
-}
+{"executable":false,"requiresSeparateExecutionAuthorization":true}
 ```
 
-The top-level plan freezes:
+Top-level governance freezes execution, merge, version change, release creation, deployment and HNK_CANON promotion to false.
 
-```json
-{
-  "mode": "DRY_RUN_ONLY",
-  "governance": {
-    "executionAuthorized": false,
-    "executesMerge": false,
-    "executesVersionChange": false,
-    "createsTagOrRelease": false,
-    "executesDeployment": false,
-    "promotesHnkCanon": false,
-    "authority": "PROMOTION_EXECUTION_PLAN_NOT_EXECUTION_AUTHORITY"
-  }
-}
-```
+## Current Stack V12
 
-## Planned phases
+`HOC-V1.0-RC1-STACK-LANDING/V12` contains **29 parent-first PR landing steps** and the generated runbook contains **37 total steps**.
 
-The runbook is ordered as:
+The phases remain:
 
-1. archive/freeze the approved evidence package;
-2. reconfirm mandatory CI/runtime/physical/deployment evidence has not regressed;
-3. review each stacked PR parent-first, one by one;
-4. after stack landing, rerun clean install/tests/typecheck/build/self-test/vector checks on `main`;
-5. prepare stable package version `1.0.0` as a separate reviewed change;
-6. prepare tag/release `v1.0.0` as a separate reviewed action;
-7. prepare production deployment from the exact approved stable commit;
-8. verify production Release Attestation, Build Provenance, golden RAW seed, Manifest V0.10 and hardening behavior;
-9. archive final V1.0 evidence.
-
-For Stack Landing V11, the current runbook contains 28 PR landing steps and 36 total steps.
+1. freeze approved evidence;
+2. reconfirm mandatory gates;
+3. review/land each PR parent-first;
+4. verify main after stack landing;
+5. prepare stable version `1.0.0`;
+6. prepare tag/release `v1.0.0`;
+7. prepare production deployment;
+8. verify production identity/runtime;
+9. archive final release evidence.
 
 ## Governance boundary
 
-An approved human decision is still not execution authorization.
-
-A generated Promotion Execution Plan is also not execution authorization.
-
-Technical mutations remain separate actions requiring explicit authorization and a fresh pre-mutation guard decision. This layer cannot merge PRs, mark CI PASS, edit package versions, create tags/releases, deploy Vercel production, change the Release Attestation fingerprint or promote `HNK_CANON`.
+A human APPROVE record is not technical authorization. A Promotion Execution Plan is not technical authorization. Technical authorization is step-scoped and still does not execute anything. Pre-Mutation Guard ALLOW is a policy decision, not an action. A Technical Mutation Receipt records only an externally/manual reported result and is not execution proof until a separate verification layer accepts its evidence.
 
 ## Relationship to the release pipeline
 
@@ -127,7 +76,9 @@ QA evidence
   -> Promotion Execution Plan V1 (DRY_RUN_ONLY + planFingerprint)
   -> Technical Execution Authorization V1 (STEP_SCOPED)
   -> Pre-Mutation Guard V1 (ALLOW / DENY)
-  -> separately implemented/executed technical action
+  -> separately executed external/manual technical action
+  -> Technical Mutation Receipt V1 (UNVERIFIED_EXTERNAL_RESULT)
+  -> future independent evidence verification
 ```
 
-No arrow above the final executor performs a technical promotion automatically.
+No layer above the external/manual executor performs a technical mutation automatically, and no layer in this pipeline promotes `HNK_CANON`.
