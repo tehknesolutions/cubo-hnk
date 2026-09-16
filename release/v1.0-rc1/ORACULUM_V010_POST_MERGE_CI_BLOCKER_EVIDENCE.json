@@ -1,0 +1,61 @@
+{
+  "kind": "HOC-V0.10-POST-MERGE-CI-BLOCKER-EVIDENCE/V1",
+  "scope": "@hnk/oraculum-engine post-merge validation",
+  "testedTarget": {
+    "commit": "193ef83ec62f5fa174977d06461ae3b27953dc55",
+    "tree": "6432b727f7e7a89ac5041cda0e255e0cc12f71fc",
+    "manifestBlob": "7b5b742339e2ca66d127dc8da665304e6e544543",
+    "testFileCount": 20
+  },
+  "fixLineage": {
+    "fixCommit": "6b1223dc489f34dff0d9a51e0993a55b18bf0fd2",
+    "pr36Merge": "883a6e9d5a48b451c1222b1b27b34c3da232c95d",
+    "pr35Merge": "193ef83ec62f5fa174977d06461ae3b27953dc55"
+  },
+  "priorIndependentExecution": {
+    "beforeFix": { "tests": 45, "pass": 44, "fail": 1 },
+    "afterMinimalFix": { "tests": 45, "pass": 45, "fail": 0 },
+    "classification": "PASS_AFTER_MINIMAL_FIX"
+  },
+  "githubActions": {
+    "workflow": "Cubo HNK CI",
+    "runNumber": 121,
+    "runId": 35142704514,
+    "event": "pull_request",
+    "headSha": "193ef83ec62f5fa174977d06461ae3b27953dc55",
+    "attempts": [
+      {
+        "attempt": 1,
+        "jobId": 104950904579,
+        "conclusion": "failure",
+        "executedSteps": 0,
+        "logs": "UNAVAILABLE",
+        "classification": "RUNNER_PROVISIONING_FAILURE"
+      },
+      {
+        "attempt": 2,
+        "jobId": 104968935458,
+        "conclusion": "failure",
+        "executedSteps": 0,
+        "logs": "UNAVAILABLE_BLOB_NOT_FOUND",
+        "classification": "RUNNER_PROVISIONING_FAILURE_REPRODUCED"
+      }
+    ],
+    "repositoryCommandsExecuted": 0,
+    "codeFailureDemonstrated": false,
+    "ciPassClaimed": false
+  },
+  "fullPostMergeSuite": {
+    "command": "node --test test/*.test.mjs",
+    "expectedTestFileCount": 20,
+    "execution": "PENDING_INDEPENDENT_EXECUTION",
+    "reason": "GitHub Actions runner failed before any workflow step executed"
+  },
+  "governance": {
+    "thisEvidenceWorkflowPerformedMerge": false,
+    "externalPullRequestMergesObserved": true,
+    "deploymentPerformed": false,
+    "stablePromotionAuthorized": false,
+    "overall": "NOT_READY_FOR_STABLE"
+  }
+}
