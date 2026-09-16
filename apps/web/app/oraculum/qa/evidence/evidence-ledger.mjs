@@ -1,5 +1,7 @@
 export const RC1_EVIDENCE_LEDGER_VERSION='HOC-RC1-EVIDENCE-LEDGER/V1';
 export const RC1_RELEASE_ID='HOC-V1.0-RC1';
+export const RC1_RELEASE_ATTESTATION_VERSION='HOC-RC1-RELEASE-ATTESTATION/V1';
+export const RC1_RELEASE_FINGERPRINT='08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90';
 export const EVIDENCE_KINDS=Object.freeze({
   RUNTIME:'HOC-RC1-RUNTIME-QA-EVIDENCE/V1',
   INDEPENDENT:'HOC-RC1-INDEPENDENT-VALIDATION-EVIDENCE/V1',
@@ -36,6 +38,10 @@ function validDeployment(record){
     &&record?.passed===true
     &&record?.authority==='DEPLOYMENT_RUNTIME_EVIDENCE_NOT_PRODUCTION_PROMOTION'
     &&record?.summary?.failed===0
+    &&record?.releaseAttestation?.version===RC1_RELEASE_ATTESTATION_VERSION
+    &&record?.releaseAttestation?.expectedFingerprint===RC1_RELEASE_FINGERPRINT
+    &&record?.releaseAttestation?.actualFingerprint===RC1_RELEASE_FINGERPRINT
+    &&record?.releaseAttestation?.matchesExpected===true
     &&typeof record?.golden?.expectedSeed256==='string'
     &&record?.golden?.actualSeed256===record?.golden?.expectedSeed256
     &&record?.governance?.promotesStable===false
@@ -103,7 +109,7 @@ export function evaluateRc1Evidence(recordsInput=[]){
   const gates=Object.freeze([
     gate('runtimeSelfTest','Runtime self-test',runtime.status,runtime.status==='PASS'?'Vetor RC1 reproduzido no runtime carregado.':'Importe uma evidência PASS de /oraculum/qa.',runtime.count),
     gate('independentValidation','Independent executor',independent.status,independent.status==='PASS'?'Install, tests, typecheck, check, web build e runtime self-test passaram em executor independente. GitHub CI continua um gate separado.':'Execute pnpm validate:rc1:independent em um executor real e importe a evidência gerada.',independent.count),
-    gate('deploymentVerification','Deployment runtime',deployment.status,deployment.status==='PASS'?'Preview/deployment reproduziu self-test, headers, seed dourado e verificação V0.10 no host real.':'Execute pnpm verify:rc1:deployment contra uma URL aprovada e importe a evidência.',deployment.count),
+    gate('deploymentVerification','Deployment runtime',deployment.status,deployment.status==='PASS'?'Host reproduziu fingerprint RC1, self-test, headers, seed dourado e verificação V0.10.':'Execute pnpm verify:rc1:deployment contra uma URL aprovada e importe evidência com Release Attestation V1 válida.',deployment.count),
     gate('physicalState','Physical QA · STATE',state.status,state.status==='PASS'?'Cubo resolvido físico reproduziu legalidade, commit e seed oficiais.':'Execute STATE_SOLVED com cubo real.',state.count),
     gate('physicalRitual','Physical QA · RITUAL_32',ritual.status,ritual.status==='PASS'?'RITUAL_32 físico reproduziu o estado final V0.9 oficial.':'Execute o vetor físico de 32 movimentos.',ritual.count),
     gate('cameraDevice','Camera / device QA',camera.status,camera.status==='PASS'?'Fluxo de câmera passou no dispositivo registrado.':'Execute /oraculum/qa/camera e importe a evidência.',camera.count),
