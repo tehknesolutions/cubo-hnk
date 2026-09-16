@@ -31,13 +31,5 @@
     "No Next.js build",
     "Does not replace GitHub CI, physical QA or deployment QA"
   ],
-  "tapSha256": "3cff2579e07fa55cad211f50ef83eb85defc1c51f954056fedb0ea89ffb218ac",
-  "evidenceSha256": "3764a102ed07cdba9691c662e2d0aa7909fee1f2e3d2847fea1c71a59e68ee77",
-  "authority": "SUPPLEMENTAL_INDEPENDENT_EXECUTION_EVIDENCE_NOT_FULL_CI",
-  "governance": {
-    "replacesGitHubCI": false,
-    "replacesIndependentFullValidation": false,
-    "promotesStable": false,
-    "promotesHnkCanon": false
-  }
+  "tapSha256": "3cff2579e07fa55cad211f50ef83eb85defc1c51f954056fedb0ea89ffb218ac"
 }
