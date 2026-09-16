@@ -5,6 +5,8 @@ import process from 'node:process';
 
 const EVIDENCE_VERSION='HOC-RC1-DEPLOYMENT-VERIFY-EVIDENCE/V1';
 const RELEASE_ID='HOC-V1.0-RC1';
+const RELEASE_ATTESTATION_VERSION='HOC-RC1-RELEASE-ATTESTATION/V1';
+const RELEASE_FINGERPRINT='08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90';
 const GOLDEN_INTENT='Qual padrão precisa se manifestar?';
 const GOLDEN_CUBE='000000000111111111222222222333333333444444444555555555';
 const GOLDEN_SEED='df6bcd1bfd58288fb8f7d7e0f22b69d7e305a24429ba4445c242efc000e3b6fc';
@@ -68,6 +70,17 @@ function responseSummary(result){return {reachable:result.ok,status:result.statu
 const base=parseArgs(process.argv.slice(2));
 const checks=[];
 
+const release=await request(base,'/api/oraculum/release');
+const attestation=release.json?.attestation??null;
+const actualReleaseFingerprint=attestation?.audit?.fingerprint??null;
+checks.push(check('release.http200',release.ok&&release.status===200&&release.json?.ok===true,'Release attestation endpoint returns HTTP 200.',responseSummary(release)));
+checks.push(check('release.version',attestation?.version===RELEASE_ATTESTATION_VERSION,'Deployment exposes the expected release attestation protocol.',attestation?.version??null));
+checks.push(check('release.id',attestation?.core?.releaseId===RELEASE_ID,'Deployment reports the expected RC1 release ID.',attestation?.core?.releaseId??null));
+checks.push(check('release.fingerprint',actualReleaseFingerprint===RELEASE_FINGERPRINT&&attestation?.audit?.matchesExpected===true,'Deployment release fingerprint matches the frozen RC1 identity.',actualReleaseFingerprint));
+checks.push(check('release.headerId',headerEquals(release.headers,'x-hoc-release-id',RELEASE_ID),'Release ID header matches the attestation.',release.headers.get('x-hoc-release-id')));
+checks.push(check('release.headerFingerprint',headerEquals(release.headers,'x-hoc-release-fingerprint',RELEASE_FINGERPRINT),'Release fingerprint header matches the attestation.',release.headers.get('x-hoc-release-fingerprint')));
+checks.push(check('release.noStore',headerIncludes(release.headers,'cache-control','no-store'),'Release attestation response is no-store.',release.headers.get('cache-control')));
+
 const selftest=await request(base,'/api/oraculum/rc1-selftest');
 checks.push(check('selftest.http200',selftest.ok&&selftest.status===200,'Runtime self-test endpoint returns HTTP 200.',responseSummary(selftest)));
 checks.push(check('selftest.pass',selftest.json?.report?.passed===true&&selftest.json?.ok===true,'Runtime self-test report is PASS.',selftest.json?{ok:selftest.json.ok,passed:selftest.json?.report?.passed,version:selftest.json?.report?.version}:null));
@@ -121,6 +134,7 @@ const evidence={
   passed,
   authority:'DEPLOYMENT_RUNTIME_EVIDENCE_NOT_PRODUCTION_PROMOTION',
   deployment:{origin:base,https:base.startsWith('https://')},
+  releaseAttestation:{version:attestation?.version??null,expectedFingerprint:RELEASE_FINGERPRINT,actualFingerprint:actualReleaseFingerprint,matchesExpected:actualReleaseFingerprint===RELEASE_FINGERPRINT},
   golden:{intent:GOLDEN_INTENT,cubeStateSha256:sha256(GOLDEN_CUBE),expectedSeed256:GOLDEN_SEED,actualSeed256:oracleSeed,sessionId,manifestChecksum},
   checks,
   summary:{total:checks.length,passed:checks.filter(item=>item.passed).length,failed:checks.filter(item=>!item.passed).length},
