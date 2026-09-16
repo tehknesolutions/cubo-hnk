@@ -22,9 +22,31 @@ Verificar o comportamento **real do deployment**, separando configuração sourc
 
 O runner não cria deployment e não publica nada. Ele só opera quando uma URL é fornecida explicitamente.
 
-## Checks
+## Gate 0 — Release Attestation V1
 
-O runner verifica:
+Antes de aceitar self-test, headers, seed ou manifesto, o runner consulta:
+
+`GET /api/oraculum/release`
+
+E exige:
+
+- HTTP 200;
+- `HOC-RC1-RELEASE-ATTESTATION/V1`;
+- release ID `HOC-V1.0-RC1`;
+- fingerprint exatamente `08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90`;
+- `matchesExpected === true`;
+- headers `X-HOC-Release-Id` e `X-HOC-Release-Fingerprint` coerentes;
+- `Cache-Control: no-store`.
+
+Esse gate impede que um deployment stale/estranho receba PASS apenas porque reproduz uma saída parcial.
+
+Contrato detalhado:
+
+`docs/RC1_RELEASE_ATTESTATION.md`
+
+## Checks de runtime
+
+Após a identidade RC1 ser confirmada, o runner verifica:
 
 1. `GET /api/oraculum/rc1-selftest` retorna HTTP 200 e PASS;
 2. self-test response tem `Cache-Control: no-store`;
@@ -66,6 +88,8 @@ O artefato registra:
 
 - origem do deployment;
 - HTTPS yes/no;
+- versão da Release Attestation;
+- fingerprint esperado/observado e resultado da comparação;
 - seed esperado e observado;
 - Session ID e checksum;
 - cada check individual;
@@ -94,4 +118,4 @@ E mantém:
 - `replacesGitHubCI=false`;
 - `replacesPhysicalQa=false`.
 
-Portanto, um PASS prova apenas o deployment verificado naquele momento/URL. Não promove a release e não substitui QA físico nem CI.
+Portanto, um PASS prova apenas que **aquela URL** serviu a identidade RC1 congelada e passou os checks de runtime naquele momento. Não promove a release e não substitui QA físico nem CI.
