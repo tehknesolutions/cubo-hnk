@@ -52,6 +52,7 @@ export function inspectRc1HumanPromotionDecisionRecord(record){
     &&record.version===RC1_HUMAN_DECISION_VERSION
     &&record.releaseId===RC1_RELEASE_ID
     &&HUMAN_DECISIONS.includes(record.decision)
+    &&record.sourceReadiness?.evidenceKind===RC1_READINESS_VERSION
     &&typeof record.recordId==='string'&&record.recordId.length>0
     &&typeof record.recordedAt==='string'&&record.recordedAt.length>0
     &&typeof record.reviewerLabel==='string'&&record.reviewerLabel.trim().length>=2
