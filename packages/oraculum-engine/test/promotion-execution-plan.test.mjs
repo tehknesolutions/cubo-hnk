@@ -40,13 +40,13 @@ function approvedDecision(){
   };
 }
 
-test('V8 stack is valid parent-first input for promotion planning',()=>{
+test('V9 stack is valid parent-first input for promotion planning',()=>{
   const inspection=inspectRc1StackLandingPlan(stack);
   assert.equal(inspection.valid,true);
   assert.equal(inspection.parentFirst,true);
-  assert.equal(inspection.planVersion,'HOC-V1.0-RC1-STACK-LANDING/V8');
-  assert.equal(inspection.prCount,25);
-  assert.equal(inspection.lastPr,26);
+  assert.equal(inspection.planVersion,'HOC-V1.0-RC1-STACK-LANDING/V9');
+  assert.equal(inspection.prCount,26);
+  assert.equal(inspection.lastPr,27);
 });
 
 test('promotion execution plan is dry-run only and every step is non-executable',()=>{
@@ -55,12 +55,12 @@ test('promotion execution plan is dry-run only and every step is non-executable'
   assert.equal(plan.releaseId,'HOC-V1.0-RC1');
   assert.equal(plan.mode,'DRY_RUN_ONLY');
   assert.equal(plan.sourceDecision.decision,'APPROVE_V1_0');
-  assert.equal(plan.sourceStack.prCount,25);
-  assert.equal(plan.sourceStack.lastPr,26);
+  assert.equal(plan.sourceStack.prCount,26);
+  assert.equal(plan.sourceStack.lastPr,27);
   assert.equal(plan.target.stableVersion,'1.0.0');
   assert.equal(plan.target.tag,'v1.0.0');
-  assert.equal(plan.summary.stackLandingSteps,25);
-  assert.equal(plan.summary.totalSteps,33);
+  assert.equal(plan.summary.stackLandingSteps,26);
+  assert.equal(plan.summary.totalSteps,34);
   assert.equal(plan.summary.allExecutable,false);
   assert.equal(plan.steps.every(step=>step.executable===false),true);
   assert.equal(plan.steps.every(step=>step.requiresSeparateExecutionAuthorization===true),true);
