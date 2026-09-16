@@ -1,6 +1,6 @@
 # HOC V1.0 RC1 — Stack Landing Plan
 
-Plan: `HOC-V1.0-RC1-STACK-LANDING/V6`
+Plan: `HOC-V1.0-RC1-STACK-LANDING/V7`
 
 Estado atual:
 
@@ -12,7 +12,7 @@ Este documento organiza a sequência dos PRs empilhados. Ele **não autoriza mer
 
 A cadeia é linear:
 
-`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21 → #22 → #23 → #24`
+`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21 → #22 → #23 → #24 → #25`
 
 Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que rastreia o bloqueio GitHub Actions.
 
@@ -43,55 +43,46 @@ Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que ra
 | 21 | #22 | `infra/actions-recovery-controls` | `feat/v1-rc1-vercel-preview-bootstrap` | bootstrap preview-only da Vercel |
 | 22 | #23 | `feat/v1-rc1-vercel-preview-bootstrap` | `feat/v1-rc1-release-attestation` | identidade determinística da RC1 e gate de deployment |
 | 23 | #24 | `feat/v1-rc1-release-attestation` | `feat/v1-rc1-build-provenance` | proveniência de build e pin opcional de commit |
+| 24 | #25 | `feat/v1-rc1-build-provenance` | `feat/v1-rc1-promotion-readiness` | avaliação final de readiness RC1 → V1.0 sem autoridade de promoção |
 
 ## GitHub Actions
 
 O PR #19 localizou o blocker antes do primeiro step em `ubuntu-latest` e `windows-latest`. O PR #21 encerrou probes automáticos redundantes e deixou diagnóstico/CI com gatilhos manuais de recuperação.
 
-No PR #24 o run `35102136774`, job `104813941834`, repetiu `steps=null` / sem logs. Portanto nenhum teste/build do PR #24 foi executado no Actions.
-
 O gate oficial de CI continua `BLOCKED`; diagnóstico ou configuração de recuperação não equivalem a PASS.
 
-## Preview Vercel
+## Release Attestation / Build Provenance
 
-O PR #22 prepara o caminho de preview sem publicar produção e mantém o deployment verifier PENDING até existir uma URL real aprovada.
-
-## Release Attestation V1
-
-O PR #23 congela:
-
-`HOC-RC1-RELEASE-ATTESTATION/V1`
-
-Fingerprint:
+O PR #23 congela `HOC-RC1-RELEASE-ATTESTATION/V1` com fingerprint:
 
 `08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90`
 
-Esse fingerprint prova identidade do contrato RC1 servido, não stable, CI, Physical QA ou `HNK_CANON`.
+O PR #24 acrescenta `HOC-RC1-BUILD-PROVENANCE/V1` como metadata operacional não-hashada. Ela pode registrar provider, environment, deployment ID, Git ref e Git SHA e permite pin opcional por commit no deployment verifier, mas não altera o fingerprint nem autoriza promoção.
 
-## Build Provenance V1
+## Promotion Readiness V1
 
-O PR #24 acrescenta:
+O PR #25 acrescenta:
 
-`HOC-RC1-BUILD-PROVENANCE/V1`
+`HOC-RC1-PROMOTION-READINESS/V1`
 
-Essa camada responde “de qual build veio esta RC1?” sem alterar a pergunta “esta é a RC1 congelada?”.
+Ele recebe um `HOC-RC1-RELEASE-EVIDENCE-LEDGER/V1` e separa:
 
-A proveniência pode registrar provider, environment, deployment ID, Git ref e Git SHA. Ela é:
+- gates obrigatórios pré-humanos;
+- blockers obrigatórios;
+- evidências obrigatórias pendentes;
+- evidência suplementar (`Independent Executor`);
+- decisão humana final.
 
-`RUNTIME_ENV_METADATA_UNHASHED`
+Estados possíveis:
 
-com autoridade:
+- `INVALID_LEDGER`;
+- `BLOCKED`;
+- `EVIDENCE_INCOMPLETE`;
+- `READY_FOR_HUMAN_REVIEW`.
 
-`BUILD_PROVENANCE_METADATA_NOT_RELEASE_IDENTITY`
+`READY_FOR_HUMAN_REVIEW` é o limite máximo automático. Não significa stable, merge autorizado ou `HNK_CANON`.
 
-Logo:
-
-- não entra no fingerprint RC1;
-- não promove stable;
-- não promove `HNK_CANON`;
-- não substitui GitHub CI.
-
-O deployment verifier aceita `--commit <sha-prefix>` / `HOC_EXPECTED_COMMIT`; quando fornecido, a evidência só passa se o runtime declarar um commit compatível. Sem commit esperado, o pinning fica `NOT_REQUESTED` e a proveniência ainda é registrada.
+A tela `/oraculum/qa/readiness` processa o ledger localmente no navegador e exporta um artefato de readiness sem assinatura criptográfica e sem autoridade de promoção.
 
 ## Regra parent-first
 
@@ -117,7 +108,7 @@ O plano machine-readable continua com:
 
 `pnpm validate:rc1:independent`
 
-Pode produzir install/test/typecheck/build/self-test reais em outra máquina, mas não transforma GitHub CI em PASS.
+Pode produzir install/test/typecheck/build/self-test reais em outra máquina, mas é evidência suplementar e não transforma GitHub CI em PASS.
 
 ### Deployment runtime
 
@@ -137,6 +128,7 @@ Continuam independentes:
 - deployment runtime verification com fingerprint/proveniência corretos;
 - host logging/retention e estratégia de abuso/rate limit;
 - GitHub CI/typecheck/build;
+- Promotion Readiness = `READY_FOR_HUMAN_REVIEW`;
 - aprovação humana V1.0.
 
 ## Estratégia futura de merge
@@ -151,11 +143,12 @@ Machine-readable:
 
 `release/v1.0-rc1/STACK_LANDING_PLAN.json`
 
-Release identity / provenance:
+Release identity / provenance / readiness:
 
 - `release/v1.0-rc1/RELEASE_MANIFEST.json`
 - `docs/RC1_RELEASE_ATTESTATION.md`
 - `docs/RC1_BUILD_PROVENANCE.md`
+- `docs/RC1_PROMOTION_READINESS.md`
 
 Diagnóstico/recuperação de Actions:
 

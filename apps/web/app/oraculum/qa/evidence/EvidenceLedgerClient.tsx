@@ -61,7 +61,7 @@ export function EvidenceLedgerClient(){
         <p className={styles.kicker}>HOC V1.0 RC1 · RELEASE EVIDENCE</p>
         <h1>Evidence Ledger</h1>
         <p>Agrega evidências de runtime, executor independente, cubo físico, câmera e verificação cross-device sem misturar esses gates com o protocolo oracular ou com o GitHub CI.</p>
-        <p><Link href="/oraculum/qa">← QA Hub</Link> · <Link href="/oraculum/verify">verificar manifesto</Link></p>
+        <p><Link href="/oraculum/qa">← QA Hub</Link> · <Link href="/oraculum/qa/readiness">Promotion Readiness</Link> · <Link href="/oraculum/verify">verificar manifesto</Link></p>
       </div>
       <div className={styles.badge}>{report.overall}</div>
     </header>
@@ -92,6 +92,7 @@ export function EvidenceLedgerClient(){
           <small>{gate.evidenceCount} evidência(s)</small>
         </article>)}
       </div>
+      <p>Depois de exportar este ledger, use <Link href="/oraculum/qa/readiness">Promotion Readiness</Link> para calcular blockers obrigatórios, pendências e prontidão para revisão humana.</p>
     </section>
 
     <section className={styles.card}>
