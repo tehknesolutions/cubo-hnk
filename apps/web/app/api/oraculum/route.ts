@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { runOracle } from '@hnk/oraculum-engine';
 import { interpretOracle } from '@hnk/oraculum-engine/interpretation';
 import { analyzeCubeLegality } from '@hnk/oraculum-engine/legality';
+import { analyzeRitualIntegrity } from '@hnk/oraculum-engine/ritual';
 
 export const runtime = 'nodejs';
 
@@ -16,14 +17,43 @@ export async function POST(request: Request) {
           error: `Estado impossível para um cubo 3×3 físico: ${legality.errors.map(item => item.code).join(', ')}`,
           scanProfile: 'HOC-FACELET-SCAN-V1',
           legality,
+          ritualIntegrity: null,
         },
         { status: 422 },
       );
     }
 
+    let ritualIntegrity = null;
+    if (body.mode === 'RITUAL_32') {
+      ritualIntegrity = analyzeRitualIntegrity({
+        initialCubeState: body.initialCubeState,
+        finalCubeState: body.cubeState,
+        moves: body.moves,
+      });
+      if (!ritualIntegrity.valid) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: `Integridade RITUAL_32 não confirmada: ${ritualIntegrity.errors.map(item => item.code).join(', ')}`,
+            scanProfile: 'HOC-FACELET-SCAN-V1',
+            legality,
+            ritualIntegrity,
+          },
+          { status: 422 },
+        );
+      }
+    }
+
     const raw = runOracle({ intent: body.intent, cubeState: body.cubeState, mode: body.mode, moves: body.moves, profileId: body.profileId });
     const interpretation = interpretOracle(raw, { profileId: body.profileId, includeResultingIChing: Boolean(body.includeResultingIChing) });
-    return NextResponse.json({ ok: true, scanProfile: 'HOC-FACELET-SCAN-V1', legality, raw, interpretation });
+    return NextResponse.json({
+      ok: true,
+      scanProfile: 'HOC-FACELET-SCAN-V1',
+      legality,
+      ritualIntegrity,
+      raw,
+      interpretation,
+    });
   } catch (error) {
     return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : 'Unknown Oraculum error' }, { status: 400 });
   }
