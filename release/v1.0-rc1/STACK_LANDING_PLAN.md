@@ -1,6 +1,6 @@
 # HOC V1.0 RC1 — Stack Landing Plan
 
-Plan: `HOC-V1.0-RC1-STACK-LANDING/V8`
+Plan: `HOC-V1.0-RC1-STACK-LANDING/V9`
 
 Estado atual:
 
@@ -12,7 +12,7 @@ Este documento organiza a sequência dos PRs empilhados. Ele **não autoriza mer
 
 A cadeia é linear:
 
-`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21 → #22 → #23 → #24 → #25 → #26`
+`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21 → #22 → #23 → #24 → #25 → #26 → #27`
 
 Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que rastreia o bloqueio GitHub Actions.
 
@@ -22,43 +22,42 @@ Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que ra
 
 `HOC-RC1-PROMOTION-READINESS/V1`
 
-Converte o Evidence Ledger em `INVALID_LEDGER`, `BLOCKED`, `EVIDENCE_INCOMPLETE` ou `READY_FOR_HUMAN_REVIEW`.
-
-`READY_FOR_HUMAN_REVIEW` é apenas prontidão para decisão humana; nunca é stable automático.
+Converte o Evidence Ledger em `INVALID_LEDGER`, `BLOCKED`, `EVIDENCE_INCOMPLETE` ou `READY_FOR_HUMAN_REVIEW`. O último estado significa apenas prontidão para decisão humana.
 
 ### Human Promotion Decision V1 — PR #26
 
 `HOC-RC1-HUMAN-PROMOTION-DECISION/V1`
 
-Registra uma decisão humana:
+Registra `APPROVE_V1_0`, `DEFER` ou `REJECT`. `APPROVE_V1_0` só pode existir com readiness válido e matriz obrigatória 9/9 PASS.
 
-- `APPROVE_V1_0`;
-- `DEFER`;
-- `REJECT`.
+Mesmo uma aprovação registrada não executa merge, deploy, mudança de versão ou `HNK_CANON`.
 
-`APPROVE_V1_0` só pode ser registrado quando o readiness é válido, `READY_FOR_HUMAN_REVIEW` e a matriz obrigatória está coerente em 9/9 PASS, sem pending/blocked/missing/invalid.
+### Promotion Execution Plan V1 — PR #27
 
-Mesmo um registro `APPROVE_V1_0` mantém:
+`HOC-RC1-PROMOTION-EXECUTION-PLAN/V1`
 
-- `executesMerge=false`;
-- `executesDeployment=false`;
-- `changesPackageVersion=false`;
-- `promotesHnkCanon=false`;
-- `automaticPromotion=false`.
+Recebe um futuro `APPROVE_V1_0` válido e a stack parent-first e produz apenas um runbook:
 
-Logo, decisão humana documentada e execução técnica continuam duas etapas diferentes.
+`DRY_RUN_ONLY`
+
+Cada passo congela:
+
+- `executable=false`;
+- `requiresSeparateExecutionAuthorization=true`.
+
+O plano inteiro mantém `executionAuthorized=false`. Ele não chama GitHub/Vercel, não executa processos externos e não altera repositório, versão, tags ou deployment.
 
 ## Ordem de aterrissagem
 
-A fonte machine-readable contém a lista completa parent-first dos 25 PRs da stack. A cauda atual é:
+A fonte machine-readable contém a lista completa parent-first dos 26 PRs da stack. A cauda atual é:
 
 | Ordem | PR | Base | Head | Papel |
 | ---: | ---: | --- | --- | --- |
-| 21 | #22 | `infra/actions-recovery-controls` | `feat/v1-rc1-vercel-preview-bootstrap` | bootstrap preview-only da Vercel |
 | 22 | #23 | `feat/v1-rc1-vercel-preview-bootstrap` | `feat/v1-rc1-release-attestation` | identidade determinística RC1 |
 | 23 | #24 | `feat/v1-rc1-release-attestation` | `feat/v1-rc1-build-provenance` | proveniência e commit pinning |
 | 24 | #25 | `feat/v1-rc1-build-provenance` | `feat/v1-rc1-promotion-readiness` | avaliação final de readiness |
 | 25 | #26 | `feat/v1-rc1-promotion-readiness` | `feat/v1-rc1-human-promotion-decision` | registro humano APPROVE/DEFER/REJECT |
+| 26 | #27 | `feat/v1-rc1-human-promotion-decision` | `feat/v1-rc1-promotion-execution-plan` | runbook técnico dry-run sem execução |
 
 ## GitHub Actions
 
@@ -102,7 +101,8 @@ Continuam independentes:
 - GitHub CI/typecheck/build;
 - Promotion Readiness = `READY_FOR_HUMAN_REVIEW`;
 - Human Promotion Decision = `APPROVE_V1_0`;
-- autorização separada para execução técnica da promoção V1.0.
+- Promotion Execution Plan = `DRY_RUN_ONLY`;
+- autorização separada para cada mutação técnica da promoção V1.0.
 
 ## Estratégia futura de merge
 
@@ -120,6 +120,7 @@ Governança final:
 
 - `docs/RC1_PROMOTION_READINESS.md`
 - `docs/RC1_HUMAN_PROMOTION_DECISION.md`
+- `docs/RC1_PROMOTION_EXECUTION_PLAN.md`
 - `release/v1.0-rc1/RELEASE_MANIFEST.json`
 - `release/v1.0-rc1/AUDIT_STATUS.json`
 
