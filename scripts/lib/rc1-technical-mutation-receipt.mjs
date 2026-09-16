@@ -7,6 +7,15 @@ export const RECEIPT_RESULTS=Object.freeze(['SUCCESS','FAILED','CANCELLED']);
 
 function assert(condition,message){if(!condition)throw new Error(message);}
 function clean(value,max){return typeof value==='string'?value.trim().replace(/[\u0000-\u001f]/gu,' ').slice(0,max):'';}
+function timestampMs(value){const parsed=typeof value==='string'?Date.parse(value):NaN;return Number.isFinite(parsed)?parsed:null;}
+function evidenceItemValid(item){
+  return Boolean(
+    item
+    &&typeof item.kind==='string'&&item.kind.trim().length>=2
+    &&typeof item.value==='string'&&item.value.trim().length>=2
+    &&(item.sha256===null||item.sha256===undefined||/^[0-9a-f]{64}$/u.test(item.sha256))
+  );
+}
 function normalizeEvidence(items){
   assert(Array.isArray(items),'Evidence references must be an array.');
   return items.map((item,index)=>{
@@ -25,7 +34,11 @@ export function inspectRc1TechnicalMutationReceipt(receipt,{plan,authorization}=
   const authorizationInspection=inspectRc1TechnicalExecutionAuthorization(authorization,plan);
   const planStepIds=planInspection.valid?new Set(plan.steps.map(step=>step.id)):new Set();
   const evidence=Array.isArray(receipt?.evidenceRefs)?receipt.evidenceRefs:[];
+  const evidenceValid=evidence.every(evidenceItemValid);
   const resultKnown=RECEIPT_RESULTS.includes(receipt?.result);
+  const startedMs=timestampMs(receipt?.startedAt);
+  const completedMs=timestampMs(receipt?.completedAt);
+  const chronologyValid=startedMs!==null&&completedMs!==null&&completedMs>=startedMs;
   const valid=Boolean(
     planInspection.valid
     &&authorizationInspection.valid
@@ -33,11 +46,11 @@ export function inspectRc1TechnicalMutationReceipt(receipt,{plan,authorization}=
     &&receipt.version===RC1_TECHNICAL_MUTATION_RECEIPT_VERSION
     &&receipt.releaseId===RC1_RELEASE_ID
     &&typeof receipt.receiptId==='string'&&receipt.receiptId.length>0
-    &&typeof receipt.startedAt==='string'&&receipt.startedAt.length>0
-    &&typeof receipt.completedAt==='string'&&receipt.completedAt.length>0
+    &&chronologyValid
     &&typeof receipt.executorLabel==='string'&&receipt.executorLabel.trim().length>=2
     &&typeof receipt.summary==='string'&&receipt.summary.trim().length>=5
     &&resultKnown
+    &&evidenceValid
     &&planStepIds.has(receipt.stepId)
     &&authorization.authorizedStepIds.includes(receipt.stepId)
     &&receipt.sourcePlan?.planFingerprint===plan.planFingerprint
@@ -61,6 +74,8 @@ export function inspectRc1TechnicalMutationReceipt(receipt,{plan,authorization}=
   return Object.freeze({
     valid:valid&&successEvidencePresent,
     structuralValid:valid,
+    chronologyValid,
+    evidenceValid,
     successEvidencePresent,
     result:resultKnown?receipt.result:null,
     stepId:valid?receipt.stepId:null,
@@ -97,8 +112,11 @@ export function buildRc1TechnicalMutationReceipt({
   const note=clean(summary,4000);
   assert(executor.length>=2,'Executor label must contain at least 2 characters.');
   assert(note.length>=5,'Receipt summary must contain at least 5 characters.');
-  assert(typeof startedAt==='string'&&startedAt.length>0,'startedAt is required from the external/manual execution context.');
-  assert(typeof completedAt==='string'&&completedAt.length>0,'completedAt is required.');
+  const startedMs=timestampMs(startedAt);
+  const completedMs=timestampMs(completedAt);
+  assert(startedMs!==null,'startedAt must be a valid timestamp from the external/manual execution context.');
+  assert(completedMs!==null,'completedAt must be a valid timestamp.');
+  assert(completedMs>=startedMs,'completedAt cannot be earlier than startedAt.');
   const evidence=normalizeEvidence(evidenceRefs);
   if(result==='SUCCESS')assert(evidence.length>0,'SUCCESS receipt requires at least one external evidence reference.');
 
