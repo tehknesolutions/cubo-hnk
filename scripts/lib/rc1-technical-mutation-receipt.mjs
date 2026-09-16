@@ -1,5 +1,6 @@
 import {verifyRc1PromotionExecutionPlan} from './rc1-promotion-execution-plan.mjs';
 import {inspectRc1TechnicalExecutionAuthorization} from './rc1-technical-execution-authorization.mjs';
+import {computeRc1PreMutationGuardFingerprint,RC1_PRE_MUTATION_GUARD_VERSION} from './rc1-pre-mutation-guard.mjs';
 
 export const RC1_TECHNICAL_MUTATION_RECEIPT_VERSION='HOC-RC1-TECHNICAL-MUTATION-RECEIPT/V1';
 export const RC1_RELEASE_ID='HOC-V1.0-RC1';
@@ -9,12 +10,7 @@ function assert(condition,message){if(!condition)throw new Error(message);}
 function clean(value,max){return typeof value==='string'?value.trim().replace(/[\u0000-\u001f]/gu,' ').slice(0,max):'';}
 function timestampMs(value){const parsed=typeof value==='string'?Date.parse(value):NaN;return Number.isFinite(parsed)?parsed:null;}
 function evidenceItemValid(item){
-  return Boolean(
-    item
-    &&typeof item.kind==='string'&&item.kind.trim().length>=2
-    &&typeof item.value==='string'&&item.value.trim().length>=2
-    &&(item.sha256===null||item.sha256===undefined||/^[0-9a-f]{64}$/u.test(item.sha256))
-  );
+  return Boolean(item&&typeof item.kind==='string'&&item.kind.trim().length>=2&&typeof item.value==='string'&&item.value.trim().length>=2&&(item.sha256===null||item.sha256===undefined||/^[0-9a-f]{64}$/u.test(item.sha256)));
 }
 function normalizeEvidence(items){
   assert(Array.isArray(items),'Evidence references must be an array.');
@@ -28,6 +24,28 @@ function normalizeEvidence(items){
     return Object.freeze({kind,value,sha256:sha256||null});
   });
 }
+function guardSnapshotValid(guard,plan,authorization,stepId){
+  if(!guard||guard.version!==RC1_PRE_MUTATION_GUARD_VERSION)return false;
+  const expectedFingerprint=computeRc1PreMutationGuardFingerprint(guard);
+  return Boolean(
+    guard.guardFingerprint===expectedFingerprint
+    &&guard.decision==='ALLOW'
+    &&guard.code==='AUTHORIZED_NEXT_STEP'
+    &&guard.stepId===stepId
+    &&guard.expectedNextStepId===stepId
+    &&Number.isInteger(guard.completedCount)&&guard.completedCount>=0
+    &&/^[0-9a-f]{64}$/u.test(guard.completedPrefixStateFingerprint??'')
+    &&guard.sourceStackPlanVersion===plan.sourceStack?.planVersion
+    &&guard.planFingerprint===plan.planFingerprint
+    &&guard.authorizationId===authorization.authorizationId
+    &&guard.governance?.executesAction===false
+    &&guard.governance?.automaticExecution===false
+    &&guard.governance?.requiresExecutorRevalidation===true
+    &&guard.governance?.consumesFingerprintBoundCompletedState===true
+    &&guard.governance?.promotesHnkCanon===false
+    &&guard.governance?.authority==='PRE_MUTATION_GUARD_DECISION_NOT_ACTION_EXECUTOR'
+  );
+}
 
 export function inspectRc1TechnicalMutationReceipt(receipt,{plan,authorization}={}){
   const planInspection=verifyRc1PromotionExecutionPlan(plan);
@@ -39,6 +57,7 @@ export function inspectRc1TechnicalMutationReceipt(receipt,{plan,authorization}=
   const startedMs=timestampMs(receipt?.startedAt);
   const completedMs=timestampMs(receipt?.completedAt);
   const chronologyValid=startedMs!==null&&completedMs!==null&&completedMs>=startedMs;
+  const guardValid=Boolean(planInspection.valid&&authorizationInspection.valid&&receipt&&guardSnapshotValid(receipt.preMutationGuard,plan,authorization,receipt.stepId));
   const valid=Boolean(
     planInspection.valid
     &&authorizationInspection.valid
@@ -56,12 +75,7 @@ export function inspectRc1TechnicalMutationReceipt(receipt,{plan,authorization}=
     &&receipt.sourcePlan?.planFingerprint===plan.planFingerprint
     &&receipt.sourceAuthorization?.authorizationId===authorization.authorizationId
     &&receipt.sourceAuthorization?.planFingerprint===plan.planFingerprint
-    &&receipt.preMutationGuard?.version==='HOC-RC1-PRE-MUTATION-GUARD/V1'
-    &&receipt.preMutationGuard?.decision==='ALLOW'
-    &&receipt.preMutationGuard?.code==='AUTHORIZED_NEXT_STEP'
-    &&receipt.preMutationGuard?.stepId===receipt.stepId
-    &&receipt.preMutationGuard?.planFingerprint===plan.planFingerprint
-    &&receipt.preMutationGuard?.authorizationId===authorization.authorizationId
+    &&guardValid
     &&receipt.verification?.externalEvidenceVerified===false
     &&receipt.verification?.status==='UNVERIFIED_EXTERNAL_RESULT'
     &&receipt.governance?.executesAction===false
@@ -71,17 +85,7 @@ export function inspectRc1TechnicalMutationReceipt(receipt,{plan,authorization}=
     &&receipt.governance?.authority==='MUTATION_RECEIPT_RECORD_NOT_EXECUTION_PROOF'
   );
   const successEvidencePresent=receipt?.result!=='SUCCESS'||evidence.length>0;
-  return Object.freeze({
-    valid:valid&&successEvidencePresent,
-    structuralValid:valid,
-    chronologyValid,
-    evidenceValid,
-    successEvidencePresent,
-    result:resultKnown?receipt.result:null,
-    stepId:valid?receipt.stepId:null,
-    externallyVerified:false,
-    advancesCompletedPrefix:false,
-  });
+  return Object.freeze({valid:valid&&successEvidencePresent,structuralValid:valid,chronologyValid,evidenceValid,guardValid,successEvidencePresent,result:resultKnown?receipt.result:null,stepId:valid?receipt.stepId:null,completedPrefixStateFingerprint:guardValid?receipt.preMutationGuard.completedPrefixStateFingerprint:null,externallyVerified:false,advancesCompletedPrefix:false});
 }
 
 export function buildRc1TechnicalMutationReceipt({
@@ -100,11 +104,15 @@ export function buildRc1TechnicalMutationReceipt({
   const authorizationInspection=inspectRc1TechnicalExecutionAuthorization(authorization,plan);
   assert(planInspection.valid,'Promotion Execution Plan is invalid or fingerprint-mismatched.');
   assert(authorizationInspection.valid,'Technical Execution Authorization is invalid for this plan.');
-  assert(guardDecision?.version==='HOC-RC1-PRE-MUTATION-GUARD/V1','Pre-Mutation Guard decision version is invalid.');
+  assert(guardDecision?.version===RC1_PRE_MUTATION_GUARD_VERSION,'Pre-Mutation Guard decision version is invalid; Guard V2 is required.');
+  assert(guardDecision?.guardFingerprint===computeRc1PreMutationGuardFingerprint(guardDecision),'Pre-Mutation Guard fingerprint is invalid.');
   assert(guardDecision?.decision==='ALLOW'&&guardDecision?.code==='AUTHORIZED_NEXT_STEP','Mutation receipt requires an ALLOW / AUTHORIZED_NEXT_STEP guard decision.');
   assert(guardDecision?.planFingerprint===plan.planFingerprint,'Guard decision belongs to another promotion plan fingerprint.');
   assert(guardDecision?.authorizationId===authorization.authorizationId,'Guard decision belongs to another technical authorization record.');
   assert(typeof guardDecision?.stepId==='string'&&guardDecision.stepId.length>0,'Guard decision must identify the authorized step.');
+  assert(guardDecision.expectedNextStepId===guardDecision.stepId,'Guard decision is not bound to the exact next state step.');
+  assert(/^[0-9a-f]{64}$/u.test(guardDecision.completedPrefixStateFingerprint??''),'Guard decision must bind a valid Completed Prefix State fingerprint.');
+  assert(guardDecision.sourceStackPlanVersion===plan.sourceStack?.planVersion,'Guard decision Completed Prefix State belongs to another Stack Landing version.');
   assert(authorization.authorizedStepIds.includes(guardDecision.stepId),'Guard step is not listed in the technical authorization record.');
   assert(RECEIPT_RESULTS.includes(result),'Unsupported mutation result.');
 
@@ -135,26 +143,23 @@ export function buildRc1TechnicalMutationReceipt({
     sourceAuthorization:Object.freeze({version:authorization.version,authorizationId:authorization.authorizationId,planFingerprint:authorization.sourcePlan.planFingerprint}),
     preMutationGuard:Object.freeze({
       version:guardDecision.version,
+      releaseId:guardDecision.releaseId,
       decision:guardDecision.decision,
       code:guardDecision.code,
       stepId:guardDecision.stepId,
+      expectedNextStepId:guardDecision.expectedNextStepId,
       completedCount:guardDecision.completedCount,
+      completedPrefixStateFingerprint:guardDecision.completedPrefixStateFingerprint,
+      sourceStackPlanVersion:guardDecision.sourceStackPlanVersion,
       planFingerprint:guardDecision.planFingerprint,
       authorizationId:guardDecision.authorizationId,
+      detail:guardDecision.detail,
+      governance:Object.freeze({...guardDecision.governance}),
+      guardFingerprint:guardDecision.guardFingerprint,
     }),
     evidenceRefs:Object.freeze(evidence),
-    verification:Object.freeze({
-      status:'UNVERIFIED_EXTERNAL_RESULT',
-      externalEvidenceVerified:false,
-      note:'This receipt records an externally/manual reported outcome. Evidence references have not been independently verified by this recorder.',
-    }),
-    governance:Object.freeze({
-      executesAction:false,
-      advancesCompletedPrefix:false,
-      automaticPromotion:false,
-      promotesHnkCanon:false,
-      authority:'MUTATION_RECEIPT_RECORD_NOT_EXECUTION_PROOF',
-    }),
+    verification:Object.freeze({status:'UNVERIFIED_EXTERNAL_RESULT',externalEvidenceVerified:false,note:'This receipt records an externally/manual reported outcome. Evidence references have not been independently verified by this recorder.'}),
+    governance:Object.freeze({executesAction:false,advancesCompletedPrefix:false,automaticPromotion:false,promotesHnkCanon:false,authority:'MUTATION_RECEIPT_RECORD_NOT_EXECUTION_PROOF'}),
   });
   const inspection=inspectRc1TechnicalMutationReceipt(receipt,{plan,authorization});
   assert(inspection.valid,'Generated mutation receipt failed self-validation.');
