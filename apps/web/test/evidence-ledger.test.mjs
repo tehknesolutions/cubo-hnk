@@ -6,6 +6,8 @@ const RELEASE='HOC-V1.0-RC1';
 const CHECKSUM='a'.repeat(64);
 const SESSION='HOC-ABCDEF0123456789ABCDEF01';
 const GOLDEN_SEED='df6bcd1bfd58288fb8f7d7e0f22b69d7e305a24429ba4445c242efc000e3b6fc';
+const RELEASE_ATTESTATION_VERSION='HOC-RC1-RELEASE-ATTESTATION/V1';
+const RELEASE_FINGERPRINT='08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90';
 
 function runtime(passed=true){return {evidenceKind:EVIDENCE_KINDS.RUNTIME,releaseId:RELEASE,report:{releaseId:RELEASE,passed}};}
 function independent(passed=true,overrides={}){return {
@@ -23,8 +25,9 @@ function deployment(passed=true,overrides={}){return {
   passed,
   authority:'DEPLOYMENT_RUNTIME_EVIDENCE_NOT_PRODUCTION_PROMOTION',
   deployment:{origin:'https://preview.example',https:true},
+  releaseAttestation:{version:RELEASE_ATTESTATION_VERSION,expectedFingerprint:RELEASE_FINGERPRINT,actualFingerprint:RELEASE_FINGERPRINT,matchesExpected:true},
   golden:{expectedSeed256:GOLDEN_SEED,actualSeed256:passed?GOLDEN_SEED:'0'.repeat(64)},
-  summary:{total:20,passed:passed?20:19,failed:passed?0:1},
+  summary:{total:27,passed:passed?27:26,failed:passed?0:1},
   governance:{promotesStable:false,promotesHnkCanon:false,replacesGitHubCI:false,replacesPhysicalQa:false},
   ...overrides,
 };}
@@ -75,14 +78,17 @@ test('independent evidence must preserve governance boundary to PASS',()=>{
   assert.equal(byId(failedCommands,'independentValidation').status,'PENDING');
 });
 
-test('deployment evidence must preserve golden seed and governance boundary to PASS',()=>{
+test('deployment evidence must preserve RC1 attestation, golden seed and governance boundary to PASS',()=>{
   assert.equal(byId(evaluateRc1Evidence([deployment(true)]),'deploymentVerification').status,'PASS');
   assert.equal(byId(evaluateRc1Evidence([deployment(true,{authority:'PRODUCTION_PROMOTION'})]),'deploymentVerification').status,'PENDING');
   assert.equal(byId(evaluateRc1Evidence([deployment(true,{golden:{expectedSeed256:GOLDEN_SEED,actualSeed256:'b'.repeat(64)}})]),'deploymentVerification').status,'PENDING');
+  assert.equal(byId(evaluateRc1Evidence([deployment(true,{releaseAttestation:{version:'OTHER',expectedFingerprint:RELEASE_FINGERPRINT,actualFingerprint:RELEASE_FINGERPRINT,matchesExpected:true}})]),'deploymentVerification').status,'PENDING');
+  assert.equal(byId(evaluateRc1Evidence([deployment(true,{releaseAttestation:{version:RELEASE_ATTESTATION_VERSION,expectedFingerprint:RELEASE_FINGERPRINT,actualFingerprint:'b'.repeat(64),matchesExpected:true}})]),'deploymentVerification').status,'PENDING');
+  assert.equal(byId(evaluateRc1Evidence([deployment(true,{releaseAttestation:{version:RELEASE_ATTESTATION_VERSION,expectedFingerprint:RELEASE_FINGERPRINT,actualFingerprint:RELEASE_FINGERPRINT,matchesExpected:false}})]),'deploymentVerification').status,'PENDING');
   assert.equal(byId(evaluateRc1Evidence([deployment(true,{governance:{promotesStable:true,promotesHnkCanon:false,replacesGitHubCI:false,replacesPhysicalQa:false}})]),'deploymentVerification').status,'PENDING');
   assert.equal(byId(evaluateRc1Evidence([deployment(true,{governance:{promotesStable:false,promotesHnkCanon:false,replacesGitHubCI:true,replacesPhysicalQa:false}})]),'deploymentVerification').status,'PENDING');
   assert.equal(byId(evaluateRc1Evidence([deployment(true,{governance:{promotesStable:false,promotesHnkCanon:false,replacesGitHubCI:false,replacesPhysicalQa:true}})]),'deploymentVerification').status,'PENDING');
-  assert.equal(byId(evaluateRc1Evidence([deployment(true,{summary:{total:20,passed:19,failed:1}})]),'deploymentVerification').status,'PENDING');
+  assert.equal(byId(evaluateRc1Evidence([deployment(true,{summary:{total:27,passed:26,failed:1}})]),'deploymentVerification').status,'PENDING');
 });
 
 test('cross-device requires same manifest identity and distinct human device labels',()=>{
