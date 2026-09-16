@@ -8,12 +8,20 @@ Repositório dedicado ao **HNK Oraculum Cube (HOC)**: protocolo computacional e 
 
 Status: `RELEASE_CANDIDATE` — ainda não `STABLE` e não implica promoção automática para `HNK_CANON`.
 
-Arquivos de release:
+Arquivos centrais da release:
 
-- `release/v1.0-rc1/RELEASE_MANIFEST.json`
-- `release/v1.0-rc1/OFFICIAL_VECTORS.json`
-- `release/v1.0-rc1/RELEASE_CHECKLIST.md`
-- `docs/PROTOCOL_MATRIX_V1_RC1.md`
+- `docs/MANUAL_V1_RC1.md` — manual operacional consolidado da RC1;
+- `docs/RC1_PRODUCTION_HARDENING.md` — revisão de payload/cache/headers/logging;
+- `release/v1.0-rc1/RELEASE_AUDIT_REPORT.md` — relatório humano de auditoria;
+- `release/v1.0-rc1/AUDIT_STATUS.json` — estado machine-readable dos gates;
+- `release/v1.0-rc1/RELEASE_MANIFEST.json`;
+- `release/v1.0-rc1/OFFICIAL_VECTORS.json`;
+- `release/v1.0-rc1/RELEASE_CHECKLIST.md`;
+- `docs/PROTOCOL_MATRIX_V1_RC1.md`.
+
+Princípio de auditoria:
+
+`IMPLEMENTADO ≠ INSTRUMENTADO ≠ EXECUTADO ≠ APROVADO`
 
 ## Escopo
 
@@ -26,6 +34,8 @@ Arquivos de release:
 - validação mecânica de estados 3×3 (`HOC-CUBE-LEGALITY/V0.8`);
 - prova procedural do modo `RITUAL_32` (`HOC-RITUAL-INTEGRITY/V0.9`);
 - manifesto determinístico e verificável de sessão (`HOC-SESSION-MANIFEST/V0.10`);
+- esteira de QA e Evidence Ledger da RC1;
+- hardening HTTP source-level para payload/cache/headers/logging;
 - documentação operacional e governança.
 
 ## Pipeline
@@ -51,35 +61,23 @@ V0.8 e V0.9 são gates físicos anteriores ao protocolo bruto. V0.10 é um envel
 
 ## Runtime QA da RC1
 
-Self-test protocol:
+Self-test protocol: `HOC-RC1-RUNTIME-SELFTEST/V1`
 
-`HOC-RC1-RUNTIME-SELFTEST/V1`
+Painel: `/oraculum/qa`
 
-Painel:
-
-`/oraculum/qa`
-
-API:
-
-`GET /api/oraculum/rc1-selftest`
+API: `GET /api/oraculum/rc1-selftest`
 
 O self-test executa no runtime Node os vetores congelados de RAW, interpretação, V0.8, V0.9, V0.10 e HNK40. Um PASS é evidência suplementar de consistência do runtime; não substitui CI, typecheck, build de produção ou QA físico.
 
 A tela também exporta `HOC-RC1-RUNTIME-QA-EVIDENCE/V1` para uso no Release Evidence Ledger.
 
-Documentação:
-
-`docs/RC1_RUNTIME_SELFTEST.md`
+Documentação: `docs/RC1_RUNTIME_SELFTEST.md`
 
 ## Physical QA da RC1
 
-Wizard:
+Wizard: `/oraculum/qa/physical`
 
-`/oraculum/qa/physical`
-
-API:
-
-`POST /api/oraculum/qa/physical`
+API: `POST /api/oraculum/qa/physical`
 
 Casos oficiais:
 
@@ -88,15 +86,11 @@ Casos oficiais:
 
 O RITUAL_32 não revela o estado esperado antes da avaliação. A API exige confirmação explícita de que a sequência foi transcrita de um cubo real. O resultado pode ser exportado como evidência JSON, mas esse arquivo não é uma assinatura criptográfica e não substitui CI/build.
 
-Documentação:
-
-`docs/RC1_PHYSICAL_QA.md`
+Documentação: `docs/RC1_PHYSICAL_QA.md`
 
 ## Camera / Device QA da RC1
 
-Painel:
-
-`/oraculum/qa/camera`
+Painel: `/oraculum/qa/camera`
 
 O painel registra evidência do dispositivo real sem persistir imagens. Ele verifica secure context, `getUserMedia`, permissão, resolução do vídeo, captura de U/R/F/D/L/B, protótipos de centro, contagens candidatas, confiança e células de baixa confiança.
 
@@ -104,19 +98,13 @@ O PASS completo exige também uma checklist humana observada no fluxo `/oraculum
 
 A evidência exportada exclui imagem, `deviceId` e localização. Camera QA continua não-autoritativo: classificação automática é apenas candidata.
 
-Documentação:
-
-`docs/RC1_CAMERA_QA.md`
+Documentação: `docs/RC1_CAMERA_QA.md`
 
 ## Release Evidence Ledger
 
-Painel:
+Painel: `/oraculum/qa/evidence`
 
-`/oraculum/qa/evidence`
-
-Protocolo de agregação:
-
-`HOC-RC1-EVIDENCE-LEDGER/V1`
+Protocolo de agregação: `HOC-RC1-EVIDENCE-LEDGER/V1`
 
 O ledger importa localmente evidências JSON de runtime, Physical QA, Camera/Device QA e verificações de manifesto. Ele apresenta cada gate como `PASS`, `PENDING` ou `BLOCKED` e pode exportar um pacote consolidado `HOC-RC1-RELEASE-EVIDENCE-LEDGER/V1`.
 
@@ -124,23 +112,15 @@ Cross-device só recebe PASS quando o mesmo `sessionId` e checksum V0.10 forem v
 
 O gate de CI/build permanece `BLOCKED` enquanto a Issue #6 continuar encerrando jobs do GitHub Actions com `steps=null`. Evidência local não pode promover esse gate.
 
-Documentação:
-
-`docs/RC1_EVIDENCE_LEDGER.md`
+Documentação: `docs/RC1_EVIDENCE_LEDGER.md`
 
 ## Verificação de manifesto
 
-Interface:
+Interface: `/oraculum/verify`
 
-`/oraculum/verify`
+API: `POST /api/oraculum/manifest/verify`
 
-API:
-
-`POST /api/oraculum/manifest/verify`
-
-Canonicalização:
-
-`HOC-CANONICAL-JSON/V1`
+Canonicalização: `HOC-CANONICAL-JSON/V1`
 
 Cada manifesto válido possui:
 
@@ -151,6 +131,25 @@ Cada manifesto válido possui:
 - outputs, provenance, sigilo, interpretação e Malkuth.
 
 Após uma verificação, a interface pode exportar `HOC-RC1-MANIFEST-VERIFY-EVIDENCE/V1` com `sessionId`, checksum e label humano do dispositivo, sem incluir o corpo do manifesto.
+
+## Production hardening RC1
+
+A camada source-level de hardening adiciona:
+
+- JSON bounded parsing;
+- limites: Oraculum 32 KiB, Physical QA 16 KiB, Manifest Verify 512 KiB;
+- request-shape guard antes do engine;
+- `Cache-Control: no-store` / `Pragma: no-cache` para HOC APIs;
+- headers `nosniff`, frame deny, no-referrer, COOP e Permissions Policy;
+- `camera=(self)` com microfone/geolocalização desabilitados;
+- contrato que impede `console.*` nas rotas HOC protegidas.
+
+Status correto:
+
+- source hardening: `PASS`;
+- deployed/runtime hardening verification: `PENDING`, dependente de build/deploy real.
+
+Documentação: `docs/RC1_PRODUCTION_HARDENING.md`
 
 ## Comandos RC1
 
@@ -167,22 +166,41 @@ Bundle portátil de QA:
 pnpm bundle:rc1
 ```
 
-Saída esperada:
-
-`dist/HOC-V1.0-RC1-QA/`
+Saída esperada: `dist/HOC-V1.0-RC1-QA/`
 
 O bundle inclui `SHA256SUMS.txt` para verificar os arquivos copiados.
+
+## Estado de auditoria
+
+Consulte:
+
+- `release/v1.0-rc1/RELEASE_AUDIT_REPORT.md`
+- `release/v1.0-rc1/AUDIT_STATUS.json`
+
+Na RC1 atual:
+
+- protocolo e vetores: congelados;
+- QA: instrumentado;
+- source hardening: implementado e travado por contrato;
+- Markdown final: reconciliado;
+- execução real de hardware/cross-device: ainda pendente;
+- deployed headers/log-retention: pendente;
+- CI/typecheck/build: bloqueado pela Issue #6 enquanto jobs chegam com `steps=null`;
+- DOCX/PDF visual final: pendente;
+- aprovação humana V1.0: pendente.
 
 ## Critério de promoção
 
 A RC1 só pode virar V1.0 final depois de:
 
 1. testes/typecheck/build executarem em runner real;
-2. QA físico STATE e RITUAL_32 passar;
-3. QA câmera mínimo passar ou ser explicitamente marcado experimental;
-4. manifesto baixado validar em outro dispositivo;
-5. manual final ser reconciliado com V0.8–V0.10;
-6. revisão humana autorizar a promoção.
+2. runtime self-test ser executado e preservado como evidência;
+3. QA físico STATE e RITUAL_32 passar;
+4. QA câmera mínimo passar ou ser explicitamente marcado experimental;
+5. manifesto V0.10 validar cross-device;
+6. hardening ser verificado no deploy real, incluindo headers e host logging/retention;
+7. DOCX/PDF final ser reconciliado com `docs/MANUAL_V1_RC1.md`;
+8. revisão humana autorizar a promoção.
 
 Consulte `release/v1.0-rc1/RELEASE_CHECKLIST.md`.
 

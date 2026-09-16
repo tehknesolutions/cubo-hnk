@@ -1,0 +1,51 @@
+{
+  "auditVersion": "HOC-V1.0-RC1-AUDIT/V1",
+  "releaseId": "HOC-V1.0-RC1",
+  "packageVersion": "1.0.0-rc.1",
+  "overallStatus": "NOT_READY_FOR_STABLE",
+  "governance": {
+    "releaseStatus": "RELEASE_CANDIDATE",
+    "stable": false,
+    "hnkCanonPromoted": false
+  },
+  "protocols": {
+    "scan": "HOC-FACELET-SCAN-V1",
+    "raw": "HNK-ORACULUM-CUBE/V0.4",
+    "interpretation": "0.5.0-candidate",
+    "legality": "HOC-CUBE-LEGALITY/V0.8",
+    "ritual": "HOC-RITUAL-INTEGRITY/V0.9",
+    "manifest": "HOC-SESSION-MANIFEST/V0.10",
+    "canonicalJson": "HOC-CANONICAL-JSON/V1",
+    "runtimeSelfTest": "HOC-RC1-RUNTIME-SELFTEST/V1",
+    "evidenceLedger": "HOC-RC1-EVIDENCE-LEDGER/V1"
+  },
+  "gates": [
+    {"id":"protocolFreeze","status":"PASS","level":"IMPLEMENTED"},
+    {"id":"runtimeSelfTest","status":"PENDING","level":"INSTRUMENTED","reason":"execution evidence still required in accepted runtime"},
+    {"id":"physicalState","status":"PENDING","level":"INSTRUMENTED","reason":"real physical-cube evidence not yet recorded"},
+    {"id":"physicalRitual32","status":"PENDING","level":"INSTRUMENTED","reason":"real physical-cube evidence not yet recorded"},
+    {"id":"cameraDevice","status":"PENDING","level":"INSTRUMENTED","reason":"real target-device evidence not yet recorded"},
+    {"id":"manifestCrossDevice","status":"PENDING","level":"INSTRUMENTED","reason":"two distinct labeled environment evidences not yet recorded"},
+    {"id":"productionHardeningSource","status":"PASS","level":"IMPLEMENTED","artifact":"docs/RC1_PRODUCTION_HARDENING.md"},
+    {"id":"productionHardeningRuntime","status":"PENDING","level":"NOT_BUILD_VERIFIED","reason":"deployed headers/log-retention/build behavior still requires a real deployment/runtime"},
+    {"id":"ciTypecheckBuild","status":"BLOCKED","level":"CONFIGURED","reason":"GitHub Issue #6: validate jobs terminate with steps=null before command execution"},
+    {"id":"markdownManual","status":"PASS","level":"IMPLEMENTED","artifact":"docs/MANUAL_V1_RC1.md"},
+    {"id":"docxPdfManual","status":"PENDING","level":"NOT_RECONCILED","reason":"visual artifacts have not yet been regenerated against RC1"},
+    {"id":"humanPromotion","status":"PENDING","level":"NOT_APPROVED","reason":"explicit V1.0 promotion approval not given"}
+  ],
+  "blockers": [
+    "CI/typecheck/build execution unavailable because GitHub Actions jobs terminate before steps",
+    "required real physical/device/cross-device evidence not yet recorded",
+    "deployed production headers/log-retention behavior not yet runtime-verified",
+    "DOCX/PDF final manual not yet reconciled",
+    "human V1.0 promotion approval pending"
+  ],
+  "sourceDocuments": [
+    "docs/MANUAL_V1_RC1.md",
+    "docs/RC1_PRODUCTION_HARDENING.md",
+    "release/v1.0-rc1/RELEASE_AUDIT_REPORT.md",
+    "release/v1.0-rc1/RELEASE_CHECKLIST.md",
+    "release/v1.0-rc1/RELEASE_MANIFEST.json",
+    "release/v1.0-rc1/OFFICIAL_VECTORS.json"
+  ]
+}

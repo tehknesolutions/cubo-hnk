@@ -35,19 +35,28 @@ Nenhum item pendente deve ser reinterpretado como aprovado. A promoção para V1
 - [ ] `pnpm --filter @hnk/cubo-web build` PASS.
 - [ ] Nenhum warning de build que altere comportamento de runtime.
 
-Estado conhecido na criação da RC1: GitHub Actions vinha encerrando jobs com `steps=null`; isso é bloqueio de infraestrutura, não evidência de PASS ou FAIL do código.
+Estado conhecido na RC1: GitHub Actions continua encerrando jobs com `steps=null`; isso é bloqueio de infraestrutura registrado na Issue #6, não evidência de PASS ou FAIL do código.
 
-## D. QA físico manual
+## D. Runtime QA
+
+- [x] `HOC-RC1-RUNTIME-SELFTEST/V1` implementado.
+- [x] Painel `/oraculum/qa` implementado.
+- [x] Export `HOC-RC1-RUNTIME-QA-EVIDENCE/V1` implementado.
+- [ ] Runtime self-test executado em ambiente aceito para promoção e evidência PASS preservada.
+
+## E. QA físico manual
 
 ### STATE
 
-- [ ] Cubo resolvido digitado manualmente é aceito pela V0.8.
+- [x] Wizard `/oraculum/qa/physical` implementado.
+- [ ] Cubo resolvido transcrito de hardware real é aceito pela V0.8.
 - [ ] Estado legal embaralhado digitado manualmente é aceito.
 - [ ] Uma aresta artificialmente invertida é bloqueada.
 - [ ] Um canto artificialmente torcido é bloqueado.
 - [ ] Estado com paridade impossível é bloqueado.
 - [ ] Consulta válida gera manifesto V0.10.
 - [ ] Manifesto baixado valida em `/oraculum/verify`.
+- [ ] Evidência `HOC-RC1-PHYSICAL-QA-EVIDENCE/V1` de STATE PASS preservada.
 
 ### RITUAL_32
 
@@ -57,9 +66,12 @@ Estado conhecido na criação da RC1: GitHub Actions vinha encerrando jobs com `
 - [ ] Alterar uma casa do final produz `FINAL_STATE_MISMATCH` ou ilegalidade.
 - [ ] Manifesto RITUAL_32 registra initial/expected/reported final.
 - [ ] Manifesto RITUAL_32 salvo valida novamente.
+- [ ] Evidência `HOC-RC1-PHYSICAL-QA-EVIDENCE/V1` de RITUAL32 PASS preservada.
 
-## E. QA câmera
+## F. QA câmera / dispositivo
 
+- [x] Painel `/oraculum/qa/camera` implementado.
+- [x] Evidência `HOC-RC1-CAMERA-QA-EVIDENCE/V1` implementada.
 - [ ] Permissão de câmera funciona em dispositivo móvel compatível.
 - [ ] U/R/F/D/L/B são capturadas na orientação oficial.
 - [ ] Centros geram protótipos cromáticos corretos.
@@ -69,48 +81,78 @@ Estado conhecido na criação da RC1: GitHub Actions vinha encerrando jobs com `
 - [ ] STATE via câmera passa V0.8.
 - [ ] RITUAL_32 via câmera exige revisão humana inicial e final.
 - [ ] Manifesto via câmera pode ser baixado e revalidado.
+- [ ] Camera QA PASS real preservado ou câmera explicitamente marcada experimental antes da promoção.
 
-## F. Cross-device QA
+## G. Cross-device QA
 
-- [ ] Desktop Chromium.
-- [ ] Android Chromium.
+- [x] Export `HOC-RC1-MANIFEST-VERIFY-EVIDENCE/V1` implementado.
+- [x] Evidence Ledger `/oraculum/qa/evidence` implementado.
+- [x] Regra cross-device exige mesmo `sessionId` + checksum + labels distintos.
+- [ ] Desktop Chromium validado.
+- [ ] Android Chromium validado.
 - [ ] iOS/Safari quando disponível.
 - [ ] Layout sem clipping nas seis faces.
 - [ ] JSON manifest download funciona.
 - [ ] Verificador aceita arquivo exportado em outro dispositivo.
 - [ ] Mesma consulta canônica produz mesmo RAW seed e mesmo V0.10 checksum.
+- [ ] Duas evidências válidas distintas satisfazem o gate `manifestCrossDevice` no ledger.
 
-## G. Security / integrity review
+## H. Security / integrity review
 
 - [x] SHA-256 RAW calculado server-side.
 - [x] V0.10 checksum recalculado server-side no verificador.
 - [x] Falha V0.8 retorna sem manifesto.
 - [x] Falha V0.9 retorna sem manifesto.
 - [x] Camera image não recebe autoridade protocolar.
-- [ ] Revisar limites de tamanho do JSON na API de verificação.
-- [ ] Revisar headers/cache antes de produção pública.
-- [ ] Revisar logging para não persistir imagens ou dados não necessários.
+- [x] Camera QA evidence exclui imagem, `deviceId` e localização.
+- [x] Manifest verify evidence exclui o corpo do manifesto, `deviceId` e geolocalização.
+- [x] Limites de payload implementados: Oraculum 32 KiB, Physical QA 16 KiB, Manifest Verify 512 KiB.
+- [x] Cache source policy implementada: HOC APIs `no-store` + `Pragma: no-cache`.
+- [x] Headers defensivos source-level implementados em `next.config.ts`.
+- [x] Logging source review fechado: rotas HOC protegidas sem `console.*` de payload/manifesto.
+- [x] Contract test `production-hardening-contract.test.mjs` adicionado.
+- [ ] Confirmar headers reais no deployment/build final.
+- [ ] Revisar access logs/retention do host de produção.
+- [ ] Definir rate-limit/abuse strategy se a API ficar pública em escala.
+- [ ] Avaliar CSP após existir build/deploy verificável.
 
-## H. Documentation
+Documentação: `docs/RC1_PRODUCTION_HARDENING.md`.
 
-- [x] Manual de cubo real.
-- [x] Addendum V0.8.
-- [x] Addendum V0.9.
-- [x] Addendum V0.10.
+## I. Documentation
+
+- [x] Manual base de cubo real preservado.
+- [x] Addendum V0.8 preservado.
+- [x] Addendum V0.9 preservado.
+- [x] Addendum V0.10 preservado.
 - [x] Matriz de protocolos RC1.
+- [x] Runtime QA documentado.
+- [x] Physical QA documentado.
+- [x] Camera QA documentado.
+- [x] Evidence Ledger documentado.
+- [x] Production Hardening documentado.
+- [x] Manual Markdown consolidado: `docs/MANUAL_V1_RC1.md`.
+- [x] Release Audit Report: `release/v1.0-rc1/RELEASE_AUDIT_REPORT.md`.
+- [x] Audit status machine-readable: `release/v1.0-rc1/AUDIT_STATUS.json`.
 - [x] Release manifest machine-readable.
 - [x] Official vectors machine-readable.
-- [ ] Manual DOCX/PDF deve ser reconciliado com V0.8–V0.10 antes de V1.0 final.
+- [ ] Manual DOCX/PDF visual deve ser regenerado/reconciliado contra `MANUAL_V1_RC1.md` antes de V1.0 final.
 
-## I. Promotion gate
+## J. Promotion gate
 
 V1.0 final só pode ser marcada quando:
 
 1. todas as validações automatizadas C estiverem verdes em executor real;
-2. QA físico STATE e RITUAL_32 estiver fechado;
-3. QA câmera mínimo estiver fechado ou câmera for explicitamente marcada experimental;
-4. manual final estiver reconciliado;
-5. diff RC1 → V1.0 não alterar contratos congelados sem nova revisão;
-6. revisão humana autorizar promoção.
+2. runtime self-test executado e preservado como evidência;
+3. QA físico STATE e RITUAL_32 estiver fechado;
+4. QA câmera mínimo estiver fechado ou câmera for explicitamente marcada experimental;
+5. cross-device Manifest V0.10 estiver fechado;
+6. DOCX/PDF final estiver reconciliado com o manual Markdown RC1;
+7. deployed headers/log-retention e abuso/rate-limit estiverem revisados para o ambiente de produção escolhido;
+8. diff RC1 → V1.0 não alterar contratos congelados sem nova revisão;
+9. revisão humana autorizar promoção.
 
 Até lá: `RELEASE_CANDIDATE`, não `STABLE`, não `HNK_CANON`.
+
+Princípio de auditoria RC1:
+
+`IMPLEMENTADO ≠ INSTRUMENTADO ≠ EXECUTADO ≠ APROVADO`.

@@ -1,16 +1,18 @@
-import { NextResponse } from 'next/server';
 import { runOracle } from '@hnk/oraculum-engine';
 import { analyzeCubeLegality } from '@hnk/oraculum-engine/legality';
 import { analyzeRitualIntegrity } from '@hnk/oraculum-engine/ritual';
 import { RC1_QA_VECTORS, RC1_RELEASE_ID } from '@hnk/oraculum-engine/selftest';
+import {hocErrorStatus,hocJson,readBoundedJson} from '../../../../../lib/oraculum-http';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 
 const PHYSICAL_QA_VERSION='HOC-RC1-PHYSICAL-QA/V1';
+const MAX_PHYSICAL_QA_PAYLOAD_BYTES=16*1024;
 const FACE_ORDER=['U','R','F','D','L','B'] as const;
 
 type CaseId='STATE_SOLVED'|'RITUAL32_OFFICIAL';
+type PhysicalQaRequest={caseId?:unknown;cubeState?:unknown;physicalTranscriptionConfirmed?:unknown};
 
 function compact(value:unknown){
   return String(value??'').replace(/\s+/gu,'');
@@ -38,12 +40,12 @@ function mismatchReport(expected:string,actual:string){
 
 export async function POST(request:Request){
   try{
-    const body=await request.json();
+    const body=await readBoundedJson<PhysicalQaRequest>(request,MAX_PHYSICAL_QA_PAYLOAD_BYTES);
     const caseId=body.caseId as CaseId;
     const actualState=compact(body.cubeState);
 
     if(body.physicalTranscriptionConfirmed!==true){
-      return NextResponse.json({
+      return hocJson({
         ok:false,
         error:'Confirme que a entrada foi transcrita de um cubo físico real antes de registrar este QA.',
         code:'PHYSICAL_CONFIRMATION_REQUIRED',
@@ -62,7 +64,7 @@ export async function POST(request:Request){
       }
       const mismatches=mismatchReport(vector.cubeState,actualState);
       const passed=legality.valid&&mismatches.length===0&&rawSeed256===vector.seed256&&rawCommit===vector.commit;
-      return NextResponse.json({
+      return hocJson({
         ok:true,
         report:{
           version:PHYSICAL_QA_VERSION,
@@ -89,7 +91,7 @@ export async function POST(request:Request){
       });
       const mismatches=mismatchReport(vector.expectedFinalState,actualState);
       const passed=legality.valid&&ritualIntegrity.valid&&ritualIntegrity.integrityConfirmed===true&&mismatches.length===0;
-      return NextResponse.json({
+      return hocJson({
         ok:true,
         report:{
           version:PHYSICAL_QA_VERSION,
@@ -108,8 +110,8 @@ export async function POST(request:Request){
       },{status:passed?200:422});
     }
 
-    return NextResponse.json({ok:false,error:'Caso de QA físico desconhecido.',code:'UNKNOWN_QA_CASE'},{status:400});
+    return hocJson({ok:false,error:'Caso de QA físico desconhecido.',code:'UNKNOWN_QA_CASE'},{status:400});
   }catch(error){
-    return NextResponse.json({ok:false,error:error instanceof Error?error.message:'Falha desconhecida no QA físico.'},{status:400});
+    return hocJson({ok:false,error:error instanceof Error?error.message:'Falha desconhecida no QA físico.'},{status:hocErrorStatus(error,400)});
   }
 }
