@@ -1,0 +1,14 @@
+{
+  "version": "HOC-RC1-BUILD-PROVENANCE-SCOPE/V1",
+  "releaseId": "HOC-V1.0-RC1",
+  "buildProvenance": "HOC-RC1-BUILD-PROVENANCE/V1",
+  "entersReleaseFingerprint": false,
+  "promotesStable": false,
+  "promotesHnkCanon": false,
+  "replacesGitHubCI": false,
+  "scope": [
+    "runtime commit/ref/deployment metadata",
+    "optional deployment commit pinning",
+    "evidence ledger provenance validation"
+  ]
+}
