@@ -22,13 +22,15 @@
     "promotionPlanFingerprint": "HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1",
     "technicalExecutionAuthorization": "HOC-RC1-TECHNICAL-EXECUTION-AUTHORIZATION/V1",
     "preMutationGuard": "HOC-RC1-PRE-MUTATION-GUARD/V1",
+    "technicalMutationReceipt": "HOC-RC1-TECHNICAL-MUTATION-RECEIPT/V1",
     "entersReleaseFingerprint": false,
     "buildProvenanceAuthority": "BUILD_PROVENANCE_METADATA_NOT_RELEASE_IDENTITY",
     "promotionReadinessAuthority": "READINESS_ASSESSMENT_NOT_PROMOTION_AUTHORITY",
     "humanDecisionAuthority": "HUMAN_DECISION_RECORD_NOT_EXECUTION_AUTHORITY",
     "promotionExecutionPlanAuthority": "PROMOTION_EXECUTION_PLAN_NOT_EXECUTION_AUTHORITY",
     "technicalExecutionAuthorizationAuthority": "TECHNICAL_EXECUTION_AUTHORIZATION_RECORD_NOT_EXECUTOR",
-    "preMutationGuardAuthority": "PRE_MUTATION_GUARD_DECISION_NOT_ACTION_EXECUTOR"
+    "preMutationGuardAuthority": "PRE_MUTATION_GUARD_DECISION_NOT_ACTION_EXECUTOR",
+    "technicalMutationReceiptAuthority": "MUTATION_RECEIPT_RECORD_NOT_EXECUTION_PROOF"
   },
   "packages": {
     "workspace": "1.0.0-rc.1",
@@ -55,7 +57,8 @@
     "promotionReadiness": ["EVIDENCE_LEDGER_V1", "MANDATORY_GATE_MATRIX", "HUMAN_PROMOTION_DECISION_V1"],
     "promotionExecutionPlanning": ["HUMAN_PROMOTION_DECISION_V1_APPROVE", "STACK_LANDING_PARENT_FIRST", "PROMOTION_PLAN_FINGERPRINT_V1", "DRY_RUN_ONLY"],
     "technicalExecutionAuthorization": ["VALID_PROMOTION_PLAN_FINGERPRINT", "STEP_SCOPED_AUTHORIZATION", "EXPLICIT_STABLE_ACK", "EXPLICIT_PRODUCTION_ACK", "NO_AUTOMATIC_EXECUTION"],
-    "preMutationGuard": ["VALID_PLAN_FINGERPRINT", "VALID_STEP_SCOPED_AUTHORIZATION", "STRICT_COMPLETED_PREFIX", "EXACT_NEXT_STEP", "ALLOW_OR_DENY_ONLY"]
+    "preMutationGuard": ["VALID_PLAN_FINGERPRINT", "VALID_STEP_SCOPED_AUTHORIZATION", "STRICT_COMPLETED_PREFIX", "EXACT_NEXT_STEP", "ALLOW_OR_DENY_ONLY"],
+    "technicalMutationReceipt": ["MATCHING_GUARD_ALLOW", "MATCHING_PLAN_FINGERPRINT", "MATCHING_AUTHORIZATION_ID", "EXTERNAL_REPORTED_RESULT", "UNVERIFIED_EXTERNAL_RESULT", "NO_PREFIX_ADVANCE"]
   },
   "releaseGuarantees": [
     "RAW V0.4 seed construction is unchanged",
@@ -70,7 +73,8 @@
     "human APPROVE/DEFER/REJECT can be recorded without executing merge, deployment, version changes or HNK_CANON promotion",
     "an approved human decision can produce a DRY_RUN_ONLY promotion plan whose exact operational content is bound by a separate plan fingerprint",
     "technical execution authorization is restricted to explicitly listed plan step IDs and requires extra acknowledgement for stable or production phases",
-    "the Pre-Mutation Guard requires a valid completed-step prefix and only ALLOWs the exact next authorized step on the exact fingerprinted plan"
+    "the Pre-Mutation Guard requires a valid completed-step prefix and only ALLOWs the exact next authorized step on the exact fingerprinted plan",
+    "Technical Mutation Receipt can record a matching externally reported outcome but SUCCESS remains unverified and cannot advance completed-step state without future evidence verification"
   ],
   "nonGuarantees": [
     "No claim of supernatural certainty or infallible prediction",
@@ -83,6 +87,7 @@
     "An APPROVE_V1_0 decision record documents approval but does not itself execute technical promotion",
     "A Promotion Execution Plan is a non-executable runbook and does not itself authorize any technical action",
     "A Technical Execution Authorization record does not execute shell commands, GitHub mutations, Vercel deployment or HNK_CANON promotion; it only documents authority for listed plan steps",
-    "An ALLOW decision from Pre-Mutation Guard does not execute the action and must be revalidated by the future executor immediately before mutation"
+    "An ALLOW decision from Pre-Mutation Guard does not execute the action and must be revalidated by the future executor immediately before mutation",
+    "A SUCCESS Technical Mutation Receipt is not execution proof, does not verify external evidence and does not advance the completed-step prefix"
   ]
 }
