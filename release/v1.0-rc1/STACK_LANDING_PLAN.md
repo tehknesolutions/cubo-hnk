@@ -1,6 +1,6 @@
 # HOC V1.0 RC1 — Stack Landing Plan
 
-Plan: `HOC-V1.0-RC1-STACK-LANDING/V5`
+Plan: `HOC-V1.0-RC1-STACK-LANDING/V6`
 
 Estado atual:
 
@@ -12,7 +12,7 @@ Este documento organiza a sequência dos PRs empilhados. Ele **não autoriza mer
 
 A cadeia é linear:
 
-`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21 → #22 → #23`
+`#1 → #2 → #3 → #4 → #5 → #7 → #8 → #9 → #10 → #11 → #12 → #13 → #14 → #15 → #16 → #17 → #18 → #19 → #20 → #21 → #22 → #23 → #24`
 
 Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que rastreia o bloqueio GitHub Actions.
 
@@ -42,40 +42,56 @@ Não existe PR #6 nesta cadeia. O número #6 é a Issue de infraestrutura que ra
 | 20 | #21 | `docs/v1-rc1-stack-landing-v2` | `infra/actions-recovery-controls` | controles manuais de recuperação do Actions |
 | 21 | #22 | `infra/actions-recovery-controls` | `feat/v1-rc1-vercel-preview-bootstrap` | bootstrap preview-only da Vercel |
 | 22 | #23 | `feat/v1-rc1-vercel-preview-bootstrap` | `feat/v1-rc1-release-attestation` | identidade determinística da RC1 e gate de deployment |
+| 23 | #24 | `feat/v1-rc1-release-attestation` | `feat/v1-rc1-build-provenance` | proveniência de build e pin opcional de commit |
 
 ## GitHub Actions
 
 O PR #19 localizou o blocker antes do primeiro step em `ubuntu-latest` e `windows-latest`. O PR #21 encerrou probes automáticos redundantes e deixou diagnóstico/CI com gatilhos manuais de recuperação.
 
+No PR #24 o run `35102136774`, job `104813941834`, repetiu `steps=null` / sem logs. Portanto nenhum teste/build do PR #24 foi executado no Actions.
+
 O gate oficial de CI continua `BLOCKED`; diagnóstico ou configuração de recuperação não equivalem a PASS.
 
 ## Preview Vercel
 
-O PR #22 prepara o caminho de preview sem publicar produção:
-
-- `apps/web/vercel.json` define Next.js;
-- install/build sobem para a raiz do workspace para resolver `workspace:*`;
-- `pnpm preview:preflight` valida estrutura/configuração;
-- Root Directory esperado: `apps/web`;
-- comandos de produção permanecem fora do bootstrap RC1.
-
-A conta Vercel conectada ainda não possui projeto `cubo-hnk`; o deployment verifier permanece PENDING até existir uma URL real aprovada.
+O PR #22 prepara o caminho de preview sem publicar produção e mantém o deployment verifier PENDING até existir uma URL real aprovada.
 
 ## Release Attestation V1
 
-O PR #23 acrescenta uma identidade determinística do runtime RC1:
+O PR #23 congela:
 
 `HOC-RC1-RELEASE-ATTESTATION/V1`
 
-Fingerprint congelado:
+Fingerprint:
 
 `08e003a28185fcd31a806549588547994bcc3075a256bc6cbe6d79d9558f3e90`
 
-A atestação liga release/package, protocolos congelados, vetores oficiais e hash estrutural HNK40. O endpoint `/api/oraculum/release` falha fechado se o fingerprint calculado divergir.
-
-O deployment verifier passa a exigir a atestação antes do self-test/oracle, e o Evidence Ledger rejeita deployment evidence com versão/fingerprint divergente.
-
 Esse fingerprint prova identidade do contrato RC1 servido, não stable, CI, Physical QA ou `HNK_CANON`.
+
+## Build Provenance V1
+
+O PR #24 acrescenta:
+
+`HOC-RC1-BUILD-PROVENANCE/V1`
+
+Essa camada responde “de qual build veio esta RC1?” sem alterar a pergunta “esta é a RC1 congelada?”.
+
+A proveniência pode registrar provider, environment, deployment ID, Git ref e Git SHA. Ela é:
+
+`RUNTIME_ENV_METADATA_UNHASHED`
+
+com autoridade:
+
+`BUILD_PROVENANCE_METADATA_NOT_RELEASE_IDENTITY`
+
+Logo:
+
+- não entra no fingerprint RC1;
+- não promove stable;
+- não promove `HNK_CANON`;
+- não substitui GitHub CI.
+
+O deployment verifier aceita `--commit <sha-prefix>` / `HOC_EXPECTED_COMMIT`; quando fornecido, a evidência só passa se o runtime declarar um commit compatível. Sem commit esperado, o pinning fica `NOT_REQUESTED` e a proveniência ainda é registrada.
 
 ## Regra parent-first
 
@@ -105,13 +121,11 @@ Pode produzir install/test/typecheck/build/self-test reais em outra máquina, ma
 
 ### Deployment runtime
 
-`pnpm verify:rc1:deployment -- --url <URL>`
+`pnpm verify:rc1:deployment -- --url <URL> [--commit <sha-prefix>]`
 
-Agora exige Release Attestation V1 válida e depois comprova self-test, headers, seed dourado e manifesto no host. Continua sem substituir CI nem Physical QA.
+Exige Release Attestation V1 + Build Provenance V1 e depois verifica self-test, headers, seed dourado e manifesto. Continua sem substituir CI nem Physical QA.
 
 ## Gates de stable continuam separados
-
-Mesmo que a stack RC1 seja futuramente aterrissada como código de release candidate, isso não equivale à promoção V1.0 estável.
 
 Continuam independentes:
 
@@ -120,7 +134,7 @@ Continuam independentes:
 - Physical RITUAL_32;
 - Camera/Device QA ou downgrade experimental explícito;
 - Manifest V0.10 cross-device;
-- deployment runtime verification com fingerprint RC1 correto;
+- deployment runtime verification com fingerprint/proveniência corretos;
 - host logging/retention e estratégia de abuso/rate limit;
 - GitHub CI/typecheck/build;
 - aprovação humana V1.0.
@@ -137,10 +151,11 @@ Machine-readable:
 
 `release/v1.0-rc1/STACK_LANDING_PLAN.json`
 
-Release identity:
+Release identity / provenance:
 
 - `release/v1.0-rc1/RELEASE_MANIFEST.json`
 - `docs/RC1_RELEASE_ATTESTATION.md`
+- `docs/RC1_BUILD_PROVENANCE.md`
 
 Diagnóstico/recuperação de Actions:
 
