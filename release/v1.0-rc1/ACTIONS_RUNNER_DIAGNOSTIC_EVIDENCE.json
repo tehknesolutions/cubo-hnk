@@ -1,0 +1,76 @@
+{
+  "evidenceVersion": "HOC-RC1-ACTIONS-RUNNER-DIAGNOSTIC/V1",
+  "releaseId": "HOC-V1.0-RC1",
+  "repository": "tehknesolutions/cubo-hnk",
+  "diagnosticPr": 19,
+  "headSha": "6783013a6e3b0b9db133d39959f820913e40010f",
+  "diagnosticWorkflow": {
+    "name": "Actions Runner Diagnostic",
+    "path": ".github/workflows/actions-runner-diagnostic.yml",
+    "runId": 35036398248,
+    "conclusion": "failure",
+    "createdAtUtc": "2026-09-15T23:36:10Z",
+    "updatedAtUtc": "2026-09-15T23:36:14Z",
+    "jobs": [
+      {
+        "id": 104606368822,
+        "name": "ubuntu-probe",
+        "runnerLabel": "ubuntu-latest",
+        "status": "completed",
+        "conclusion": "failure",
+        "steps": null,
+        "logsUrl": null
+      },
+      {
+        "id": 104606368640,
+        "name": "windows-probe",
+        "runnerLabel": "windows-latest",
+        "status": "completed",
+        "conclusion": "failure",
+        "steps": null,
+        "logsUrl": null
+      }
+    ]
+  },
+  "parallelMainWorkflow": {
+    "name": "Cubo HNK CI",
+    "runId": 35036398152,
+    "jobs": [
+      {
+        "id": 104606368616,
+        "name": "validate",
+        "status": "completed",
+        "conclusion": "failure",
+        "steps": null,
+        "logsUrl": null
+      }
+    ]
+  },
+  "diagnosticIsolation": {
+    "usesCheckout": false,
+    "usesThirdPartyActions": false,
+    "usesPnpm": false,
+    "usesNodeSetup": false,
+    "usesSecrets": false,
+    "readsRepositoryFilesInsideJob": false,
+    "onlyLocalShellEcho": true,
+    "runnerLabelsTested": ["ubuntu-latest", "windows-latest"]
+  },
+  "conclusion": {
+    "classification": "PRE_STEP_RUNNER_DISPATCH_OR_PROVISIONING_FAILURE",
+    "projectWorkflowOrApplicationCause": "NOT_SUPPORTED_BY_EVIDENCE",
+    "ubuntuOnlyCause": "NOT_SUPPORTED_BY_EVIDENCE",
+    "reasoning": "Both zero-dependency GitHub-hosted runner jobs were created and completed as failure with steps=null and logs_url=null before their single local probe step could execute. The parallel product CI job showed the same signature."
+  },
+  "accountChecksStillRequired": [
+    "Repository/account Settings -> Actions -> General policy and allowed actions/runners",
+    "Settings -> Billing & licensing -> Budgets and alerts / Actions spending controls",
+    "GitHub Support server-side runner provisioning or entitlement state"
+  ],
+  "governance": {
+    "productCiPass": false,
+    "mergeAuthorized": false,
+    "stablePromotionAuthorized": false,
+    "hnkCanonPromotionAuthorized": false
+  }
+}
