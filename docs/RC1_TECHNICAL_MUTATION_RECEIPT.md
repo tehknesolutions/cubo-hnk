@@ -6,9 +6,33 @@ Authority: `MUTATION_RECEIPT_RECORD_NOT_EXECUTION_PROOF`
 
 ## Purpose
 
-This contract records the outcome reported by an external/manual executor after a valid Pre-Mutation Guard `ALLOW`. It does not execute the action and does not independently verify that the action occurred.
+This contract records the outcome reported by an external/manual executor after a valid Pre-Mutation Guard V2 `ALLOW`. It does not execute the action and does not independently verify that the action occurred.
 
-A receipt binds the reported outcome to the exact Promotion Execution Plan fingerprint, Technical Execution Authorization ID, Pre-Mutation Guard `ALLOW / AUTHORIZED_NEXT_STEP` decision and runbook step ID.
+The receipt now binds the reported outcome to:
+
+- exact Promotion Execution Plan fingerprint;
+- Technical Execution Authorization ID;
+- Guard V2 `ALLOW / AUTHORIZED_NEXT_STEP` decision;
+- Guard V2 fingerprint;
+- exact Completed Prefix State fingerprint consumed by the guard;
+- source Stack Landing version;
+- exact runbook step ID.
+
+A receipt cannot silently discard the logical-state context under which the action was authorized.
+
+## Guard V2 requirement
+
+Receipt generation requires:
+
+`HOC-RC1-PRE-MUTATION-GUARD/V2`
+
+and validates:
+
+`HOC-RC1-PRE-MUTATION-GUARD-FINGERPRINT/V1`
+
+The complete guard snapshot is stored inside `preMutationGuard`, including `completedPrefixStateFingerprint` and `guardFingerprint`.
+
+Changing a bound guard field invalidates receipt inspection.
 
 ## Results
 
@@ -31,7 +55,7 @@ Every receipt freezes:
 
 ## SUCCESS evidence rule
 
-A reported `SUCCESS` requires at least one external evidence reference. Evidence references require a non-empty `kind` and `value`; optional `sha256` must be 64 lowercase hex characters. The recorder validates shape only — it does not fetch or independently verify the reference.
+A reported `SUCCESS` requires at least one external evidence reference. Optional `sha256` must be 64 lowercase hex characters. The recorder validates shape only and does not independently verify the external reference.
 
 `FAILED` and `CANCELLED` may be recorded without success evidence.
 
@@ -57,28 +81,23 @@ Default output: `dist/HOC-RC1-TECHNICAL-MUTATION-RECEIPT.json`.
 
 ## Fail-closed rules
 
-Receipt generation rejects invalid plan fingerprint, invalid authorization, non-ALLOW guard, another plan/authorization, unauthorized step, unsupported result, missing operator/summary, invalid or reversed timestamps, SUCCESS without evidence, and malformed evidence/hash values.
+Generation rejects an invalid plan, authorization, Guard V2 fingerprint, Completed Prefix State fingerprint binding, plan/authorization mismatch, unsupported result, malformed chronology or malformed evidence.
 
 ## Why receipt does not advance the prefix
 
-The completed-step prefix controls what Pre-Mutation Guard can consider next. A locally generated JSON cannot safely advance it merely because somebody typed `SUCCESS`.
+The completed-step prefix controls which step Guard V2 may consider next. A reported `SUCCESS` is not enough to advance that security-sensitive state.
 
-Therefore every receipt freezes `advancesCompletedPrefix=false`. A separate independent evidence-verification layer must validate the external result before a successful receipt can become trusted completed-step evidence.
-
-## Current Stack V12
-
-`HOC-V1.0-RC1-STACK-LANDING/V12` includes PR #30 as order 29. The Promotion Execution Plan derived from V12 contains 29 PR landing steps and 37 total dry-run steps.
+Every receipt therefore keeps `advancesCompletedPrefix=false`. Mutation Evidence Verification and Completed-Prefix State Transition remain separate downstream layers.
 
 ## Pipeline
 
 ```text
-Promotion Execution Plan
-  -> Technical Execution Authorization
-  -> Pre-Mutation Guard ALLOW
+Completed Prefix State V1
+  -> Pre-Mutation Guard V2 (fingerprinted ALLOW)
   -> external/manual mutation
-  -> Technical Mutation Receipt (UNVERIFIED_EXTERNAL_RESULT)
-  -> future independent receipt/evidence verification
-  -> only then eligibility to advance completed prefix
+  -> Technical Mutation Receipt V1 (state-bound, UNVERIFIED_EXTERNAL_RESULT)
+  -> Mutation Evidence Verification V1
+  -> Completed-Prefix State Transition V1
 ```
 
 `HNK_CANON` remains outside this operational pipeline.
