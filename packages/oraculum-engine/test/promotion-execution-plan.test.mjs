@@ -8,13 +8,13 @@ const cli=readFileSync(new URL('../../../scripts/build-rc1-promotion-execution-p
 const pkg=JSON.parse(readFileSync(new URL('../../../package.json',import.meta.url),'utf8'));
 function approvedDecision(){return {version:'HOC-RC1-HUMAN-PROMOTION-DECISION/V1',releaseId:'HOC-V1.0-RC1',recordId:'HOC-DECISION-TEST-APPROVED',recordedAt:'2026-09-16T14:30:00.000Z',decision:'APPROVE_V1_0',reviewerLabel:'Release Reviewer',rationale:'All mandatory readiness gates were reviewed and passed.',sourceReadiness:{evidenceKind:'HOC-RC1-PROMOTION-READINESS/V1',generatedAt:'2026-09-16T14:25:00.000Z',status:'READY_FOR_HUMAN_REVIEW',readyForHumanReview:true,required:{total:9,pass:9,pending:0,blocked:0,missing:0,invalid:0}},acknowledgement:{reviewedPromotionReadiness:true,understandsNoAutomaticMerge:true,understandsNoAutomaticDeployment:true,understandsHnkCanonRemainsSeparate:true},governance:{executesMerge:false,executesDeployment:false,changesPackageVersion:false,promotesHnkCanon:false,automaticPromotion:false,authority:'HUMAN_DECISION_RECORD_NOT_EXECUTION_AUTHORITY'}};}
 
-test('V14 stack is valid parent-first input for promotion planning',()=>{
+test('V15 stack is valid parent-first input for promotion planning',()=>{
   const inspection=inspectRc1StackLandingPlan(stack);
   assert.equal(inspection.valid,true);
   assert.equal(inspection.parentFirst,true);
-  assert.equal(inspection.planVersion,'HOC-V1.0-RC1-STACK-LANDING/V14');
-  assert.equal(inspection.prCount,31);
-  assert.equal(inspection.lastPr,32);
+  assert.equal(inspection.planVersion,'HOC-V1.0-RC1-STACK-LANDING/V15');
+  assert.equal(inspection.prCount,32);
+  assert.equal(inspection.lastPr,33);
 });
 
 test('promotion execution plan stays dry-run, fingerprinted and non-executable',()=>{
@@ -23,10 +23,10 @@ test('promotion execution plan stays dry-run, fingerprinted and non-executable',
   assert.equal(RC1_PROMOTION_PLAN_FINGERPRINT_VERSION,'HOC-RC1-PROMOTION-PLAN-FINGERPRINT/V1');
   assert.equal(plan.releaseId,'HOC-V1.0-RC1');
   assert.equal(plan.mode,'DRY_RUN_ONLY');
-  assert.equal(plan.sourceStack.prCount,31);
-  assert.equal(plan.sourceStack.lastPr,32);
-  assert.equal(plan.summary.stackLandingSteps,31);
-  assert.equal(plan.summary.totalSteps,39);
+  assert.equal(plan.sourceStack.prCount,32);
+  assert.equal(plan.sourceStack.lastPr,33);
+  assert.equal(plan.summary.stackLandingSteps,32);
+  assert.equal(plan.summary.totalSteps,40);
   assert.equal(plan.summary.allExecutable,false);
   assert.match(plan.planFingerprint,/^[0-9a-f]{64}$/u);
   assert.equal(verifyRc1PromotionExecutionPlan(plan).valid,true);
