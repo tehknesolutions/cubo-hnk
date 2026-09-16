@@ -14,7 +14,7 @@ Mode:
 
 ## Purpose
 
-This layer converts a valid future `APPROVE_V1_0` human decision record plus the current parent-first Stack Landing Plan into a deterministic operational runbook.
+This layer converts a valid future `APPROVE_V1_0` human decision record plus the current parent-first Stack Landing Plan into a structured operational runbook. The ordered steps are derived deterministically from the inputs; the exported artifact also carries a `generatedAt` timestamp and therefore is not itself a timeless content hash.
 
 It answers:
 
