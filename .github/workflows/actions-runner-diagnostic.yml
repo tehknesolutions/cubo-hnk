@@ -1,0 +1,30 @@
+name: Actions Runner Diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ubuntu-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Runner reached on Ubuntu
+        shell: bash
+        run: |
+          echo "HOC_ACTIONS_RUNNER_PROBE=REACHED"
+          echo "runner_os=$RUNNER_OS"
+          echo "runner_arch=$RUNNER_ARCH"
+
+  windows-probe:
+    runs-on: windows-latest
+    timeout-minutes: 2
+    steps:
+      - name: Runner reached on Windows
+        shell: pwsh
+        run: |
+          Write-Output "HOC_ACTIONS_RUNNER_PROBE=REACHED"
+          Write-Output "runner_os=$env:RUNNER_OS"
+          Write-Output "runner_arch=$env:RUNNER_ARCH"

@@ -1,0 +1,1 @@
+Implementation note: Build Provenance V1 is intentionally variable runtime metadata and is not included in the deterministic RC1 release fingerprint. Exact build traceability is enforced only when deployment evidence is executed, optionally with an expected commit prefix.

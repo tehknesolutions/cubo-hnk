@@ -1,11 +1,22 @@
 {
   "name": "cubo-hnk",
-  "version": "0.1.0-candidate",
+  "version": "1.0.0-rc.1",
   "private": true,
   "packageManager": "pnpm@10.17.1",
   "scripts": {
     "test": "pnpm --recursive test",
     "typecheck": "pnpm --recursive typecheck",
-    "check": "pnpm test && pnpm typecheck"
+    "check": "pnpm test && pnpm typecheck",
+    "bundle:rc1": "node scripts/build-rc1-qa-bundle.mjs",
+    "validate:rc1:independent": "node scripts/run-rc1-independent-validation.mjs",
+    "verify:rc1:deployment": "node scripts/verify-rc1-deployment.mjs",
+    "verify:rc1:preview": "node scripts/verify-rc1-preview-deployment.mjs",
+    "plan:rc1:promotion": "node scripts/build-rc1-promotion-execution-plan.mjs",
+    "authorize:rc1:technical": "node scripts/build-rc1-technical-execution-authorization.mjs",
+    "guard:rc1:mutation": "node scripts/check-rc1-pre-mutation-guard.mjs",
+    "record:rc1:mutation": "node scripts/build-rc1-technical-mutation-receipt.mjs",
+    "verify:rc1:mutation-evidence": "node scripts/build-rc1-mutation-evidence-verification.mjs",
+    "advance:rc1:completed-prefix": "node scripts/build-rc1-completed-prefix-transition.mjs",
+    "preview:preflight": "node scripts/check-vercel-preview-bootstrap.mjs"
   }
 }

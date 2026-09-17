@@ -1,0 +1,35 @@
+{
+  "evidenceKind": "HOC-RC1-INDEPENDENT-TAIL-REPOSITORY-TEST-EVIDENCE/V1",
+  "releaseId": "HOC-V1.0-RC1",
+  "sourceHead": "41b62913a4f82ac1b3b61f087740840d7c1cee91",
+  "sourceBranch": "feat/v1-rc1-completed-prefix-transition-v2",
+  "nodeVersion": "v22.16.0",
+  "executedAt": "2026-09-16T17:02:08.232Z",
+  "testFiles": [
+    "packages/oraculum-engine/test/pre-mutation-guard.test.mjs",
+    "packages/oraculum-engine/test/technical-mutation-receipt.test.mjs",
+    "packages/oraculum-engine/test/mutation-evidence-verification.test.mjs",
+    "packages/oraculum-engine/test/completed-prefix-transition.test.mjs"
+  ],
+  "repositoryTests": {
+    "total": 21,
+    "pass": 21,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "supplementalHarness": {
+    "total": 13,
+    "pass": 13,
+    "fail": 0
+  },
+  "passed": true,
+  "limitations": [
+    "Reconstructed source subset, not full repository checkout",
+    "No pnpm install",
+    "No TypeScript typecheck",
+    "No Next.js build",
+    "Does not replace GitHub CI, physical QA or deployment QA"
+  ],
+  "tapSha256": "3cff2579e07fa55cad211f50ef83eb85defc1c51f954056fedb0ea89ffb218ac"
+}
