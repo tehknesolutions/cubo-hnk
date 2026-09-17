@@ -31,7 +31,7 @@
   "gateReconciliation": {
     "trackedFrozenLockfile": {"derived": "PASS", "sha256": "C84D832FE6BB264A041A93077FA0BD6402622508D1B083E695058C93300E72F3", "gitBlob": "1d5c7cdca5b22ea02ba9b3952fd9ac580fafd428"},
     "independentExecutorValidation": {"derived": "PASS", "install": "pnpm install --frozen-lockfile", "engineTests": "108/108 PASS", "webTests": "64/64 PASS", "typecheck": "PASS", "nextBuild": "PASS 12/12", "trackedTreeAfterBuild": "CLEAN"},
-    "githubActions": {"derived": "BLOCKED", "latestObservedRun": 152, "runId": 35246445024, "jobId": 105287747942, "runnerId": 0, "steps": [], "classification": "PRE_STEP_RUNNER_DISPATCH_OR_PROVISIONING_FAILURE", "issue": 6},
+    "githubActions": {"derived": "BLOCKED", "observedRunAtDerivation": 152, "runId": 35246445024, "jobId": 105287747942, "runnerId": 0, "steps": [], "classification": "PRE_STEP_RUNNER_DISPATCH_OR_PROVISIONING_FAILURE", "issue": 6},
     "previewBootstrap": {"derived": "SOURCE_READY_RUNTIME_PENDING", "vercelProject": "cubo-hnk", "projectLookup": "404_PROJECT_NOT_FOUND", "strictPreviewGate": "SOURCE_PASS", "issue": 45},
     "branchGovernance": {"derived": "PENDING", "mainProtected": false, "rc1Protected": false, "repositoryRulesets": 0, "issue": 46},
     "runtimeSelfTest": {"derived": "PENDING_REAL_PREVIEW"},
