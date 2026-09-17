@@ -1,0 +1,37 @@
+{
+  "kind": "HOC-V1.0-RC1-TRACKED-LOCKFILE-EVIDENCE/V1",
+  "repository": "tehknesolutions/cubo-hnk",
+  "sourceEvidence": "release/v1.0-rc1/RC1_FROZEN_INSTALL_RECONCILIATION_EVIDENCE.json",
+  "sourceValidatedHead": "74997fc18b4b4054b4f9a48068547acac8c50764",
+  "trackingCommit": "e68188085e837dda1756f3cf9d2436e469cf352c",
+  "lockfile": {
+    "path": "pnpm-lock.yaml",
+    "tracked": true,
+    "gitBlobSha1": "1d5c7cdca5b22ea02ba9b3952fd9ac580fafd428",
+    "sha256FromIndependentWindowsValidation": "C84D832FE6BB264A041A93077FA0BD6402622508D1B083E695058C93300E72F3",
+    "bytes": 19962,
+    "binding": "GitHub tracked blob is byte-identical to the lockfile used by the prior independent frozen-install validation"
+  },
+  "priorIndependentValidation": {
+    "frozenInstall": "PASS",
+    "engineTests": "108/108 PASS",
+    "webTests": "64/64 PASS",
+    "typecheck": "PASS",
+    "nextProductionBuild": "PASS",
+    "staticPages": "12/12",
+    "trackedDiffAfterBuild": "CLEAN"
+  },
+  "freshTrackedHeadExecution": {
+    "status": "PENDING",
+    "reason": "authorized Windows executor was offline when the exact lockfile blob was attached to the GitHub branch",
+    "requiredNextAction": "execute clean checkout of current PR head and rerun pnpm install --frozen-lockfile, tests, typecheck and production build"
+  },
+  "classification": "EXACT_VALIDATED_LOCKFILE_TRACKED__FRESH_TRACKED_HEAD_EXECUTION_PENDING",
+  "governance": {
+    "mergePerformed": false,
+    "ciPassClaimed": false,
+    "stablePromotionAuthorized": false,
+    "hnkCanonPromotionAuthorized": false,
+    "overall": "LOCKFILE_LANDING_GATE_CLOSED__EXECUTION_CONFIRMATION_PENDING__NOT_READY_FOR_STABLE"
+  }
+}
