@@ -1,0 +1,33 @@
+{
+  "kind": "HOC-V1.0-RC1-PR43-CI-RUN-EVIDENCE/V1",
+  "repository": "tehknesolutions/cubo-hnk",
+  "pullRequest": 43,
+  "targetCommit": "bc32a70adaa3a9b44f8e943d78b46ac61385dd8b",
+  "workflow": {
+    "name": "Cubo HNK CI",
+    "runId": 35226089992,
+    "runNumber": 142,
+    "status": "completed",
+    "conclusion": "failure"
+  },
+  "job": {
+    "id": 105217924974,
+    "name": "validate",
+    "status": "completed",
+    "conclusion": "failure",
+    "repositoryStepsExecuted": 0,
+    "steps": []
+  },
+  "logs": {
+    "available": false,
+    "error": "BlobNotFound"
+  },
+  "classification": "RUNNER_PROVISIONING_FAILURE_REPRODUCED__ZERO_REPOSITORY_STEPS",
+  "interpretation": "The GitHub-hosted workflow failed before any repository step executed; this run is not evidence of a source, dependency, test, typecheck or build failure.",
+  "governance": {
+    "ciPassClaimed": false,
+    "stablePromotionAuthorized": false,
+    "hnkCanonPromotionAuthorized": false,
+    "overall": "GITHUB_AUTOMATED_EXECUTION_STILL_BLOCKED__INDEPENDENT_FROZEN_VALIDATION_SEPARATE"
+  }
+}
