@@ -6,7 +6,7 @@ Status: source configuration ready; dedicated `cubo-hnk` preview project/deploym
 
 Provide a reproducible **preview-only** path for `tehknesolutions/cubo-hnk` without promoting production.
 
-The connected Vercel team is reachable, but no `cubo-hnk` project is present in the currently returned project set. A dedicated project therefore still needs to be created/linked from a real checkout or through the Vercel dashboard/Git integration before runtime verification can execute.
+The connected Vercel team is reachable, but authoritative lookup of deployments using `projectId="cubo-hnk"` returns `404 Project not found`. A dedicated project therefore still needs to be created/linked from a real checkout or through the Vercel dashboard/Git integration before runtime verification can execute.
 
 Deployment/runtime verification is tracked by Issue #45.
 
@@ -91,15 +91,15 @@ After a real checkout and Vercel login/link:
 4. create a preview deployment only;
 5. preserve the preview URL, deployment ID, Git ref and Git commit SHA;
 6. verify `GET /api/oraculum/release` and its RC1 Release Attestation;
-7. run `pnpm verify:rc1:deployment -- --url <preview-url>`;
-8. inspect defensive HTTP headers/cache behavior and runtime errors;
-9. import the deployment evidence into `/oraculum/qa/evidence`.
+7. run the strict preview gate with the exact expected Git commit: `pnpm verify:rc1:preview -- --url <preview-url> --commit <expected-sha>`;
+8. the strict gate must prove `provider=VERCEL`, `environment=preview`, deployment ID, Git ref/SHA, `repoOwner=tehknesolutions`, `repoSlug=cubo-hnk`, `COMMIT_AND_REF`, and then pass the generic RC1 deployment verifier;
+9. inspect runtime errors separately and import the generated evidence into `/oraculum/qa/evidence`.
 
 Do not use `vercel --prod`, `vercel deploy --prod` or `vercel promote` during RC1 bootstrap.
 
 ## What a preview PASS proves
 
-A deployment verification PASS proves the tested preview/runtime reproduced the frozen RC1 behavior and hardening checks at that time.
+A strict preview verification PASS proves the tested Vercel Preview belongs to the expected repository/commit and reproduced the frozen RC1 behavior, release attestation and hardening checks at that time.
 
 It does not replace:
 
@@ -122,6 +122,6 @@ not a build failure.
 
 ## Governance
 
-Preview configuration is an implementation artifact only.
+Preview configuration and preview runtime evidence are implementation artifacts only.
 
 No production alias, stable tag, merge authorization or HNK_CANON promotion is granted by this bootstrap.
