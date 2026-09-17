@@ -84,15 +84,26 @@ Status correto:
 - source hardening: `PASS`;
 - verificação em deploy real: `PENDING`.
 
-## CI / build
+## CI / validação independente
 
-O GitHub Actions permanece bloqueado pela Issue #6: jobs `validate` terminam com `steps=null` antes de checkout/install/test/typecheck/build.
+O GitHub Actions permanece bloqueado pela Issue #6: jobs `validate` terminam com `steps=null` antes de checkout/install/test/typecheck/build. Probes mínimos em `ubuntu-latest` e `windows-latest` também falharam antes do primeiro step, classificando o blocker como infraestrutura de runner/provisionamento e não como falha da aplicação.
+
+Separadamente, a validação independente da pilha RC1 já demonstrou:
+
+- `pnpm install --frozen-lockfile`: `PASS` com lockfile byte-verificado;
+- engine: `108/108 PASS`;
+- web: `64/64 PASS`;
+- TypeScript engine + web: `PASS`;
+- Next.js 16.3.3 production build: `PASS`, `12/12` páginas estáticas;
+- árvore rastreada limpa após build.
 
 Portanto:
 
-`CI / TYPECHECK / BUILD = BLOCKED`
+`INDEPENDENT TEST / TYPECHECK / BUILD = PASS`
 
-Isso não é evidência de falha da aplicação nem de PASS.
+`GITHUB ACTIONS CI = BLOCKED (PRE-STEP RUNNER PROVISIONING)`
+
+Um não substitui o outro e nenhum deles autoriza promoção automática.
 
 ## Estado atual de promoção
 
@@ -101,7 +112,8 @@ PASS:
 - protocol freeze;
 - Markdown consolidado;
 - DOCX/PDF visual RC1;
-- source-level production hardening.
+- source-level production hardening;
+- validação independente de install/test/typecheck/build com lockfile congelado.
 
 PENDING:
 
@@ -115,12 +127,12 @@ PENDING:
 
 BLOCKED:
 
-- CI / typecheck / production build, enquanto Issue #6 persistir.
+- GitHub Actions CI enquanto Issue #6 persistir.
 
 ## Comandos esperados
 
 ```bash
-pnpm install --no-frozen-lockfile
+pnpm install --frozen-lockfile
 pnpm check
 pnpm --filter @hnk/cubo-web build
 pnpm --filter @hnk/cubo-web dev
