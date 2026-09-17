@@ -1,0 +1,53 @@
+{
+  "evidenceKind": "HOC-RC1-PREVIEW-GATE-SOURCE-EVIDENCE/V1",
+  "targetCommit": "0fc6dbedc69c975875228102df1bc013ef03762b",
+  "targetBranch": "chore/rc1-post-lockfile-docs-ci",
+  "previewGate": {
+    "path": "scripts/verify-rc1-preview-deployment.mjs",
+    "gitBlob": "4e3822348397b6f66b3d71ff57efb2ec5a648c4a",
+    "syntaxCheck": {
+      "command": "node --check scripts/verify-rc1-preview-deployment.mjs",
+      "passed": true
+    },
+    "failClosedNoArgs": {
+      "passed": true,
+      "observedExitCode": 1,
+      "requiredBoundary": "Preview URL and expected Git commit are mandatory"
+    },
+    "requiredProvenance": [
+      "provider=VERCEL",
+      "environment=preview",
+      "deployment.id present",
+      "git.commitRef present",
+      "git.commitSha present and matches expected commit prefix",
+      "git.repoOwner=tehknesolutions",
+      "git.repoSlug=cubo-hnk",
+      "completeness=COMMIT_AND_REF"
+    ],
+    "chainsGenericRuntimeVerifier": true
+  },
+  "vercelDiscovery": {
+    "teamId": "team_GAFmMllTKaWx5iGEa8sTZJ0T",
+    "projectLookup": "cubo-hnk",
+    "result": "404_PROJECT_NOT_FOUND",
+    "deploymentWriteInvoked": false
+  },
+  "githubActions": {
+    "runNumber": 150,
+    "runId": 35244711128,
+    "jobId": 105281812543,
+    "conclusion": "failure",
+    "steps": null,
+    "classification": "PRE_STEP_RUNNER_DISPATCH_OR_PROVISIONING_FAILURE",
+    "repositoryCommandsExecuted": 0
+  },
+  "classification": "PREVIEW_GATE_SOURCE_READY__REAL_PREVIEW_PROJECT_PENDING__GITHUB_CI_INFRA_BLOCKED",
+  "governance": {
+    "previewDeploymentPassClaimed": false,
+    "githubCiPassClaimed": false,
+    "productionDeploymentAuthorized": false,
+    "stablePromotionAuthorized": false,
+    "hnkCanonPromotionAuthorized": false,
+    "mergeAuthorizedByThisEvidence": false
+  }
+}
