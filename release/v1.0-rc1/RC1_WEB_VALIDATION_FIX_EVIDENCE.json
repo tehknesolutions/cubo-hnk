@@ -1,0 +1,11 @@
+{
+  "kind":"HOC-RC1-WEB-VALIDATION-FIX-EVIDENCE/V1",
+  "baseCommit":"e64c931b853fd04446b2033f38c1ea5b974a7e37",
+  "validatedHead":"f83486010b0107e2293f4a13c672b67961884a65",
+  "executor":{"device":"TW-DA-VINCI-HNK-TEHKNE","node":"v24.18.0","pnpm":"10.17.1","platform":"Windows"},
+  "baseline":{"webTypecheck":{"status":"FAIL","diagnostics":11},"webTests":{"total":64,"pass":57,"fail":7},"build":"INCONCLUSIVE"},
+  "remediated":{"webTypecheck":{"status":"PASS","exitCode":0,"diagnostics":0},"webTests":{"status":"PASS","total":64,"pass":64,"fail":0,"durationMs":5042.1108},"engineTests":{"status":"PASS","total":108,"pass":108,"fail":0,"durationMs":2915.0774},"nextBuild":{"status":"PASS","exitCode":0,"next":"16.3.3","compiledSeconds":6.8,"staticPages":"12/12"}},
+  "classification":{"typescript":"FIXED","webContracts":"FIXED_OR_RECONCILED_WITH_CURRENT_VALIDATED_BOUNDARIES","engineRegression":"NONE_OBSERVED","productionBuild":"PASS"},
+  "reproducibility":{"trackedPnpmLockfile":false,"cleanInstallFrozenGraph":false,"issue":41},
+  "governance":{"mergePerformed":false,"deploymentPerformed":false,"stablePromotionAuthorized":false,"hnkCanonPromotionAuthorized":false,"githubCiReplaced":false,"overall":"WEB_VALIDATION_PASS__LOCKFILE_AND_OTHER_RELEASE_GATES_REMAIN"}
+}
