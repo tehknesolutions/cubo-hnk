@@ -34,8 +34,15 @@ test('frozen protocol identities and operational guard/transition identities rem
   assert.match(gate('completedPrefixTransition').reason,/state-swap/i);
 });
 
-test('independent V16 tail execution is real partial evidence without inflating full CI',()=>{
+test('independent frozen validation is reconciled without inflating GitHub CI',()=>{
+  assert.equal(audit.protocols.independentValidationEvidence,'HOC-V1.0-RC1-FROZEN-INSTALL-RECONCILIATION-EVIDENCE/V1');
+  assert.equal(audit.protocols.trackedLockfileEvidence,'HOC-V1.0-RC1-TRACKED-LOCKFILE-EVIDENCE/V1');
   assert.equal(audit.protocols.independentTailValidationEvidence,'HOC-RC1-INDEPENDENT-TAIL-REPOSITORY-TEST-EVIDENCE/V1');
+  assert.equal(gate('independentValidation').status,'PASS');
+  assert.equal(gate('independentValidation').level,'EXECUTED_RECONCILED');
+  assert.equal(gate('trackedLockfile').status,'PASS');
+  assert.equal(gate('trackedLockfile').level,'TRACKED_BYTE_IDENTICAL');
+  assert.equal(gate('freshTrackedHeadExecution').status,'PENDING');
   assert.equal(gate('independentTailValidation').status,'PASS');
   assert.equal(gate('independentTailValidation').level,'EXECUTED_PARTIAL');
   assert.equal(gate('independentTailValidation').evidenceSha256,'3764a102ed07cdba9691c662e2d0aa7909fee1f2e3d2847fea1c71a59e68ee77');
@@ -45,12 +52,12 @@ test('independent V16 tail execution is real partial evidence without inflating 
   assert.deepEqual(tailEvidence.repositoryTests,{total:21,pass:21,fail:0,cancelled:0,skipped:0});
   assert.deepEqual(tailEvidence.supplementalHarness,{total:13,pass:13,fail:0});
   assert.equal(tailEvidence.passed,true);
-  assert.equal(gate('independentValidation').status,'PENDING');
   assert.equal(gate('ciTypecheckBuild').status,'BLOCKED');
 });
 
 test('execution-sensitive gates remain pending or blocked',()=>{
   assert.equal(gate('runtimeSelfTest').status,'PENDING');
+  assert.equal(gate('freshTrackedHeadExecution').status,'PENDING');
   assert.equal(gate('physicalState').status,'PENDING');
   assert.equal(gate('physicalRitual32').status,'PENDING');
   assert.equal(gate('cameraDevice').status,'PENDING');
@@ -59,10 +66,12 @@ test('execution-sensitive gates remain pending or blocked',()=>{
   assert.equal(gate('humanPromotion').status,'PENDING');
 });
 
-test('source hardening pass does not imply deployed runtime verification',()=>{
+test('source hardening and reconciled build do not imply deployed runtime verification',()=>{
   assert.equal(gate('productionHardeningSource').status,'PASS');
   assert.equal(gate('productionHardeningRuntime').status,'PENDING');
-  assert.match(hardening,/IMPLEMENTED \/ NOT YET BUILD-VERIFIED/);
+  assert.equal(gate('productionHardeningRuntime').level,'BUILD_VERIFIED_PRE_DEPLOY');
+  assert.match(hardening,/BUILD-VERIFIED PRE-DEPLOY/);
+  assert.match(hardening,/Independent frozen production build: `PASS`/);
   assert.match(report,/PRODUCTION_HARDENING_SOURCE = PASS/);
   assert.match(report,/PRODUCTION_HARDENING_RUNTIME = PENDING/);
 });

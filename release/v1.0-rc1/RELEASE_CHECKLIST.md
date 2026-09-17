@@ -25,17 +25,32 @@ Nenhum item pendente deve ser reinterpretado como aprovado. A promoção para V1
 - [x] Manifest synthetic checksum congelado.
 - [x] RC1 contract test lê os arquivos oficiais e compara com o engine.
 
-## C. Automated validation — obrigatória antes de V1.0 final
+## C. Automated validation + independent executor reconciliation
+
+### GitHub-hosted CI — obrigatória antes de V1.0 final
 
 - [ ] GitHub Actions recebe runner real.
-- [ ] `pnpm install --no-frozen-lockfile` PASS.
-- [ ] `pnpm test` PASS.
-- [ ] `pnpm typecheck` PASS.
-- [ ] `pnpm check` PASS.
-- [ ] `pnpm --filter @hnk/cubo-web build` PASS.
+- [ ] `pnpm install --frozen-lockfile` PASS em GitHub-hosted CI.
+- [ ] `pnpm test` PASS em GitHub-hosted CI.
+- [ ] `pnpm typecheck` PASS em GitHub-hosted CI.
+- [ ] `pnpm check` PASS em GitHub-hosted CI.
+- [ ] `pnpm --filter @hnk/cubo-web build` PASS em GitHub-hosted CI.
 - [ ] Nenhum warning de build que altere comportamento de runtime.
 
 Estado conhecido na RC1: GitHub Actions continua encerrando jobs com `steps=null`; isso é bloqueio de infraestrutura registrado na Issue #6, não evidência de PASS ou FAIL do código.
+
+### Independent frozen validation — evidência já executada, não substitui CI
+
+- [x] Clean checkout do source/config head `74997fc18b4b4054b4f9a48068547acac8c50764` validado em Windows com pnpm `10.17.1`.
+- [x] `pnpm install --frozen-lockfile` PASS com lockfile SHA-256 `C84D832FE6BB264A041A93077FA0BD6402622508D1B083E695058C93300E72F3`.
+- [x] Engine `108/108` PASS.
+- [x] Web `64/64` PASS.
+- [x] `pnpm typecheck` PASS para engine + web.
+- [x] Next.js `16.3.3` production build PASS, `12/12` páginas estáticas.
+- [x] O lockfile depois tracked no GitHub é byte-identical ao lockfile usado nessa execução (`git blob 1d5c7cdca5b22ea02ba9b3952fd9ac580fafd428`).
+- [ ] Fresh clean rerun no head RC1 landed atual com o lockfile já tracked; pendente porque o executor autorizado está offline.
+
+Fontes: `RC1_FROZEN_INSTALL_RECONCILIATION_EVIDENCE.json` e `RC1_TRACKED_LOCKFILE_EVIDENCE.json`.
 
 ## D. Runtime QA
 
@@ -111,10 +126,11 @@ Estado conhecido na RC1: GitHub Actions continua encerrando jobs com `steps=null
 - [x] Headers defensivos source-level implementados em `next.config.ts`.
 - [x] Logging source review fechado: rotas HOC protegidas sem `console.*` de payload/manifesto.
 - [x] Contract test `production-hardening-contract.test.mjs` adicionado.
-- [ ] Confirmar headers reais no deployment/build final.
+- [x] Next.js production build já executado com PASS no frozen-validation head reconciliado; isso não prova runtime/deployment.
+- [ ] Confirmar headers reais no deployment/build final servido.
 - [ ] Revisar access logs/retention do host de produção.
 - [ ] Definir rate-limit/abuse strategy se a API ficar pública em escala.
-- [ ] Avaliar CSP após existir build/deploy verificável.
+- [ ] Avaliar CSP após existir deployment verificável.
 
 Documentação: `docs/RC1_PRODUCTION_HARDENING.md`.
 
@@ -142,14 +158,15 @@ Documentação: `docs/RC1_PRODUCTION_HARDENING.md`.
 
 V1.0 final só pode ser marcada quando:
 
-1. todas as validações automatizadas C estiverem verdes em executor real;
-2. runtime self-test executado e preservado como evidência;
-3. QA físico STATE e RITUAL_32 estiver fechado;
-4. QA câmera mínimo estiver fechado ou câmera for explicitamente marcada experimental;
-5. cross-device Manifest V0.10 estiver fechado;
-6. deployed headers/log-retention e abuso/rate-limit estiverem revisados para o ambiente de produção escolhido;
-7. diff RC1 → V1.0 não alterar contratos congelados sem nova revisão;
-8. revisão humana autorizar promoção.
+1. GitHub-hosted CI (ou caminho automatizado explicitamente aprovado pela política de release) executar e fechar install/test/typecheck/build sem o blocker pré-step;
+2. fresh clean rerun do head RC1 landed atual confirmar a cadeia frozen já reconciliada, salvo decisão explícita de governança que aceite a evidência byte-identical existente;
+3. runtime self-test executado e preservado como evidência;
+4. QA físico STATE e RITUAL_32 estiver fechado;
+5. QA câmera mínimo estiver fechado ou câmera for explicitamente marcada experimental;
+6. cross-device Manifest V0.10 estiver fechado;
+7. deployed headers/log-retention e abuso/rate-limit estiverem revisados para o ambiente de produção escolhido;
+8. diff RC1 → V1.0 não alterar contratos congelados sem nova revisão;
+9. revisão humana autorizar promoção.
 
 Gate documental visual: **PASS**. Os arquivos revisados são identificados pelos hashes em `VISUAL_MANUAL_ARTIFACTS.json`.
 
