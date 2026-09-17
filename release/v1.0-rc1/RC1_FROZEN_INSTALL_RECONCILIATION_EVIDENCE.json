@@ -1,0 +1,68 @@
+{
+  "kind": "HOC-V1.0-RC1-FROZEN-INSTALL-RECONCILIATION-EVIDENCE/V1",
+  "repository": "tehknesolutions/cubo-hnk",
+  "sourceLandedHead": "3cffeec99cd6635cdd1f9fe141e74d4641715434",
+  "targetHead": "74997fc18b4b4054b4f9a48068547acac8c50764",
+  "targetTree": "56c96fb00ec02610f8588ef18d9856f369071cf0",
+  "executor": {
+    "deviceLabel": "TW-DA-VINCI-HNK-TEHKNE",
+    "platform": "windows",
+    "pnpm": "10.17.1"
+  },
+  "lockfile": {
+    "path": "pnpm-lock.yaml",
+    "sha256": "C84D832FE6BB264A041A93077FA0BD6402622508D1B083E695058C93300E72F3",
+    "gitBlobSha1": "1d5c7cdca5b22ea02ba9b3952fd9ac580fafd428",
+    "bytes": 19962,
+    "trackedAtTarget": false,
+    "source": "generated from exact workspace manifests with pnpm 10.17.1 and preserved outside the checkout during clean validation"
+  },
+  "validation": {
+    "cleanCheckout": true,
+    "install": {
+      "command": "pnpm install --frozen-lockfile",
+      "exitCode": 0,
+      "resolutionStepSkipped": true,
+      "logSha256": "994E9021DC73291ED917D10D4B8440D3D15C178CAF36F49397D90142078F5850"
+    },
+    "tests": {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "engine": {"total": 108, "pass": 108, "fail": 0},
+      "web": {"total": 64, "pass": 64, "fail": 0},
+      "logSha256": "024FC77A4185A8BB7FB58B9806A21251E6CFF4CC1E715FBE8B18D55ED7BB772E"
+    },
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "exitCode": 0,
+      "engine": "PASS",
+      "web": "PASS",
+      "logSha256": "01AEE1FD3687C56793D5AA76CDB6089482DDD6C3DA175C040B1EF5BCF0C2DC71"
+    },
+    "build": {
+      "command": "pnpm --filter @hnk/cubo-web build",
+      "exitCode": 0,
+      "nextVersion": "16.3.3",
+      "staticPages": "12/12",
+      "logSha256": "61523F92DF37D451C8EF6A4E85F03040A564832C938564F02A78D36D69ABE163"
+    },
+    "trackedTreeAfterBuild": {
+      "gitDiffExitCode": 0,
+      "clean": true,
+      "note": "The only remaining checkout status entry was the intentionally untracked pnpm-lock.yaml used for frozen validation. TypeScript incremental output is ignored and Next 16 generated source/config deltas were reconciled before this run."
+    }
+  },
+  "classification": "FROZEN_INSTALL_PASS__LOCKFILE_NOT_YET_TRACKED",
+  "limitations": [
+    "pnpm-lock.yaml is byte-verified and frozen-install validated but is not yet tracked in the repository",
+    "GitHub Actions remains a separate gate and is not replaced by this executor evidence",
+    "deployment, physical/device, cross-device and human promotion gates remain separate"
+  ],
+  "governance": {
+    "mergePerformedByThisEvidenceWorkflow": false,
+    "ciPassClaimed": false,
+    "stablePromotionAuthorized": false,
+    "hnkCanonPromotionAuthorized": false,
+    "overall": "FROZEN_REPRODUCIBILITY_PROVEN_LOCALLY__LOCKFILE_LANDING_PENDING__NOT_READY_FOR_STABLE"
+  }
+}
