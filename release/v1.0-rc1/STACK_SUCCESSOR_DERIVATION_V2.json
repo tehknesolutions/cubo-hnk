@@ -1,0 +1,70 @@
+{
+  "kind": "HOC-V1.0-RC1-STACK-SUCCESSOR-DERIVATION/V2",
+  "releaseId": "HOC-V1.0-RC1",
+  "repository": "tehknesolutions/cubo-hnk",
+  "sourcePlan": "HOC-V1.0-RC1-STACK-LANDING/V17",
+  "sourcePlanAssessment": "HISTORICALLY_VALID__CURRENT_TOPOLOGY_STALE",
+  "observedRc1": {
+    "branch": "feat/v1-rc1-completed-prefix-transition-v2",
+    "head": "f8d3935d3ee0db30a019cdd3b97b072a851ab87c",
+    "tree": "36645af66191d50a4ba8d132d8407c55b43a0e21",
+    "latestLanding": {"pr": 44, "mergeCommit": "f8d3935d3ee0db30a019cdd3b97b072a851ab87c"}
+  },
+  "promotionTopology": {
+    "mainHead": "adb376de5e3f8ff8b1363e318c2e734b8d4a0240",
+    "mergeBase": "75497786de8d5d5952dc2dccd4cdc3ca123f658e",
+    "compareStatus": "diverged",
+    "rc1AheadBy": 411,
+    "rc1BehindBy": 1,
+    "fastForwardToMainAvailable": false,
+    "mainOnlyCommit": {
+      "sha": "adb376de5e3f8ff8b1363e318c2e734b8d4a0240",
+      "role": "PR #1 bootstrap merge commit",
+      "tree": "59bf2ac726c6ed3aa856361bc61a32ddf11b5b79",
+      "mergeBaseTree": "59bf2ac726c6ed3aa856361bc61a32ddf11b5b79",
+      "treeMatchesMergeBase": true,
+      "materialContentDeltaFromMergeBase": false
+    },
+    "classification": "GRAPH_DIVERGENCE_ONLY__NO_MAIN_ONLY_CONTENT_DELTA",
+    "requiredActionBeforePromotion": "USE_NON_FAST_FORWARD_PROMOTION_REVIEW_WITHOUT_INVENTING_MAIN_ONLY_CONTENT_RECONCILIATION"
+  },
+  "gateReconciliation": {
+    "trackedFrozenLockfile": {"derived": "PASS", "sha256": "C84D832FE6BB264A041A93077FA0BD6402622508D1B083E695058C93300E72F3", "gitBlob": "1d5c7cdca5b22ea02ba9b3952fd9ac580fafd428"},
+    "independentExecutorValidation": {"derived": "PASS", "install": "pnpm install --frozen-lockfile", "engineTests": "108/108 PASS", "webTests": "64/64 PASS", "typecheck": "PASS", "nextBuild": "PASS 12/12", "trackedTreeAfterBuild": "CLEAN"},
+    "githubActions": {"derived": "BLOCKED", "observedRunAtDerivation": 152, "runId": 35246445024, "jobId": 105287747942, "runnerId": 0, "steps": [], "classification": "PRE_STEP_RUNNER_DISPATCH_OR_PROVISIONING_FAILURE", "issue": 6},
+    "previewBootstrap": {"derived": "SOURCE_READY_RUNTIME_PENDING", "vercelProject": "cubo-hnk", "projectLookup": "404_PROJECT_NOT_FOUND", "strictPreviewGate": "SOURCE_PASS", "issue": 45},
+    "branchGovernance": {"derived": "PENDING", "mainProtected": false, "rc1Protected": false, "repositoryRulesets": 0, "issue": 46},
+    "runtimeSelfTest": {"derived": "PENDING_REAL_PREVIEW"},
+    "physicalState": {"derived": "PENDING"},
+    "physicalRitual32": {"derived": "PENDING"},
+    "cameraDevice": {"derived": "PENDING"},
+    "manifestCrossDevice": {"derived": "PENDING"},
+    "productionHardeningRuntime": {"derived": "PENDING_REAL_PREVIEW"},
+    "humanPromotion": {"derived": "PENDING"}
+  },
+  "successorRequirements": {
+    "versionNumberAssigned": false,
+    "mustRetainFalseAuthorities": ["mergeAuthorized", "stablePromotionAuthorized", "hnkCanonPromotionAuthorized"],
+    "mustNotCollapse": ["independent validation into GitHub CI", "preview source readiness into preview runtime PASS", "external merge facts into workflow merge authorization", "RC1 branch landing into main/stable promotion", "graph divergence into material content divergence"],
+    "remainingCriticalPath": [
+      "resolve GitHub Actions Issue #6 or obtain a separately policy-approved automated execution path",
+      "create/link the dedicated Vercel cubo-hnk Preview project and pass strict preview provenance/runtime verification",
+      "review the non-fast-forward RC1-to-main promotion topology while preserving the fact that main contributes no unique tree content",
+      "implement branch/ruleset governance from Issue #46 without deadlocking the current CI outage",
+      "record physical STATE evidence",
+      "record physical RITUAL_32 evidence",
+      "record camera/device evidence",
+      "record cross-device Manifest evidence",
+      "reach Promotion Readiness READY_FOR_HUMAN_REVIEW",
+      "obtain explicit Human Promotion Decision before any V1.0 promotion action"
+    ]
+  },
+  "governance": {
+    "evidenceOnly": true,
+    "mergePerformedByThisDerivationWorkflow": false,
+    "deploymentPerformed": false,
+    "stablePromotionAuthorized": false,
+    "hnkCanonPromotionAuthorized": false,
+    "overall": "POST_PR44_TOPOLOGY_DERIVED__INDEPENDENT_FROZEN_VALIDATION_PASS__CI_BLOCKED__PREVIEW_PENDING__MAIN_GRAPH_DIVERGED_CONTENT_EQUIVALENT_AT_UNIQUE_COMMIT__NOT_READY_FOR_STABLE"
+  }
+}
