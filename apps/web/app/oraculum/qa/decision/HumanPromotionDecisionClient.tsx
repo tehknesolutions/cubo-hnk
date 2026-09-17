@@ -1,118 +1,13 @@
 'use client';
-
-import Link from 'next/link';
-import {ChangeEvent,useMemo,useState} from 'react';
-import {buildRc1HumanPromotionDecision,inspectRc1ReadinessArtifact} from '../readiness/human-decision.mjs';
-import styles from '../../oraculum.module.css';
-
-type ReadinessArtifact={
-  evidenceKind?:string;
-  generatedAt?:string;
-  releaseId?:string;
-  assessment?:unknown;
-};
-type Decision='APPROVE_V1_0'|'DEFER'|'REJECT';
-
+import Link from 'next/link';import {ChangeEvent,useMemo,useState} from 'react';import {buildRc1HumanPromotionDecision,inspectRc1ReadinessArtifact} from '../readiness/human-decision.mjs';import styles from '../../oraculum.module.css';
+type ReadinessArtifact={evidenceKind?:string;generatedAt?:string;releaseId?:string;assessment?:unknown};type Decision='APPROVE_V1_0'|'DEFER'|'REJECT';
 export function HumanPromotionDecisionClient(){
-  const[artifact,setArtifact]=useState<ReadinessArtifact|null>(null);
-  const[fileName,setFileName]=useState<string|null>(null);
-  const[decision,setDecision]=useState<Decision>('DEFER');
-  const[reviewerLabel,setReviewerLabel]=useState('');
-  const[reason,setReason]=useState('');
-  const[acknowledged,setAcknowledged]=useState(false);
-  const[error,setError]=useState<string|null>(null);
-  const[record,setRecord]=useState<ReturnType<typeof buildRc1HumanPromotionDecision>|null>(null);
-  const inspection=useMemo(()=>inspectRc1ReadinessArtifact(artifact),[artifact]);
-
-  async function importReadiness(event:ChangeEvent<HTMLInputElement>){
-    const file=event.target.files?.[0];
-    if(!file)return;
-    setError(null);setRecord(null);
-    try{
-      const parsed=JSON.parse(await file.text()) as ReadinessArtifact;
-      const inspected=inspectRc1ReadinessArtifact(parsed);
-      if(!inspected.valid)throw new Error('O arquivo não é um HOC-RC1-PROMOTION-READINESS/V1 válido para HOC-V1.0-RC1.');
-      setArtifact(parsed);setFileName(file.name);
-      if(!inspected.approveAllowed&&decision==='APPROVE_V1_0')setDecision('DEFER');
-    }catch(cause){
-      setArtifact(null);setFileName(null);
-      setError(cause instanceof Error?cause.message:'Readiness inválido.');
-    }
-    event.target.value='';
-  }
-
-  function clear(){
-    setArtifact(null);setFileName(null);setDecision('DEFER');setReviewerLabel('');setReason('');setAcknowledged(false);setError(null);setRecord(null);
-  }
-
-  function createRecord(){
-    setError(null);setRecord(null);
-    try{
-      const next=buildRc1HumanPromotionDecision({artifact,decision,reviewerLabel,reason,acknowledged});
-      setRecord(next);
-    }catch(cause){setError(cause instanceof Error?cause.message:'Não foi possível gerar o registro.');}
-  }
-
-  function downloadRecord(){
-    if(!record)return;
-    const blob=new Blob([JSON.stringify(record,null,2)],{type:'application/json'});
-    const url=URL.createObjectURL(blob);
-    const anchor=document.createElement('a');
-    anchor.href=url;anchor.download=`HOC-V1.0-RC1-HUMAN-DECISION-${record.decision}.json`;anchor.click();URL.revokeObjectURL(url);
-  }
-
-  return <main className={styles.shell}>
-    <header className={styles.hero}>
-      <div>
-        <p className={styles.kicker}>HOC V1.0 RC1 · HUMAN DECISION RECORD</p>
-        <h1>Decisão humana de promoção</h1>
-        <p>Registre uma decisão explícita sobre RC1 → V1.0. Este fluxo cria somente um artefato de decisão; ele não executa merge, deploy, mudança de versão ou promoção HNK_CANON.</p>
-        <p><Link href="/oraculum/qa">← QA Hub</Link> · <Link href="/oraculum/qa/readiness">Promotion Readiness</Link></p>
-      </div>
-      <div className={styles.badge}>{artifact?inspection.status??'INVALID':'DECISION'}</div>
-    </header>
-
-    <section className={styles.card}>
-      <h2>1. Importar Promotion Readiness</h2>
-      <label className={styles.label}>Readiness JSON<input type="file" accept="application/json,.json" onChange={importReadiness}/></label>
-      {fileName&&<p>Arquivo: <strong>{fileName}</strong></p>}
-      {artifact&&<div className={inspection.approveAllowed?styles.validState:styles.invalidState}>
-        {inspection.approveAllowed?'READY_FOR_HUMAN_REVIEW · aprovação pode ser registrada':'Readiness válido, mas APPROVE_V1_0 permanece bloqueado'}
-      </div>}
-      <div className={styles.inlineActions}><button type="button" onClick={clear} disabled={!artifact&&!record}>Limpar</button></div>
-    </section>
-
-    <section className={styles.card}>
-      <h2>2. Decisão</h2>
-      <label className={styles.label}>Decisão
-        <select value={decision} onChange={event=>setDecision(event.target.value as Decision)} disabled={!artifact}>
-          <option value="DEFER">DEFER — adiar decisão</option>
-          <option value="REJECT">REJECT — rejeitar promoção</option>
-          <option value="APPROVE_V1_0" disabled={!inspection.approveAllowed}>APPROVE_V1_0 — aprovar promoção</option>
-        </select>
-      </label>
-      <label className={styles.label}>Responsável / reviewer label<input value={reviewerLabel} onChange={event=>setReviewerLabel(event.target.value)} maxLength={128} placeholder="Nome ou identificador humano"/></label>
-      <label className={styles.label}>Justificativa<textarea value={reason} onChange={event=>setReason(event.target.value)} maxLength={4000} rows={7} placeholder="Registre a razão da decisão."/></label>
-      <label><input type="checkbox" checked={acknowledged} onChange={event=>setAcknowledged(event.target.checked)}/> Revisei o Promotion Readiness e entendo que este registro não executa merge/deploy, não muda a versão e não promove HNK_CANON.</label>
-      <div className={styles.inlineActions}><button type="button" onClick={createRecord} disabled={!artifact}>Gerar registro de decisão</button><button type="button" onClick={downloadRecord} disabled={!record}>Baixar JSON</button></div>
-      {error&&<p className={styles.error}>{error}</p>}
-    </section>
-
-    {record&&<section className={styles.card}>
-      <h2>3. Registro gerado</h2>
-      <div className={record.decision==='APPROVE_V1_0'?styles.validState:styles.invalidState}>{record.decision}</div>
-      <div className={styles.resultGrid}>
-        <article className={styles.resultCard}><small>Record ID</small><strong>{record.recordId}</strong></article>
-        <article className={styles.resultCard}><small>Reviewer</small><strong>{record.reviewerLabel}</strong></article>
-        <article className={styles.resultCard}><small>Readiness</small><strong>{record.sourceReadiness.status}</strong></article>
-        <article className={styles.resultCard}><small>Timestamp</small><strong>{record.recordedAt}</strong></article>
-      </div>
-      <pre className={styles.audit}>{JSON.stringify(record,null,2)}</pre>
-    </section>}
-
-    <section className={styles.card}>
-      <h2>Limite de autoridade</h2>
-      <p>`APPROVE_V1_0` é apenas um registro de decisão humana. Ele não executa a promoção técnica. Merge, retarget/rebase da stack, release/tag, deployment e qualquer decisão sobre HNK_CANON permanecem ações separadas e explicitamente controladas.</p>
-    </section>
-  </main>;
+ const[artifact,setArtifact]=useState<ReadinessArtifact|null>(null);const[fileName,setFileName]=useState<string|null>(null);const[decision,setDecision]=useState<Decision>('DEFER');const[reviewerLabel,setReviewerLabel]=useState('');const[reason,setReason]=useState('');const[acknowledged,setAcknowledged]=useState(false);const[error,setError]=useState<string|null>(null);const[record,setRecord]=useState<ReturnType<typeof buildRc1HumanPromotionDecision>|null>(null);const inspection=useMemo(()=>inspectRc1ReadinessArtifact(artifact),[artifact]);
+ async function importReadiness(event:ChangeEvent<HTMLInputElement>){const file=event.target.files?.[0];if(!file)return;setError(null);setRecord(null);try{const parsed=JSON.parse(await file.text()) as ReadinessArtifact;const inspected=inspectRc1ReadinessArtifact(parsed);if(!inspected.valid)throw new Error('O arquivo não é um HOC-RC1-PROMOTION-READINESS/V1 válido para HOC-V1.0-RC1.');setArtifact(parsed);setFileName(file.name);if(!inspected.approveAllowed&&decision==='APPROVE_V1_0')setDecision('DEFER');}catch(cause){setArtifact(null);setFileName(null);setError(cause instanceof Error?cause.message:'Readiness inválido.');}event.target.value='';}
+ function clear(){setArtifact(null);setFileName(null);setDecision('DEFER');setReviewerLabel('');setReason('');setAcknowledged(false);setError(null);setRecord(null);}function createRecord(){setError(null);setRecord(null);try{setRecord(buildRc1HumanPromotionDecision({artifact,decision,reviewerLabel,reason,acknowledged}));}catch(cause){setError(cause instanceof Error?cause.message:'Não foi possível gerar o registro.');}}function downloadRecord(){if(!record)return;const blob=new Blob([JSON.stringify(record,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const anchor=document.createElement('a');anchor.href=url;anchor.download=`HOC-V1.0-RC1-HUMAN-DECISION-${record.decision}.json`;anchor.click();URL.revokeObjectURL(url);}
+ return <main className={styles.shell}><header className={styles.hero}><div><p className={styles.kicker}>HOC V1.0 RC1 · HUMAN DECISION RECORD</p><h1>Decisão humana de promoção</h1><p>Registre uma decisão explícita sobre RC1 → V1.0. Este fluxo cria somente um artefato de decisão; ele não executa merge, deploy, mudança de versão ou promoção HNK_CANON.</p><p><Link href="/oraculum/qa">← QA Hub</Link> · <Link href="/oraculum/qa/readiness">Promotion Readiness</Link></p></div><div className={styles.badge}>{artifact?inspection.status??'INVALID':'DECISION'}</div></header>
+ <section className={styles.card}><h2>1. Importar Promotion Readiness</h2><label className={styles.label}>Readiness JSON<input type="file" accept="application/json,.json" onChange={importReadiness}/></label>{fileName&&<p>Arquivo: <strong>{fileName}</strong></p>}{artifact&&<div className={inspection.approveAllowed?styles.validState:styles.invalidState}>{inspection.approveAllowed?'READY_FOR_HUMAN_REVIEW · aprovação pode ser registrada':'Readiness válido, mas APPROVE_V1_0 permanece bloqueado'}</div>}<div className={styles.inlineActions}><button type="button" onClick={clear} disabled={!artifact&&!record}>Limpar</button></div></section>
+ <section className={styles.card}><h2>2. Decisão</h2><label className={styles.label}>Decisão<select value={decision} onChange={event=>setDecision(event.target.value as Decision)} disabled={!artifact}><option value="DEFER">DEFER — adiar decisão</option><option value="REJECT">REJECT — rejeitar promoção</option><option value="APPROVE_V1_0" disabled={!inspection.approveAllowed}>APPROVE_V1_0 — aprovar promoção</option></select></label><label className={styles.label}>Responsável / reviewer label<input value={reviewerLabel} onChange={event=>setReviewerLabel(event.target.value)} maxLength={128} placeholder="Nome ou identificador humano"/></label><label className={styles.label}>Justificativa<textarea value={reason} onChange={event=>setReason(event.target.value)} maxLength={4000} rows={7} placeholder="Registre a razão da decisão."/></label><label><input type="checkbox" checked={acknowledged} onChange={event=>setAcknowledged(event.target.checked)}/> Revisei o Promotion Readiness e entendo que este registro não executa merge/deploy, não muda a versão e não promove HNK_CANON.</label><div className={styles.inlineActions}><button type="button" onClick={createRecord} disabled={!artifact}>Gerar registro de decisão</button><button type="button" onClick={downloadRecord} disabled={!record}>Baixar JSON</button></div>{error&&<p className={styles.error}>{error}</p>}</section>
+ {record&&<section className={styles.card}><h2>3. Registro gerado</h2><div className={record.decision==='APPROVE_V1_0'?styles.validState:styles.invalidState}>{record.decision}</div><div className={styles.resultGrid}><article className={styles.resultCard}><small>Record ID</small><strong>{record.recordId}</strong></article><article className={styles.resultCard}><small>Reviewer</small><strong>{record.reviewerLabel}</strong></article><article className={styles.resultCard}><small>Readiness</small><strong>{record.sourceReadiness.status}</strong></article><article className={styles.resultCard}><small>Timestamp</small><strong>{record.recordedAt}</strong></article></div><pre className={styles.audit}>{JSON.stringify(record,null,2)}</pre></section>}
+ <section className={styles.card}><h2>Limite de autoridade</h2><p>`APPROVE_V1_0` é apenas um registro de decisão humana. Ele não executa a promoção técnica. Merge, retarget/rebase da stack, release/tag, deployment e qualquer decisão sobre HNK_CANON permanecem ações separadas e explicitamente controladas.</p></section></main>;
 }

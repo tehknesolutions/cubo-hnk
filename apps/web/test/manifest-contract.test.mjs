@@ -1,32 +1,6 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-
-const oracleRoute=readFileSync(new URL('../app/api/oraculum/route.ts',import.meta.url),'utf8');
-const verifyRoute=readFileSync(new URL('../app/api/oraculum/manifest/verify/route.ts',import.meta.url),'utf8');
-
-test('session manifest is built only after physical gates, RAW and interpretation',()=>{
-  const legality=oracleRoute.indexOf('analyzeCubeLegality(body.cubeState)');
-  const ritual=oracleRoute.indexOf('analyzeRitualIntegrity({');
-  const raw=oracleRoute.indexOf('const raw = runOracle(');
-  const interpretation=oracleRoute.indexOf('const interpretation = interpretOracle(');
-  const manifest=oracleRoute.indexOf('const manifest = buildSessionManifest({');
-  const verify=oracleRoute.indexOf('verifySessionManifest(manifest)');
-  assert.ok(legality>=0&&ritual>legality&&raw>ritual&&interpretation>raw&&manifest>interpretation&&verify>manifest);
-});
-
-test('failed physical gates expose no manifest',()=>{
-  const nullManifestMatches=oracleRoute.match(/manifest: null/g)??[];
-  assert.ok(nullManifestMatches.length>=2);
-});
-
-test('successful response exposes session identity headers',()=>{
-  assert.match(oracleRoute,/X-HOC-Session-Id/);
-  assert.match(oracleRoute,/X-HOC-Manifest-SHA256/);
-});
-
-test('standalone verifier recalculates through engine verifier',()=>{
-  assert.match(verifyRoute,/verifySessionManifest/);
-  assert.match(verifyRoute,/const valid = verifySessionManifest\(manifest\)/);
-  assert.doesNotMatch(verifyRoute,/body\.valid/);
-});
+import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+const oracleRoute=readFileSync(new URL('../app/api/oraculum/route.ts',import.meta.url),'utf8');const verifyRoute=readFileSync(new URL('../app/api/oraculum/manifest/verify/route.ts',import.meta.url),'utf8');
+test('session manifest is built only after physical gates, RAW and interpretation',()=>{const legality=oracleRoute.indexOf('analyzeCubeLegality(input.cubeState)');const ritual=oracleRoute.indexOf('analyzeRitualIntegrity({');const raw=oracleRoute.indexOf('const raw=runOracle(');const interpretation=oracleRoute.indexOf('const interpretation=interpretOracle(');const manifest=oracleRoute.indexOf('const manifest=buildSessionManifest({');const verify=oracleRoute.indexOf('verifySessionManifest(manifest)');assert.ok(legality>=0&&ritual>legality&&raw>ritual&&interpretation>raw&&manifest>interpretation&&verify>manifest);});
+test('failed physical gates expose no manifest',()=>{const nullManifestMatches=oracleRoute.match(/manifest:\s*null/g)??[];assert.ok(nullManifestMatches.length>=2);});
+test('successful response exposes session identity headers',()=>{assert.match(oracleRoute,/X-HOC-Session-Id/);assert.match(oracleRoute,/X-HOC-Manifest-SHA256/);});
+test('standalone verifier recalculates through engine verifier',()=>{assert.match(verifyRoute,/verifySessionManifest/);assert.match(verifyRoute,/const valid = verifySessionManifest\(manifest\)/);assert.doesNotMatch(verifyRoute,/body\.valid/);});

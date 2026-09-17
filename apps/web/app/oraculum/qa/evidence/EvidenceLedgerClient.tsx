@@ -1,124 +1,16 @@
 'use client';
-
-import Link from 'next/link';
-import {ChangeEvent,useMemo,useState} from 'react';
-import {classifyRc1Evidence,evaluateRc1Evidence} from './evidence-ledger.mjs';
-import styles from '../../oraculum.module.css';
-
+import Link from 'next/link';import {ChangeEvent,useMemo,useState} from 'react';import {classifyRc1Evidence,evaluateRc1Evidence} from './evidence-ledger.mjs';import styles from '../../oraculum.module.css';
 type ImportedRecord={id:string;fileName:string;data:unknown;classification:ReturnType<typeof classifyRc1Evidence>};
-
 function statusClass(status:string){return status==='PASS'?styles.validState:styles.invalidState;}
-
 export function EvidenceLedgerClient(){
-  const[records,setRecords]=useState<ImportedRecord[]>([]);
-  const[error,setError]=useState<string|null>(null);
-  const report=useMemo(()=>evaluateRc1Evidence(records.map(item=>item.data)),[records]);
-
-  async function importFiles(event:ChangeEvent<HTMLInputElement>){
-    const files=[...(event.target.files??[])];
-    if(files.length===0)return;
-    setError(null);
-    const next:ImportedRecord[]=[];
-    for(const file of files){
-      try{
-        const data=JSON.parse(await file.text());
-        const classification=classifyRc1Evidence(data);
-        next.push({id:`${file.name}-${file.size}-${file.lastModified}-${crypto.randomUUID()}`,fileName:file.name,data,classification});
-      }catch(cause){
-        setError(`Não foi possível importar ${file.name}: ${cause instanceof Error?cause.message:'JSON inválido'}`);
-      }
-    }
-    setRecords(current=>[...current,...next]);
-    event.target.value='';
-  }
-
-  function removeRecord(id:string){setRecords(current=>current.filter(item=>item.id!==id));}
-  function clearAll(){setRecords([]);setError(null);}
-
-  function downloadLedger(){
-    const artifact={
-      evidenceKind:'HOC-RC1-RELEASE-EVIDENCE-LEDGER/V1',
-      exportedAt:new Date().toISOString(),
-      releaseId:report.releaseId,
-      ledgerVersion:report.version,
-      report,
-      records:records.map(item=>({fileName:item.fileName,classification:item.classification,evidence:item.data})),
-      governance:{
-        cryptographicSignature:false,
-        automaticPromotion:false,
-        note:'Aggregated QA evidence. Independent executor, GitHub CI/build and human promotion remain distinct gates.',
-      },
-    };
-    const blob=new Blob([JSON.stringify(artifact,null,2)],{type:'application/json'});
-    const url=URL.createObjectURL(blob);
-    const anchor=document.createElement('a');
-    anchor.href=url;anchor.download=`HOC-V1.0-RC1-EVIDENCE-LEDGER-${report.overall}.json`;anchor.click();URL.revokeObjectURL(url);
-  }
-
-  return <main className={styles.shell}>
-    <header className={styles.hero}>
-      <div>
-        <p className={styles.kicker}>HOC V1.0 RC1 · RELEASE EVIDENCE</p>
-        <h1>Evidence Ledger</h1>
-        <p>Agrega evidências de runtime, executor independente, cubo físico, câmera e verificação cross-device sem misturar esses gates com o protocolo oracular ou com o GitHub CI.</p>
-        <p><Link href="/oraculum/qa">← QA Hub</Link> · <Link href="/oraculum/qa/readiness">Promotion Readiness</Link> · <Link href="/oraculum/verify">verificar manifesto</Link></p>
-      </div>
-      <div className={styles.badge}>{report.overall}</div>
-    </header>
-
-    <section className={styles.card}>
-      <h2>1. Importe evidências JSON</h2>
-      <p>Você pode selecionar vários arquivos de uma vez. Os arquivos ficam apenas na memória desta página; não há upload para o servidor.</p>
-      <label className={styles.label}>Arquivos de evidência<input type="file" accept="application/json,.json" multiple onChange={importFiles}/></label>
-      <div className={styles.inlineActions}><button type="button" onClick={clearAll} disabled={records.length===0}>Limpar ledger</button><button type="button" onClick={downloadLedger}>Baixar ledger consolidado</button></div>
-      {error&&<p className={styles.error}>{error}</p>}
-      <p>{records.length} arquivo(s) importado(s) · {report.acceptedRecords} reconhecido(s) como evidência RC1.</p>
-    </section>
-
-    <section className={styles.card}>
-      <h2>2. Promotion matrix</h2>
-      <div className={statusClass(report.overall)}>RC1 → V1.0: {report.overall}</div>
-      <div className={styles.resultGrid}>
-        <article className={styles.resultCard}><small>PASS</small><strong>{report.counts.pass}</strong></article>
-        <article className={styles.resultCard}><small>PENDING</small><strong>{report.counts.pending}</strong></article>
-        <article className={styles.resultCard}><small>BLOCKED</small><strong>{report.counts.blocked}</strong></article>
-        <article className={styles.resultCard}><small>Evidências</small><strong>{report.acceptedRecords}/{report.importedRecords}</strong></article>
-      </div>
-      <div className={styles.analysisGrid}>
-        {report.gates.map(gate=><article className={styles.analysisCard} key={gate.id}>
-          <div className={statusClass(gate.status)}>{gate.status}</div>
-          <h3>{gate.label}</h3>
-          <p>{gate.detail}</p>
-          <small>{gate.evidenceCount} evidência(s)</small>
-        </article>)}
-      </div>
-      <p>Depois de exportar este ledger, use <Link href="/oraculum/qa/readiness">Promotion Readiness</Link> para calcular blockers obrigatórios, pendências e prontidão para revisão humana.</p>
-    </section>
-
-    <section className={styles.card}>
-      <h2>3. Cross-device manifest</h2>
-      {report.crossDevice.status==='PASS'?<div className={styles.validState}>✓ PASS · mesmo Session Manifest validado em labels distintos</div>:<div className={styles.invalidState}>PENDING · valide o mesmo manifesto em pelo menos dois dispositivos/ambientes e exporte as duas evidências</div>}
-      {report.crossDevice.sessionId&&<div className={styles.resultGrid}>
-        <article className={styles.resultCard}><small>Session ID</small><strong>{report.crossDevice.sessionId}</strong></article>
-        <article className={styles.resultCard}><small>Verificações</small><strong>{report.crossDevice.count}</strong></article>
-        <article className={styles.resultCard}><small>Labels</small><strong>{report.crossDevice.deviceLabels.join(' · ')}</strong></article>
-      </div>}
-    </section>
-
-    <section className={styles.card}>
-      <h2>4. Evidências importadas</h2>
-      {records.length===0?<p>Nenhuma evidência importada.</p>:<div className={styles.analysisGrid}>{records.map(item=><article className={styles.analysisCard} key={item.id}>
-        <div className={item.classification.accepted?styles.validState:styles.invalidState}>{item.classification.accepted?'RECOGNIZED':'IGNORED'}</div>
-        <h3>{item.classification.kind}</h3>
-        <p>{item.fileName}</p>
-        {'passed' in item.classification&&<small>resultado declarado: {item.classification.passed?'PASS':'não-PASS'}</small>}
-        <div className={styles.inlineActions}><button type="button" onClick={()=>removeRecord(item.id)}>Remover</button></div>
-      </article>)}</div>}
-    </section>
-
-    <section className={styles.card}>
-      <h2>Limites de autoridade</h2>
-      <p>O ledger não assina, não autentica hardware e não promove a release. O manifesto V0.10 continua sendo a peça criptograficamente verificável. Independent Executor e GitHub CI permanecem gates separados, e somente aprovação humana explícita pode promover V1.0.</p>
-    </section>
-  </main>;
+ const[records,setRecords]=useState<ImportedRecord[]>([]);const[error,setError]=useState<string|null>(null);const report=useMemo(()=>evaluateRc1Evidence(records.map(item=>item.data)),[records]);
+ async function importFiles(event:ChangeEvent<HTMLInputElement>){const files=[...(event.target.files??[])];if(files.length===0)return;setError(null);const next:ImportedRecord[]=[];for(const file of files){try{const data=JSON.parse(await file.text());const classification=classifyRc1Evidence(data);next.push({id:`${file.name}-${file.size}-${file.lastModified}-${crypto.randomUUID()}`,fileName:file.name,data,classification});}catch(cause){setError(`Não foi possível importar ${file.name}: ${cause instanceof Error?cause.message:'JSON inválido'}`);}}setRecords(current=>[...current,...next]);event.target.value='';}
+ function removeRecord(id:string){setRecords(current=>current.filter(item=>item.id!==id));}function clearAll(){setRecords([]);setError(null);}
+ function downloadLedger(){const artifact={evidenceKind:'HOC-RC1-RELEASE-EVIDENCE-LEDGER/V1',exportedAt:new Date().toISOString(),releaseId:report.releaseId,ledgerVersion:report.version,report,records:records.map(item=>({fileName:item.fileName,classification:item.classification,evidence:item.data})),governance:{cryptographicSignature:false,automaticPromotion:false,note:'Aggregated QA evidence. Independent executor, GitHub CI/build and human promotion remain distinct gates.'}};const blob=new Blob([JSON.stringify(artifact,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const anchor=document.createElement('a');anchor.href=url;anchor.download=`HOC-V1.0-RC1-EVIDENCE-LEDGER-${report.overall}.json`;anchor.click();URL.revokeObjectURL(url);}
+ return <main className={styles.shell}><header className={styles.hero}><div><p className={styles.kicker}>HOC V1.0 RC1 · RELEASE EVIDENCE</p><h1>Evidence Ledger</h1><p>Agrega evidências de runtime, executor independente, cubo físico, câmera e verificação cross-device sem misturar esses gates com o protocolo oracular ou com o GitHub CI.</p><p><Link href="/oraculum/qa">← QA Hub</Link> · <Link href="/oraculum/qa/readiness">Promotion Readiness</Link> · <Link href="/oraculum/verify">verificar manifesto</Link></p></div><div className={styles.badge}>{report.overall}</div></header>
+ <section className={styles.card}><h2>1. Importe evidências JSON</h2><p>Você pode selecionar vários arquivos de uma vez. Os arquivos ficam apenas na memória desta página; não há upload para o servidor.</p><label className={styles.label}>Arquivos de evidência<input type="file" accept="application/json,.json" multiple onChange={importFiles}/></label><div className={styles.inlineActions}><button type="button" onClick={clearAll} disabled={records.length===0}>Limpar ledger</button><button type="button" onClick={downloadLedger}>Baixar ledger consolidado</button></div>{error&&<p className={styles.error}>{error}</p>}<p>{records.length} arquivo(s) importado(s) · {report.acceptedRecords} reconhecido(s) como evidência RC1.</p></section>
+ <section className={styles.card}><h2>2. Promotion matrix</h2><p>Estados de gate: PASS / PENDING / BLOCKED.</p><div className={statusClass(report.overall)}>RC1 → V1.0: {report.overall}</div><div className={styles.resultGrid}><article className={styles.resultCard}><small>PASS</small><strong>{report.counts.pass}</strong></article><article className={styles.resultCard}><small>PENDING</small><strong>{report.counts.pending}</strong></article><article className={styles.resultCard}><small>BLOCKED</small><strong>{report.counts.blocked}</strong></article><article className={styles.resultCard}><small>Evidências</small><strong>{report.acceptedRecords}/{report.importedRecords}</strong></article></div><div className={styles.analysisGrid}>{report.gates.map((gate:any)=><article className={styles.analysisCard} key={gate.id}><div className={statusClass(gate.status)}>{gate.status}</div><h3>{gate.label}</h3><p>{gate.detail}</p><small>{gate.evidenceCount} evidência(s)</small></article>)}</div><p>Depois de exportar este ledger, use <Link href="/oraculum/qa/readiness">Promotion Readiness</Link> para calcular blockers obrigatórios, pendências e prontidão para revisão humana.</p></section>
+ <section className={styles.card}><h2>3. Cross-device manifest</h2>{report.crossDevice.status==='PASS'?<div className={styles.validState}>✓ PASS · mesmo Session Manifest validado em labels distintos</div>:<div className={styles.invalidState}>PENDING · valide o mesmo manifesto em pelo menos dois dispositivos/ambientes e exporte as duas evidências</div>}{report.crossDevice.sessionId&&<div className={styles.resultGrid}><article className={styles.resultCard}><small>Session ID</small><strong>{report.crossDevice.sessionId}</strong></article><article className={styles.resultCard}><small>Verificações</small><strong>{report.crossDevice.count}</strong></article><article className={styles.resultCard}><small>Labels</small><strong>{report.crossDevice.deviceLabels.join(' · ')}</strong></article></div>}</section>
+ <section className={styles.card}><h2>4. Evidências importadas</h2>{records.length===0?<p>Nenhuma evidência importada.</p>:<div className={styles.analysisGrid}>{records.map(item=><article className={styles.analysisCard} key={item.id}><div className={item.classification.accepted?styles.validState:styles.invalidState}>{item.classification.accepted?'RECOGNIZED':'IGNORED'}</div><h3>{item.classification.kind}</h3><p>{item.fileName}</p>{'passed' in item.classification&&<small>resultado declarado: {item.classification.passed?'PASS':'não-PASS'}</small>}<div className={styles.inlineActions}><button type="button" onClick={()=>removeRecord(item.id)}>Remover</button></div></article>)}</div>}</section>
+ <section className={styles.card}><h2>Limites de autoridade</h2><p>O ledger não assina, não autentica hardware e não promove a release. O manifesto V0.10 continua sendo a peça criptograficamente verificável. Independent Executor e GitHub CI permanecem gates separados, e somente aprovação humana explícita pode promover V1.0.</p></section></main>;
 }
