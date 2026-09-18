@@ -27,7 +27,9 @@ Shared helper:
 `readBoundedJson()` checks both:
 
 1. declared `Content-Length`, when present;
-2. actual UTF-8 byte count after reading the body.
+2. cumulative streamed body bytes while the request is being read.
+
+The body is no longer fully buffered through `request.text()` before enforcement. The helper reads the `ReadableStream` incrementally, aborts/cancels when cumulative bytes exceed the endpoint limit, and only decodes JSON after the bounded byte sequence is complete.
 
 Oversized payloads return HTTP `413`.
 
@@ -113,9 +115,9 @@ The hardening layer preserves existing rules:
 The contract locks:
 
 - bounded parsing on the three POST routes;
-- byte-size checking;
+- declared and streaming byte-size enforcement;
 - endpoint-specific limits;
-- no direct `request.json()` on those routes;
+- no direct `request.json()` or `request.text()` on the bounded helper path;
 - no console logging in protected HOC API sources;
 - no-store cache policy;
 - defensive headers;
@@ -152,18 +154,18 @@ Evidence is preserved in:
 
 This evidence proves a real frozen production build of the reconciled source/config state and proves that the lockfile later tracked is byte-identical to the file used by that execution. It does **not** claim:
 
-- a fresh rerun of the current landed RC1 head;
+- a fresh rerun of the current landed RC1/main tree;
 - GitHub-hosted CI PASS;
 - served/deployed runtime verification;
 - production authorization.
 
-The fresh current-landed-head rerun remains pending because the authorized Windows executor is offline.
+The fresh current-head rerun remains pending because the authorized Windows executor is offline.
 
 ## 10. Remaining production checks
 
 Still required before stable production readiness:
 
-- fresh current-landed-head frozen rerun when the authorized executor becomes available, unless release governance explicitly accepts the existing byte-identical reconciliation as sufficient;
+- fresh current-head frozen rerun when the authorized executor becomes available, unless release governance explicitly accepts the existing byte-identical reconciliation as sufficient;
 - GitHub-hosted CI receives a real runner and executes the configured chain, or release governance explicitly approves a separate automated execution path;
 - deployment smoke test;
 - verify actual response headers in the served deployment;
@@ -179,7 +181,7 @@ Independent frozen production build: `PASS`.
 
 Tracked validated lockfile: `PASS / BYTE-IDENTICAL`.
 
-Fresh landed-head confirmation: `PENDING`.
+Fresh current-head confirmation: `PENDING`.
 
 GitHub-hosted CI: `BLOCKED` while Issue #6 prevents runner assignment and command execution.
 
