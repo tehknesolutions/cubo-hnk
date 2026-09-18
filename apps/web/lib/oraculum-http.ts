@@ -23,9 +23,37 @@ export async function readBoundedJson<T=unknown>(request:Request,maxBytes:number
     if(Number.isFinite(bytes)&&bytes>maxBytes)throw new HocPayloadTooLargeError(maxBytes);
   }
 
-  const text=await request.text();
-  const actualBytes=new TextEncoder().encode(text).byteLength;
-  if(actualBytes>maxBytes)throw new HocPayloadTooLargeError(maxBytes);
+  const body=request.body;
+  if(body===null)throw new HocInvalidJsonError();
+
+  const reader=body.getReader();
+  const chunks:Uint8Array[]=[];
+  let totalBytes=0;
+
+  try{
+    while(true){
+      const {done,value}=await reader.read();
+      if(done)break;
+      if(!value)continue;
+      totalBytes+=value.byteLength;
+      if(totalBytes>maxBytes){
+        try{await reader.cancel();}catch{}
+        throw new HocPayloadTooLargeError(maxBytes);
+      }
+      chunks.push(value);
+    }
+  }finally{
+    reader.releaseLock();
+  }
+
+  const bytes=new Uint8Array(totalBytes);
+  let offset=0;
+  for(const chunk of chunks){
+    bytes.set(chunk,offset);
+    offset+=chunk.byteLength;
+  }
+
+  const text=new TextDecoder().decode(bytes);
   if(text.trim()==='')throw new HocInvalidJsonError();
 
   try{return JSON.parse(text) as T;}
