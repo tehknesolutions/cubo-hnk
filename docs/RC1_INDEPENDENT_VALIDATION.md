@@ -28,9 +28,10 @@ O runner executa em fail-closed:
 6. `pnpm typecheck`;
 7. `pnpm check`;
 8. `pnpm --filter @hnk/cubo-web build`;
-9. Runtime Self-Test `HOC-RC1-RUNTIME-SELFTEST/V1` diretamente pelo engine.
+9. Runtime Self-Test `HOC-RC1-RUNTIME-SELFTEST/V1` diretamente pelo engine;
+10. revalida que a working tree continua limpa após toda a cadeia.
 
-Se a árvore estiver suja, o install frozen falhar, o install alterar arquivos rastreados ou qualquer etapa obrigatória falhar, as etapas dependentes posteriores não são executadas e o processo termina com código diferente de zero.
+Se a árvore estiver suja, o install frozen falhar, o install alterar arquivos rastreados, qualquer etapa obrigatória falhar ou a cadeia deixar mutação rastreada ao final, o processo termina com código diferente de zero.
 
 ## Compatibilidade de plataforma
 
@@ -58,7 +59,8 @@ O JSON inclui:
 - commit Git quando disponível;
 - indicação de working tree limpa antes do install;
 - indicação de working tree limpa imediatamente após o install;
-- hashes SHA-256 dos dois snapshots de status Git;
+- indicação de working tree limpa ao final da cadeia completa;
+- hashes SHA-256 dos três snapshots de status Git;
 - versão pnpm/corepack;
 - comando executado;
 - exit code;
@@ -123,11 +125,11 @@ até uma nova execução limpa ocorrer no head-alvo atual.
 
 ### PASS
 
-Significa que, naquele executor e commit registrados, a árvore estava limpa, o install frozen não alterou o checkout e todas as etapas obrigatórias executaram com exit code 0, incluindo o Runtime Self-Test.
+Significa que, naquele executor e commit registrados, a árvore estava limpa antes do install, o install frozen não alterou o checkout, todas as etapas obrigatórias executaram com exit code 0, o Runtime Self-Test passou e a árvore continuou limpa ao final.
 
 ### FAIL
 
-Significa que a árvore não estava limpa, o install frozen tentou divergir do lockfile, o install alterou o checkout, alguma etapa obrigatória falhou ou não pôde ser iniciada.
+Significa que a árvore não estava limpa, o install frozen tentou divergir do lockfile, o install alterou o checkout, alguma etapa obrigatória falhou/não pôde ser iniciada ou a cadeia deixou mutação rastreada ao final.
 
 O arquivo de evidência deve ser preservado para investigação; FAIL não deve ser convertido em PASS manualmente.
 
