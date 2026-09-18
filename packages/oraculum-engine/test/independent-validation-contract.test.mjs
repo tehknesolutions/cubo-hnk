@@ -41,11 +41,13 @@ test('validation sequence includes frozen install tests typecheck check build an
   }
 });
 
-test('validator requires clean repository state before and after install',()=>{
+test('validator requires clean repository state before install, after install and after the full chain',()=>{
   assert.match(runner,/initialTreeClean/);
   assert.match(runner,/gitStatusAfterInstall/);
   assert.match(runner,/gitStatusAfterInstallClean/);
-  assert.match(runner,/const passed=chainOk&&/);
+  assert.match(runner,/gitStatusFinal/);
+  assert.match(runner,/gitStatusFinalClean/);
+  assert.match(runner,/const passed=chainOk&&finalTreeClean&&/);
 });
 
 test('runner is cross-platform and avoids absolute cwd disclosure',()=>{
