@@ -11,7 +11,7 @@ function gate(id){return audit.gates.find(item=>item.id===id);}
 
 test('Vercel config builds the Next workspace from monorepo root',()=>{
   assert.equal(vercel.framework,'nextjs');
-  assert.equal(vercel.installCommand,'cd ../.. && pnpm install --no-frozen-lockfile');
+  assert.equal(vercel.installCommand,'cd ../.. && pnpm install --frozen-lockfile');
   assert.equal(vercel.buildCommand,'cd ../.. && pnpm --filter @hnk/cubo-web build');
   assert.doesNotMatch(vercel.installCommand,/--prod\b/);
   assert.doesNotMatch(vercel.buildCommand,/--prod\b/);
@@ -23,7 +23,7 @@ test('preview preflight is wired at workspace root',()=>{
 
 test('preview bootstrap does not masquerade as deployment verification',()=>{
   assert.equal(gate('previewBootstrap').status,'PASS');
-  assert.equal(gate('previewBootstrap').level,'IMPLEMENTED');
+  assert.equal(gate('previewBootstrap').level,'SOURCE_READY');
   assert.equal(gate('deploymentVerification').status,'PENDING');
   assert.equal(audit.governance.stable,false);
   assert.equal(audit.governance.hnkCanonPromoted,false);

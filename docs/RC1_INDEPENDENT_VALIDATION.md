@@ -21,14 +21,17 @@ Esse mecanismo produz evidência de execução real, mas **não substitui o gate
 O runner executa em fail-closed:
 
 1. `corepack pnpm --version`;
-2. `pnpm install --no-frozen-lockfile`;
-3. `pnpm test`;
-4. `pnpm typecheck`;
-5. `pnpm check`;
-6. `pnpm --filter @hnk/cubo-web build`;
-7. Runtime Self-Test `HOC-RC1-RUNTIME-SELFTEST/V1` diretamente pelo engine.
+2. exige working tree Git limpa antes do install;
+3. `pnpm install --frozen-lockfile`;
+4. revalida que o install não alterou a working tree;
+5. `pnpm test`;
+6. `pnpm typecheck`;
+7. `pnpm check`;
+8. `pnpm --filter @hnk/cubo-web build`;
+9. Runtime Self-Test `HOC-RC1-RUNTIME-SELFTEST/V1` diretamente pelo engine;
+10. revalida que a working tree continua limpa após toda a cadeia.
 
-Se uma etapa obrigatória falhar, as etapas dependentes posteriores não são executadas e o processo termina com código diferente de zero.
+Se a árvore estiver suja, o install frozen falhar, o install alterar arquivos rastreados, qualquer etapa obrigatória falhar ou a cadeia deixar mutação rastreada ao final, o processo termina com código diferente de zero.
 
 ## Compatibilidade de plataforma
 
@@ -54,7 +57,10 @@ O JSON inclui:
 - versão Node;
 - versão do pacote RC1;
 - commit Git quando disponível;
-- indicação de working tree limpa quando disponível;
+- indicação de working tree limpa antes do install;
+- indicação de working tree limpa imediatamente após o install;
+- indicação de working tree limpa ao final da cadeia completa;
+- hashes SHA-256 dos três snapshots de status Git;
 - versão pnpm/corepack;
 - comando executado;
 - exit code;
@@ -97,23 +103,41 @@ Portanto, mesmo um resultado PASS não altera sozinho:
 
 quando a Issue #6 continuar impedindo execução do GitHub Actions.
 
+## Estado reconciliado
+
+A auditoria atual já preserva uma execução independente real anterior como:
+
+```text
+independentValidation = PASS / EXECUTED_RECONCILED
+```
+
+Essa evidência histórica foi executada em source/config head `74997fc18b4b4054b4f9a48068547acac8c50764` com o lockfile posteriormente rastreado byte-identicamente.
+
+Ela **não** prova execução fresca do head atualmente landed. Esse gate permanece separado:
+
+```text
+freshTrackedHeadExecution = PENDING / NOT_EXECUTED
+```
+
+até uma nova execução limpa ocorrer no head-alvo atual.
+
 ## Interpretação de resultados
 
 ### PASS
 
-Significa que, naquele executor e commit registrados, todas as etapas obrigatórias executaram com exit code 0 e o Runtime Self-Test também passou.
+Significa que, naquele executor e commit registrados, a árvore estava limpa antes do install, o install frozen não alterou o checkout, todas as etapas obrigatórias executaram com exit code 0, o Runtime Self-Test passou e a árvore continuou limpa ao final.
 
 ### FAIL
 
-Significa que ao menos uma etapa obrigatória falhou ou não pôde ser iniciada.
+Significa que a árvore não estava limpa, o install frozen tentou divergir do lockfile, o install alterou o checkout, alguma etapa obrigatória falhou/não pôde ser iniciada ou a cadeia deixou mutação rastreada ao final.
 
 O arquivo de evidência deve ser preservado para investigação; FAIL não deve ser convertido em PASS manualmente.
 
-### Não executado
+### Instrumentação vs evidência
 
-A mera existência deste script/documento significa apenas `INSTRUMENTED`.
+A mera existência deste script/documento prova apenas que o mecanismo está instrumentado.
 
-Sem um arquivo produzido por execução real, o gate permanece `PENDING`.
+A autoridade sobre o estado corrente vem dos artefatos de evidência efetivamente executados e do ledger de auditoria. A existência de uma evidência histórica PASS não deve ser confundida com fresh current-head PASS.
 
 ## Relação com a promoção V1.0
 
@@ -122,6 +146,7 @@ Uma evidência independente PASS pode provar que o código foi de fato instalado
 Ainda permanecem gates separados:
 
 - GitHub CI;
+- fresh current-head execution;
 - Physical STATE;
 - Physical RITUAL_32;
 - Camera/Device QA;

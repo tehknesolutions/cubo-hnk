@@ -13,7 +13,7 @@ test('main CI exposes manual recovery while keeping PR/main triggers',()=>{
   assert.match(ci,/permissions:[\s\S]*contents:\s*read/);
   assert.match(ci,/concurrency:[\s\S]*cancel-in-progress:\s*true/);
   assert.match(ci,/timeout-minutes:\s*20/);
-  assert.match(ci,/pnpm install --no-frozen-lockfile/);
+  assert.match(ci,/pnpm install --frozen-lockfile/);
   assert.match(ci,/pnpm check/);
   assert.match(ci,/pnpm --filter @hnk\/cubo-web build/);
 });
