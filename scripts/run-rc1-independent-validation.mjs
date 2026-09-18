@@ -55,6 +55,7 @@ const environment={
 
 const gitHead=exec('git',['rev-parse','HEAD'],{required:false});
 const gitStatus=exec('git',['status','--porcelain'],{required:false});
+const initialTreeClean=gitStatus.passed&&gitStatus.stdoutTail.trim()==='';
 const pnpmVersion=exec(COREPACK,['pnpm','--version']);
 
 const commands=[];
@@ -65,8 +66,14 @@ function run(command,args,options){
   return true;
 }
 
-let chainOk=pnpmVersion.passed;
-if(chainOk)chainOk=run(COREPACK,['pnpm','install','--no-frozen-lockfile']);
+let chainOk=pnpmVersion.passed&&initialTreeClean;
+let gitStatusAfterInstall=null;
+
+if(chainOk)chainOk=run(COREPACK,['pnpm','install','--frozen-lockfile']);
+if(chainOk){
+  gitStatusAfterInstall=exec('git',['status','--porcelain'],{required:false});
+  chainOk=gitStatusAfterInstall.passed&&gitStatusAfterInstall.stdoutTail.trim()==='';
+}
 if(chainOk)chainOk=run(COREPACK,['pnpm','test']);
 if(chainOk)chainOk=run(COREPACK,['pnpm','typecheck']);
 if(chainOk)chainOk=run(COREPACK,['pnpm','check']);
@@ -74,7 +81,7 @@ if(chainOk)chainOk=run(COREPACK,['pnpm','--filter','@hnk/cubo-web','build']);
 if(chainOk)chainOk=run(process.execPath,['--input-type=module','-e',`import {runRc1RuntimeSelfTest} from './packages/oraculum-engine/src/selftest.mjs'; const r=runRc1RuntimeSelfTest(); console.log(JSON.stringify(r)); if(!r.passed) process.exit(1);`]);
 
 const requiredResults=[pnpmVersion,...commands.filter(item=>item.required)];
-const passed=requiredResults.length>0&&requiredResults.every(item=>item.passed);
+const passed=chainOk&&requiredResults.length>0&&requiredResults.every(item=>item.passed);
 
 const evidence={
   evidenceKind:EVIDENCE_VERSION,
@@ -85,8 +92,10 @@ const evidence={
   environment,
   repository:{
     gitHead:gitHead.passed?gitHead.stdoutTail.trim():null,
-    gitStatusClean:gitStatus.passed?gitStatus.stdoutTail.trim()==='':null,
+    gitStatusClean:initialTreeClean,
     gitStatusSha256:gitStatus.stdoutSha256,
+    gitStatusAfterInstallClean:gitStatusAfterInstall?gitStatusAfterInstall.passed&&gitStatusAfterInstall.stdoutTail.trim()==='':null,
+    gitStatusAfterInstallSha256:gitStatusAfterInstall?.stdoutSha256??null,
   },
   bootstrap:{pnpmVersion},
   commands,
